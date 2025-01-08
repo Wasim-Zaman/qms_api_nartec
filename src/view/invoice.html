@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GST Invoice</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 16px;
+        padding: 16px;
+        background-color: white;
+      }
+      .logo img {
+        width: 80px;
+        height: auto;
+      }
+      .header {
+        text-align: left;
+        margin: 8px;
+      }
+      .header h1 {
+        margin: 10px 0;
+        font-size: 20px;
+      }
+      .contact-info {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 14px;
+      }
+      .invoice-details {
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+      }
+      .invoice-details div {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+      }
+      .items-table {
+        width: 100%;
+        margin-bottom: 20px;
+        border-collapse: collapse;
+      }
+      .items-table th,
+      .items-table td {
+        text-align: left;
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+      }
+      .items-table th:last-child,
+      .items-table td:last-child {
+        text-align: right;
+      }
+      .totals {
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+      }
+      .totals div {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+      }
+      .qr-code {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .qr-code img {
+        width: 120px;
+        height: 120px;
+      }
+      .bilingual {
+        font-size: 14px;
+      }
+      .bilingual span:last-child {
+        float: right;
+      }
+      .bank-transfer {
+        margin: 30px 0;
+        border: 1px solid #ddd;
+        padding: 15px;
+      }
+      .section-header {
+        background-color: #003366;
+        color: white;
+        padding: 8px;
+        margin-bottom: 15px;
+        font-weight: bold;
+      }
+      .bank-details {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+      }
+      .bank-details td {
+        padding: 8px;
+        border: 1px solid #ddd;
+      }
+      .bank-details td:first-child {
+        width: 200px;
+        background-color: #f9f9f9;
+      }
+      .transfer-note {
+        font-size: 12px;
+        color: #666;
+        font-style: italic;
+        margin-top: 10px;
+      }
+      .billing-details {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+      .billing-details td {
+        padding: 8px;
+        border: 1px solid #ddd;
+      }
+      .billing-details td:first-child {
+        width: 200px;
+        background-color: #f9f9f9;
+      }
+      .section-header.bill-to {
+        background-color: #003366;
+        color: white;
+        padding: 8px;
+        margin-bottom: 15px;
+        font-weight: bold;
+      }
+      .items-table th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        padding: 12px 8px;
+      }
+      .items-table td {
+        padding: 12px 8px;
+        border-bottom: 1px solid #dee2e6;
+      }
+      .items-table tbody tr:last-child td {
+        border-bottom: 2px solid #dee2e6;
+      }
+      .totals {
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+      }
+      .totals .bilingual {
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .totals .grand-total {
+        font-size: 16px;
+        font-weight: bold;
+        color: #003366;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 3px solid #003366;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #e8ffe8;
+        padding: 10px;
+        margin-bottom: 4px;
+      "
+    >
+      <div style="font-size: 26px; font-weight: bold">INVOICE</div>
+      <div class="logo">
+        <img src="https://example.com/gst-logo.png" alt="GST Logo" />
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="section-header bill-to bilingual">Bill To / فاتورة إلى</div>
+      <table class="billing-details">
+        <tr>
+          <td class="bilingual">Company Name / اسم الشركة</td>
+          <td>Tech Solutions Company / شركة الحلول التقنية</td>
+        </tr>
+        <tr>
+          <td class="bilingual">Mobile Number / رقم الجوال</td>
+          <td>+966 555 123 4567</td>
+        </tr>
+        <tr>
+          <td class="bilingual">Email / البريد الإلكتروني</td>
+          <td>info@techsolutions.com</td>
+        </tr>
+        <tr>
+          <td class="bilingual">Address / العنوان</td>
+          <td>King Fahd Road, Riyadh, Saudi Arabia</td>
+        </tr>
+        <tr>
+          <td class="bilingual">Invoice No / رقم الفاتورة</td>
+          <td>#INV-2024-001</td>
+        </tr>
+        <tr>
+          <td class="bilingual">Invoice Date / تاريخ الفاتورة</td>
+          <td>March 15, 2024</td>
+        </tr>
+      </table>
+    </div>
+
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th class="bilingual" style="width: 45%; text-align: left">
+            Description / الوصف
+          </th>
+          <th class="bilingual" style="width: 15%; text-align: center">
+            Qty / الكمية
+          </th>
+          <th class="bilingual" style="width: 20%; text-align: right">
+            Unit Price / سعر الوحدة
+          </th>
+          <th class="bilingual" style="width: 20%; text-align: right">
+            Amount / المبلغ
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="vertical-align: top; padding-right: 15px">
+            <div style="font-weight: bold; margin-bottom: 8px">
+              GS1 EAN-13 Barcode Registration
+            </div>
+            <div style="margin-left: 15px; color: #666">
+              <div style="margin-bottom: 5px">Add-ons / الإضافات:</div>
+              <ul style="list-style-type: disc; margin: 0; padding-left: 20px">
+                <li style="margin-bottom: 3px">
+                  QRCode Training Services
+                  <span style="color: #444">(x1)</span>
+                  - SAR 150.00
+                </li>
+                <li style="margin-bottom: 3px">
+                  Free Services for Barcode Training
+                  <span style="color: #444">(x1)</span>
+                  - SAR 0.00
+                </li>
+              </ul>
+            </div>
+          </td>
+          <td style="text-align: center; vertical-align: top">1</td>
+          <td style="text-align: right; vertical-align: top">SAR 50.00</td>
+          <td style="text-align: right; vertical-align: top">
+            <div>SAR 50.00</div>
+            <div
+              style="
+                color: #666;
+                margin-top: 8px;
+                font-size: 0.9em;
+                border-top: 1px solid #eee;
+                padding-top: 4px;
+              "
+            >
+              Add-ons Total / مجموع الإضافات:<br />
+              SAR 150.00
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <div class="bilingual">
+        <span style="font-size: 16px; font-weight: bold"
+          >Subtotal / المجموع الفرعي</span
+        >
+        <span style="font-size: 16px; font-weight: bold">SAR 200.00</span>
+      </div>
+
+      <div class="bilingual">
+        <span style="font-size: 16px; font-weight: bold"
+          >VAT (15%) / ضريبة القيمة المضافة</span
+        >
+        <span style="font-size: 16px; font-weight: bold">SAR 30.00</span>
+      </div>
+
+      <div class="bilingual grand-total">
+        <span>Grand Total / المجموع الكلي</span>
+        <span>SAR 230.00</span>
+      </div>
+    </div>
+
+    <div
+      class="invoice-details"
+      style="
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+        font-size: 16px;
+      "
+    >
+      <div
+        class="bilingual"
+        style="display: flex; justify-content: space-between"
+      >
+        <span style="font-weight: bold"
+          >Tax Registration Number / الرقم الضريبي:</span
+        >
+        <span style="font-weight: bold">123456789</span>
+      </div>
+    </div>
+
+    <div class="bank-transfer">
+      <div class="section-header bilingual">
+        For transfer to our bank account / للتحويل إلى حسابنا المصرفي
+      </div>
+      <table class="bank-details">
+        <tr>
+          <td class="bilingual">Name / الاسم</td>
+          <td>Company AL-MAYAR AL-ALMI For Technologies (One Partner)</td>
+        </tr>
+        <tr>
+          <td class="bilingual">Bank Name / اسم البنك</td>
+          <td>Saudi British Bank</td>
+        </tr>
+        <tr>
+          <td class="bilingual">Account Number / رقم الحساب</td>
+          <td>25350612000200</td>
+        </tr>
+        <tr>
+          <td class="bilingual">IBAN / رقم الآيبان</td>
+          <td>SA90 1000 0025 3506 1200 0200</td>
+        </tr>
+        <tr>
+          <td class="bilingual">Bank Branch / فرع البنك</td>
+          <td>King Abdullah Road</td>
+        </tr>
+        <tr>
+          <td class="bilingual">Bank Swift Code / رمز السويفت</td>
+          <td>SABBSARIXXX</td>
+        </tr>
+      </table>
+      <div class="transfer-note bilingual">
+        *Upon transfer, Please upload a copy of transfer receipt from your
+        account. / *عند التحويل، يرجى تحميل نسخة من إيصال التحويل في حسابك.
+      </div>
+    </div>
+
+    <div class="bilingual" style="margin-top: 20px; text-align: center">
+      Terms and Conditions / الشروط والأحكام
+    </div>
+
+    <div class="bilingual" style="margin-top: 10px; text-align: center">
+      Signature / التوقيع
+      <div style="border-top: 1px solid #000; margin-top: 20px"></div>
+    </div>
+
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-top: 20px;
+        padding: 0 20px;
+      "
+    >
+      <div class="qr-code" style="text-align: left">
+        <img
+          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+          alt="QR Code"
+          style="width: 100px; height: 100px"
+        />
+        <div style="margin-top: 5px">INV-2024-001</div>
+        <div class="bilingual">Scan to verify / امسح للتحقق</div>
+      </div>
+      <div style="text-align: right">
+        <img
+          src="https://example.com/gst-stamp.png"
+          alt="GST Stamp"
+          style="width: 120px; height: auto"
+        />
+      </div>
+    </div>
+  </body>
+</html>

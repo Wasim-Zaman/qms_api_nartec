@@ -1,0 +1,58 @@
+{
+  "name": "qms_api_nartec",
+  "version": "1.0.0",
+  "description": "Express.js application",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon src/app.js",
+    "dev": "nodemon src/app.js",
+    "prisma-push": "npx prisma db push",
+    "test": "jest",
+    "seed": "node seed/index.js",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org gst-sz --project gst-api ./ && sentry-cli sourcemaps upload --org gst-sz --project gst-api ./"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "5.22.0",
+    "@sentry/cli": "^2.39.1",
+    "@sentry/node": "^8.47.0",
+    "@sentry/profiling-node": "^8.47.0",
+    "axios": "^1.7.9",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "bullmq": "^5.31.2",
+    "busboy": "^1.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "exceljs": "^4.4.0",
+    "express": "^4.19.2",
+    "express-fileupload": "^1.5.1",
+    "fs-extra": "^11.2.0",
+    "ioredis": "^5.4.1",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "multermate-es": "^1.0.1",
+    "nanoid": "^5.0.9",
+    "nodemailer": "^6.9.16",
+    "puppeteer": "^23.8.0",
+    "qrcode": "^1.5.4",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.16.0",
+    "jest": "^27.3.1",
+    "nodemon": "^3.1.4"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    }
+  }
+}

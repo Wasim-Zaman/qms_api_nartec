@@ -1,0 +1,10 @@
+
+.codegpt
+.vscode
+
+node_modules
+
+uploads
+assets
+
+.env
