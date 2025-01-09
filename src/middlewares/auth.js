@@ -16,31 +16,14 @@ export const verifyAccessToken = async (req, res, next) => {
 
     const decoded = JWT.verifyAccessToken(token);
 
-    if (decoded.superadminId) {
-      const superadmin = await prisma.superAdmin.findUnique({
-        where: { id: decoded.superadminId },
-      });
-
-      if (!superadmin) {
-        throw new MyError("Superadmin not found", 404);
-      }
-
-      req.superadmin = superadmin;
-      return next();
-    }
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+    const user = await prisma.User.findUnique({
+      where: {
+        id: decoded.userId,
+      },
     });
 
     if (!user) {
-      throw new MyError("User not found", 404);
-    }
-
-    if (!user.isActive) {
-      throw new MyError(
-        "Your account is suspended. Please contact support.",
-        401
-      );
+      throw new MyError("Token is invalid", 401);
     }
 
     req.user = user;

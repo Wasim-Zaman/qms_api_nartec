@@ -14,11 +14,11 @@ class UserController {
         throw new MyError(error.details[0].message, 400);
       }
 
-      const { userid, password, name, deptcode } = value;
+      const { email, password, name, deptcode } = value;
 
       // Check if super admin exists in database
-      let user = await prisma.tblUsers.findFirst({
-        where: { userid },
+      let user = await prisma.User.findFirst({
+        where: { email },
       });
 
       if (!user) {
@@ -26,7 +26,7 @@ class UserController {
       }
 
       // Check if password is correct
-      const isPasswordCorrect = await bcrypt.compare(password, user.password);
+      const isPasswordCorrect = bcrypt.compare(password, user.password);
       console.log(user.password);
       if (!isPasswordCorrect) {
         throw new MyError("Invalid password", 401);
@@ -38,8 +38,9 @@ class UserController {
 
       // Create token payload
       tokenPayload = {
-        userId: user.userid,
+        userId: user.id,
         name: user.name,
+        email: user.email,
         deptcode: user.deptcode,
       };
 
@@ -52,15 +53,15 @@ class UserController {
         await prisma.$transaction(
           async (tx) => {
             // Delete existing tokens
-            await tx.refreshToken.deleteMany({
-              where: { userId: user.userid },
+            await tx.RefreshToken.deleteMany({
+              where: { userId: user.id },
             });
 
             // Create new refresh token
-            await tx.refreshToken.create({
+            await tx.RefreshToken.create({
               data: {
                 token: refreshToken,
-                userId: user.userid,
+                userId: user.id,
                 expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
               },
             });
@@ -99,7 +100,7 @@ class UserController {
       const user = req.user;
 
       const tokenPayload = {
-        userId: user.userid,
+        userId: user.id,
         name: user.name,
         deptcode: user.deptcode,
       };
@@ -112,15 +113,15 @@ class UserController {
         await prisma.$transaction(
           async (tx) => {
             // Delete existing tokens
-            await tx.refreshToken.deleteMany({
-              where: { userId: user.userid },
+            await tx.RefreshToken.deleteMany({
+              where: { userId: user.id },
             });
 
             // Create new refresh token
-            await tx.refreshToken.create({
+            await tx.RefreshToken.create({
               data: {
                 token: refreshToken,
-                userId: user.userid,
+                userId: user.id,
                 expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
               },
             });

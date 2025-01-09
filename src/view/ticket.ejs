@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Patient Ticket</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
+      .ticket {
+        width: 300px;
+        padding: 20px;
+        margin: 0 auto;
+        text-align: center;
+        border: 1px solid #ccc;
+      }
+      .department {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .ticket-number {
+        font-size: 36px;
+        font-weight: bold;
+        margin: 15px 0;
+      }
+      .patient-name {
+        font-size: 18px;
+        margin: 10px 0;
+      }
+      .datetime {
+        font-size: 14px;
+        color: #666;
+        margin: 5px 0;
+      }
+      .barcode {
+        margin: 15px 0;
+        width: 200px;
+        height: auto;
+      }
+      .complaint {
+        font-size: 14px;
+        margin: 10px 0;
+        color: #444;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ticket">
+      <div class="department"><%= deptcode %></div>
+      <div class="ticket-number"><%= counter %></div>
+      <div class="patient-name"><%= patientName %></div>
+      <div class="datetime"><%= formattedDate %>, <%= formattedTime %></div>
+      <% if (typeof cheifComplaint !== 'undefined' && cheifComplaint) { %>
+      <div class="complaint">Complaint: <%= cheifComplaint %></div>
+      <% } %>
+      <img src="<%= qrCode %>" alt="QR Code" class="barcode" />
+    </div>
+  </body>
+</html>

@@ -24,8 +24,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Statically serverd routes
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use("/assets", express.static(path.join(__dirname, "assets")));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use("/assets", express.static(path.join(__dirname, "../assets")));
 
 // API Routes
 app.use("/api/v1", routes);

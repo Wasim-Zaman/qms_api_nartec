@@ -122,6 +122,13 @@ class PDFGenerator {
 
       const browser = await puppeteer.launch({
         headless: "new",
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        executablePath:
+          process.platform === "darwin"
+            ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" // macOS path
+            : process.platform === "win32"
+            ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" // Windows path
+            : "/usr/bin/google-chrome", // Linux path
       });
       const page = await browser.newPage();
       await page.setContent(htmlContent, {
@@ -292,6 +299,74 @@ class PDFGenerator {
       };
     } catch (error) {
       console.error("Error generating barcode certificate:", error);
+      throw error;
+    }
+  }
+
+  static async generateTicket(data) {
+    try {
+      const templatePath = path.join(__dirname, "../view/ticket.ejs");
+      const templateContent = await fs.readFile(templatePath, "utf-8");
+
+      // Generate QR code for the ticket
+      const qrCodeData = `${data.deptcode}-${
+        data.counter
+      }-${data.issueDate.toISOString()}`;
+      const qrCodeDataUrl = await QRCode.toDataURL(qrCodeData);
+
+      // Prepare data for template
+      const templateData = {
+        ...data,
+        qrCode: qrCodeDataUrl,
+        formattedDate: data.issueDate.toLocaleDateString(),
+        formattedTime: data.issueDate.toLocaleTimeString(),
+      };
+
+      // Generate HTML
+      const html = await ejs.render(templateContent, templateData, {
+        async: true,
+      });
+
+      // Generate unique filename
+      const filename = `ticket-${data.ticket}.pdf`;
+      const absolutePath = path.join("uploads", "tickets", filename);
+      const relativePath = path
+        .join("uploads", "tickets", filename)
+        .replace(/\\/g, "/");
+
+      // Create directory if it doesn't exist
+      await fs.ensureDir(path.join("uploads", "tickets"));
+
+      // Generate PDF
+      const browser = await puppeteer.launch({
+        headless: "new",
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      });
+      const page = await browser.newPage();
+      await page.setContent(html, {
+        waitUntil: "networkidle0",
+      });
+
+      await page.pdf({
+        path: absolutePath,
+        format: "A4",
+        margin: {
+          top: "20px",
+          right: "20px",
+          bottom: "20px",
+          left: "20px",
+        },
+        printBackground: true,
+      });
+
+      await browser.close();
+
+      return {
+        absolutePath,
+        relativePath,
+      };
+    } catch (error) {
+      console.error("Error generating ticket:", error);
       throw error;
     }
   }

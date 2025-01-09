@@ -406,8 +406,6 @@ model tblUsers {
   deptcode          String?   @default("", map: "DF__tblUsers__deptco__7E37BEF6") @db.VarChar(10)
   date              DateTime? @db.Date
 
-  refreshToken      RefreshToken[]
-  patients          Patient[]
 
   @@index([deptcode], map: "WDIDX168085069521")
 }
