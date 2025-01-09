@@ -3,53 +3,74 @@
   <head>
     <title>Patient Ticket</title>
     <style>
+      /* Base styles */
       body {
         font-family: Arial, sans-serif;
         margin: 0;
         padding: 20px;
       }
+
+      /* Ticket container */
       .ticket {
         width: 300px;
         padding: 20px;
         margin: 0 auto;
         text-align: center;
         border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
+
+      /* Typography */
       .department {
         font-size: 24px;
         font-weight: bold;
         margin-bottom: 10px;
+        color: #333;
       }
+
       .ticket-number {
         font-size: 36px;
         font-weight: bold;
         margin: 15px 0;
+        color: #2c3e50;
       }
+
       .patient-name {
         font-size: 18px;
         margin: 10px 0;
+        color: #34495e;
       }
+
       .datetime {
         font-size: 14px;
         color: #666;
         margin: 5px 0;
       }
-      .barcode {
-        margin: 15px 0;
-        width: 200px;
-        height: auto;
-      }
+
       .complaint {
         font-size: 14px;
         margin: 10px 0;
         color: #444;
+        padding: 5px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+      }
+
+      .barcode {
+        margin: 15px 0;
+        width: 200px;
+        height: auto;
       }
     </style>
   </head>
   <body>
     <div class="ticket">
       <div class="department"><%= deptcode %></div>
-      <div class="ticket-number"><%= counter %></div>
+      <div class="ticket-number">
+        <%= counter %><%= deptcode[0].toUpperCase() %><%=
+        deptcode[deptcode.length - 1].toUpperCase() %>
+      </div>
       <div class="patient-name"><%= patientName %></div>
       <div class="datetime"><%= formattedDate %>, <%= formattedTime %></div>
       <% if (typeof cheifComplaint !== 'undefined' && cheifComplaint) { %>

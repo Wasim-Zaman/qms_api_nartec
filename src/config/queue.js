@@ -25,3 +25,9 @@ export const userDeletionQueue = new Queue("user-deletion", {
   connection,
   defaultJobOptions,
 });
+
+// Patient Queue
+export const patientQueue = new Queue("patient", {
+  connection,
+  defaultJobOptions,
+});
