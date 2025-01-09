@@ -3,11 +3,10 @@ import {
   updatePatientSchema,
 } from "../schemas/patient.schema.js";
 import MyError from "../utils/error.js";
-import { addDomain } from "../utils/file.js";
+import { addDomain, deleteFile } from "../utils/file.js";
 import PDFGenerator from "../utils/pdfGenerator.js";
 import prisma from "../utils/prismaClient.js";
 import response from "../utils/response.js";
-
 class PatientController {
   static async createPatient(req, res, next) {
     try {
@@ -62,6 +61,12 @@ class PatientController {
             userId,
             ticket: addDomain(relativePath),
           },
+        });
+
+        // Update counter
+        await prisma.patientCount.update({
+          where: { id: currentCounter.id },
+          data: { counter: counter + 1 },
         });
 
         return patient;
@@ -207,6 +212,20 @@ class PatientController {
   static async deletePatient(req, res, next) {
     try {
       const { id } = req.params;
+
+      const existingPatient = await prisma.patient.findUnique({
+        where: { id },
+      });
+
+      if (!existingPatient) {
+        throw new MyError("Patient not found", 404);
+      }
+
+      // delete ticket pdf
+      const ticketPdfPath = existingPatient.ticketPdfPath;
+      if (ticketPdfPath) {
+        await deleteFile(ticketPdfPath);
+      }
 
       const patient = await prisma.patient.delete({
         where: { id },
