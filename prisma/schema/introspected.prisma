@@ -1,0 +1,413 @@
+model tblAdmission {
+  tblAdmissionID Decimal @id(map: "PK__tblAdmis__844E450CC1DD8126") @unique(map: "WDIDX168085071264") @db.Decimal(19, 0)
+  admissioncode  String? @unique(map: "UQ__tblAdmis__DF10470E892FE7DE") @default("", map: "DF__tblAdmiss__admis__02C769E9") @db.VarChar(10)
+  admissionname  String? @default("", map: "DF__tblAdmiss__admis__03BB8E22") @db.VarChar(50)
+}
+
+model tblApp {
+  tblAppID        Decimal  @id(map: "PK__tblApp__DB2F9C95E7E91B36") @unique(map: "WDIDX168085070031") @db.Decimal(19, 0)
+  AppID           Decimal? @unique(map: "UQ__tblApp__8E2CF7D81664F9B3") @default(0, map: "DF__tblApp__AppID__151B244E") @db.Decimal(10, 0)
+  ApplicationName String?  @default("", map: "DF__tblApp__Applicat__160F4887") @db.VarChar(50)
+}
+
+model tblAppAuth {
+  tblAppAuthID Decimal   @id(map: "PK__tblAppAu__13ADC9A8D860D6D9") @unique(map: "WDIDX168085070133") @db.Decimal(19, 0)
+  appAuthID    Decimal?  @unique(map: "UQ__tblAppAu__9EB469956B785F3D") @default(0, map: "DF__tblAppAut__appAu__1AD3FDA4") @db.Decimal(10, 0)
+  AppID        Decimal?  @default(0, map: "DF__tblAppAut__AppID__1BC821DD") @db.Decimal(10, 0)
+  userid       String?   @unique(map: "UQ__tblAppAu__CBA1B2560AFFA13D") @default("", map: "DF__tblAppAut__useri__1CBC4616") @db.VarChar(10)
+  last_update  DateTime?
+
+  @@index([AppID], map: "WDIDX168085070135")
+}
+
+model tblAppModeAuth {
+  tblUserAppModAuthID Decimal   @id(map: "PK__tblAppAu__DC359411A6BC2427") @unique(map: "WDIDX168085070237") @db.Decimal(19, 0)
+  moduleID            Decimal?  @default(0, map: "DF__tblAppAut__modul__208CD6FA") @db.Decimal(10, 0)
+  UserappModAuthID    Decimal?  @unique(map: "UQ__tblAppAu__C05CC853BDC877A5") @default(0, map: "DF__tblAppAut__Usera__2180FB33") @db.Decimal(10, 0)
+  userid              String?   @default("", map: "DF__tblAppAut__useri__22751F6C") @db.VarChar(10)
+  last_update         DateTime?
+
+  @@index([moduleID], map: "WDIDX168085070338")
+  @@index([userid], map: "WDIDX168085070340")
+}
+
+model tblAppModules {
+  tblAppModulesID Decimal  @id(map: "PK__tblAppMo__D797912F9CFFE5D2") @unique(map: "WDIDX168085069828") @db.Decimal(19, 0)
+  moduleID        Decimal? @unique(map: "UQ__tblAppMo__8EEC8E369CCEF636") @default(0, map: "DF__tblAppMod__modul__0F624AF8") @db.Decimal(10, 0)
+  AppID           Decimal? @default(0, map: "DF__tblAppMod__AppID__10566F31") @db.Decimal(10, 0)
+  ModuleName      String?  @default("", map: "DF__tblAppMod__Modul__114A936A") @db.VarChar(50)
+
+  @@index([AppID], map: "WDIDX168085069930")
+}
+
+model tblConsult {
+  tblConsultID          Decimal  @id(map: "PK__tblConsu__158AF6621A727C9B") @unique(map: "WDIDX168085071468") @db.Decimal(19, 0)
+  tblconsultspecialtyid Decimal? @unique(map: "UQ__tblConsu__827D361179467E12") @default(0, map: "DF__tblConsul__tblco__0C50D423") @db.Decimal(10, 0)
+  specialtyname         String?  @default("", map: "DF__tblConsul__speci__0D44F85C") @db.VarChar(50)
+}
+
+model tblCounter {
+  tblCounterID Decimal  @id(map: "PK__tblCount__4367459AE989973D") @unique(map: "WDIDX168085069418") @db.Decimal(19, 0)
+  currentCount Decimal? @default(0, map: "DF__tblCounte__curre__73BA3083") @db.Decimal(10, 0)
+  ratz         Decimal? @default(0, map: "DF__tblCounter__ratz__74AE54BC") @db.Decimal(10, 0)
+  acu          Decimal? @default(0, map: "DF__tblCounter__acu__75A278F5") @db.Decimal(10, 0)
+  ucc          Decimal? @default(0, map: "DF__tblCounter__ucc__76969D2E") @db.Decimal(10, 0)
+  triageout    Decimal? @default(0, map: "DF__tblCounte__triag__778AC167") @db.Decimal(10, 0)
+}
+
+model tblDepartment {
+  tblDepartmentID Decimal @id(map: "PK__tblDepar__1C34B58FDF44F0CA") @db.Decimal(19, 0)
+  deptcode        String? @unique(map: "UQ__tblDepar__02583B180919AAEA") @default("", map: "DF__tblDepart__deptc__37A5467C") @db.VarChar(10)
+  deptname        String? @default("", map: "DF__tblDepart__deptn__38996AB5") @db.VarChar(50)
+}
+
+model tblLocation {
+  tblLocationID Decimal @id(map: "PK__tblLocat__938E596848E8EC04") @unique(map: "WDIDX16808506862") @db.Decimal(19, 0)
+  loccode       String? @unique(map: "UQ__tblLocat__EB04BA10DA78496C") @default("", map: "DF__tblLocati__locco__3C69FB99") @db.VarChar(10)
+  deptcode      String? @default("", map: "DF__tblLocati__deptc__3D5E1FD2") @db.VarChar(10)
+  locationname  String? @default("", map: "DF__tblLocati__locat__3E52440B") @db.VarChar(50)
+}
+
+model tblLocationSession {
+  tblLocationSessionID Decimal   @unique(map: "WDIDX16808506899") @db.Decimal(19, 0)
+  loccode              String    @default("", map: "DF__tblLocati__locco__6754599E") @db.VarChar(50)
+  deptcode             String?   @default("", map: "DF__tblLocati__deptc__68487DD7") @db.VarChar(10)
+  qnumber              Decimal   @id(map: "PK__tblLocat__0F2316E4922FC9B9") @default(0, map: "DF__tblLocati__qnumb__693CA210") @db.Decimal(10, 0)
+  start_dt             DateTime? @db.Date
+  finish_dt            DateTime? @db.Date
+  tblQueueID           Decimal?  @default(0, map: "DF__tblLocati__tblQu__6A30C649") @db.Decimal(19, 0)
+  name                 String?   @default("", map: "DF__tblLocatio__name__6B24EA82") @db.VarChar(50)
+  dept_counter         Decimal?  @default(0, map: "DF__tblLocati__dept___6C190EBB") @db.Decimal(10, 0)
+  locationname         String?   @db.VarChar(50)
+  status               Decimal?  @default(0, map: "DF_tblLocationSession_status") @db.Decimal(18, 0)
+
+  @@index([loccode], map: "WDIDX168085069010")
+  @@index([deptcode], map: "WDIDX168085069011")
+  @@index([qnumber], map: "WDIDX168085069012")
+  @@index([tblQueueID], map: "WDIDX168085069013")
+}
+
+model tbllocationsessionArchieve {
+  tblLocationSessionID Decimal   @db.Decimal(18, 0)
+  loccode              String?   @db.VarChar(50)
+  deptcode             String?   @db.VarChar(50)
+  qnumber              Decimal   @id(map: "PK_tbllocationsessionArchieve") @db.Decimal(18, 0)
+  start_dt             DateTime? @db.Date
+  finish_dt            DateTime? @db.Date
+  tblQueueID           Decimal?  @db.Decimal(18, 0)
+  name                 String?   @db.VarChar(50)
+  dept_counter         Decimal?  @db.Decimal(18, 0)
+  locationname         String?   @db.VarChar(50)
+  status               Decimal?  @db.Decimal(18, 0)
+}
+
+model tblQueue {
+  tblQueueID         Decimal   @id(map: "PK__tblQueue__610A17BCFE4B0507") @unique(map: "WDIDX16808506884") @db.Decimal(19, 0)
+  deptcode           String?   @default("", map: "DF__tblQueue__deptco__412EB0B6") @db.VarChar(50)
+  qnumber            Decimal?  @default(0, map: "DF__tblQueue__qnumbe__4222D4EF") @db.Decimal(10, 0)
+  issued_dt          DateTime?
+  start_dt           DateTime? @db.Date
+  finish_dt          DateTime?
+  status             Decimal?  @default(0, map: "DF__tblQueue__status__4316F928") @db.Decimal(19, 0)
+  waiting            Decimal?  @default(0, map: "DF__tblQueue__waitin__440B1D61") @db.Decimal(10, 0)
+  barcode            String?   @default("", map: "DF__tblQueue__barcod__44FF419A") @db.VarChar(Max)
+  deptname           String?   @default("", map: "DF__tblQueue__deptna__45F365D3") @db.VarChar(50)
+  name               String?   @default("", map: "DF__tblQueue__name__46E78A0C") @db.VarChar(50)
+  userid             String?   @default("", map: "DF__tblQueue__userid__47DBAE45") @db.VarChar(10)
+  locationname       String?   @default("", map: "DF__tblQueue__locati__48CFD27E") @db.VarChar(50)
+  nationality        String?   @default("", map: "DF__tblQueue__nation__49C3F6B7") @db.VarChar(20)
+  id                 String?   @default("", map: "DF__tblQueue__id__4AB81AF0") @db.VarChar(20)
+  patient_age        Decimal?  @default(0, map: "DF__tblQueue__patien__4BAC3F29") @db.Decimal(10, 0)
+  gender             String?   @default("", map: "DF__tblQueue__gender__4CA06362") @db.VarChar(10)
+  complain           String?   @default("", map: "DF__tblQueue__compla__4D94879B") @db.VarChar(50)
+  triage_dt          DateTime?
+  bp                 String?   @default("", map: "DF__tblQueue__bp__4E88ABD4") @db.VarChar(10)
+  temp               String?   @default("", map: "DF__tblQueue__temp__4F7CD00D") @db.VarChar(10)
+  hr                 String?   @default("", map: "DF__tblQueue__hr__5070F446") @db.VarChar(20)
+  rr                 String?   @default("", map: "DF__tblQueue__rr__5165187F") @db.VarChar(20)
+  spo2               String?   @default("", map: "DF__tblQueue__spo2__52593CB8") @db.VarChar(20)
+  rbs                String?   @default("", map: "DF__tblQueue__rbs__534D60F1") @db.VarChar(20)
+  height             String?   @default("", map: "DF__tblQueue__height__5441852A") @db.VarChar(10)
+  weight             String?   @default("", map: "DF__tblQueue__weight__5535A963") @db.VarChar(10)
+  allergies          String?   @default("", map: "DF__tblQueue__allerg__5629CD9C") @db.VarChar(20)
+  bedassignment      String?   @default("", map: "DF__tblQueue__bedass__571DF1D5") @db.VarChar(10)
+  override           Int?      @default(0, map: "DF__tblQueue__overri__5812160E") @db.TinyInt
+  critical           Int?      @default(0, map: "DF__tblQueue__critic__59063A47") @db.TinyInt
+  criticalmsg        String?   @default("", map: "DF__tblQueue__critic__59FA5E80") @db.VarChar(10)
+  category           Decimal?  @default(0, map: "DF__tblQueue__catego__5AEE82B9") @db.Decimal(10, 0)
+  dept_counter       Decimal?  @default(0, map: "DF__tblQueue__dept_c__5BE2A6F2") @db.Decimal(10, 0)
+  toremarks          String?   @default("", map: "DF__tblQueue__torema__5CD6CB2B") @db.VarChar(100)
+  last_update        DateTime?
+  mobileno           String?   @default("", map: "DF__tblQueue__mobile__5DCAEF64") @db.VarChar(20)
+  returnvisit72Hrs   Int?      @default(0, map: "DF__tblQueue__return__5EBF139D") @db.TinyInt
+  admitted           Int?      @default(0, map: "DF__tblQueue__admitt__5FB337D6") @db.TinyInt
+  admittedIn         String?   @default("", map: "DF__tblQueue__admitt__60A75C0F") @db.VarChar(50)
+  consulted          Int?      @default(0, map: "DF__tblQueue__consul__619B8048") @db.TinyInt
+  consultspecialtyid Decimal?  @default(0, map: "DF__tblQueue__consul__628FA481") @db.Decimal(10, 0)
+  consultassign      DateTime?
+  consultarrive      DateTime?
+  consultdesicion    DateTime?
+  transferred        Int?      @default(0, map: "DF__tblQueue__transf__6383C8BA") @db.TinyInt
+  transferid         Decimal?  @default(0, map: "DF__tblQueue__transf__6477ECF3") @db.Decimal(10, 0)
+  Pmh                String?   @db.VarChar(200)
+  ticket             Int?
+
+  @@index([deptcode, status], map: "deptcodestatus")
+  @@index([deptcode], map: "WDIDX16808506885")
+  @@index([qnumber], map: "WDIDX16808506886")
+  @@index([status], map: "WDIDX16808506887")
+}
+
+model tblQueueArchieve {
+  tblQueueID         Decimal   @id(map: "PK__tblQueue__610A17BCC2C99CF1") @unique(map: "WDIDX168085070647") @db.Decimal(19, 0)
+  deptcode           String?   @default("", map: "DF__tblQueue2__deptc__31B762FC") @db.VarChar(10)
+  qnumber            Decimal?  @default(0, map: "DF__tblQueue2__qnumb__32AB8735") @db.Decimal(10, 0)
+  issued_dt          DateTime?
+  start_dt           DateTime? @db.Date
+  finish_dt          DateTime?
+  status             Decimal?  @default(0, map: "DF__tblQueue2__statu__339FAB6E") @db.Decimal(10, 0)
+  waiting            Decimal?  @default(0, map: "DF__tblQueue2__waiti__3493CFA7") @db.Decimal(10, 0)
+  barcode            String?   @default("", map: "DF__tblQueue2__barco__3587F3E0") @db.VarChar(Max)
+  deptname           String?   @default("", map: "DF__tblQueue2__deptn__367C1819") @db.VarChar(50)
+  name               String?   @default("", map: "DF__tblQueue2__name__37703C52") @db.VarChar(50)
+  userid             String?   @default("", map: "DF__tblQueue2__useri__3864608B") @db.VarChar(10)
+  locationname       String?   @default("", map: "DF__tblQueue2__locat__395884C4") @db.VarChar(50)
+  nationality        String?   @default("", map: "DF__tblQueue2__natio__3A4CA8FD") @db.VarChar(20)
+  id                 String?   @default("", map: "DF__tblQueue2__id__3B40CD36") @db.VarChar(20)
+  patient_age        Decimal?  @default(0, map: "DF__tblQueue2__patie__3C34F16F") @db.Decimal(10, 0)
+  gender             String?   @default("", map: "DF__tblQueue2__gende__3D2915A8") @db.VarChar(10)
+  complain           String?   @default("", map: "DF__tblQueue2__compl__3E1D39E1") @db.VarChar(50)
+  triage_dt          DateTime?
+  bp                 String?   @default("", map: "DF__tblQueue2__bp__3F115E1A") @db.VarChar(10)
+  temp               String?   @default("", map: "DF__tblQueue2__temp__40058253") @db.VarChar(10)
+  hr                 String?   @default("", map: "DF__tblQueue2__hr__40F9A68C") @db.VarChar(20)
+  rr                 String?   @default("", map: "DF__tblQueue2__rr__41EDCAC5") @db.VarChar(20)
+  spo2               String?   @default("", map: "DF__tblQueue2__spo2__42E1EEFE") @db.VarChar(20)
+  rbs                String?   @default("", map: "DF__tblQueue2__rbs__43D61337") @db.VarChar(20)
+  height             String?   @default("", map: "DF__tblQueue2__heigh__44CA3770") @db.VarChar(10)
+  weight             String?   @default("", map: "DF__tblQueue2__weigh__45BE5BA9") @db.VarChar(10)
+  allergies          String?   @default("", map: "DF__tblQueue2__aller__46B27FE2") @db.VarChar(20)
+  bedassignment      String?   @default("", map: "DF__tblQueue2__bedas__47A6A41B") @db.VarChar(10)
+  override           Int?      @default(0, map: "DF__tblQueue2__overr__489AC854") @db.TinyInt
+  critical           Int?      @default(0, map: "DF__tblQueue2__criti__498EEC8D") @db.TinyInt
+  criticalmsg        String?   @default("", map: "DF__tblQueue2__criti__4A8310C6") @db.VarChar(10)
+  category           Decimal?  @default(0, map: "DF__tblQueue2__categ__4B7734FF") @db.Decimal(10, 0)
+  dept_counter       Decimal?  @default(0, map: "DF__tblQueue2__dept___4C6B5938") @db.Decimal(10, 0)
+  toremarks          String?   @default("", map: "DF__tblQueue2__torem__4D5F7D71") @db.VarChar(100)
+  last_update        DateTime?
+  mobileno           String?   @default("", map: "DF__tblQueue2__mobil__4E53A1AA") @db.VarChar(20)
+  returnvisit72Hrs   Int?      @default(0, map: "DF__tblQueue2__retur__4F47C5E3") @db.TinyInt
+  admitted           Int?      @default(0, map: "DF__tblQueue2__admit__503BEA1C") @db.TinyInt
+  admittedIn         String?   @default("", map: "DF__tblQueue2__admit__51300E55") @db.VarChar(50)
+  consulted          Int?      @default(0, map: "DF__tblQueue2__consu__5224328E") @db.TinyInt
+  consultspecialtyid Decimal?  @default(0, map: "DF__tblQueue2__consu__531856C7") @db.Decimal(10, 0)
+  consultassign      DateTime?
+  consultarrive      DateTime?
+  consultdesicion    DateTime?
+  transferred        Int?      @default(0, map: "DF__tblQueue2__trans__540C7B00") @db.TinyInt
+  transferid         Decimal?  @default(0, map: "DF__tblQueue2__trans__55009F39") @db.Decimal(10, 0)
+  ticket             Int?
+  Pmh                String?   @db.VarChar(200)
+
+  @@index([deptcode, status], map: "deptcodestatus")
+  @@index([deptcode], map: "WDIDX168085070648")
+  @@index([qnumber], map: "WDIDX168085070649")
+  @@index([status], map: "WDIDX168085070750")
+}
+
+model tblQueueArchieveTemp {
+  tblQueueID    Decimal   @id(map: "PK__tblQueue__610A17BC0EEF124D") @unique(map: "WDIDX168085071059") @db.Decimal(19, 0)
+  deptcode      String?   @default("", map: "DF__tblQueue3__deptc__625A9A57") @db.VarChar(10)
+  qnumber       Decimal?  @default(0, map: "DF__tblQueue3__qnumb__634EBE90") @db.Decimal(10, 0)
+  issued_dt     DateTime?
+  start_dt      DateTime?
+  finish_dt     DateTime?
+  status        Decimal?  @default(0, map: "DF__tblQueue3__statu__6442E2C9") @db.Decimal(10, 0)
+  waiting       Decimal?  @default(0, map: "DF__tblQueue3__waiti__65370702") @db.Decimal(10, 0)
+  barcode       String?   @default("", map: "DF__tblQueue3__barco__662B2B3B") @db.VarChar(50)
+  deptname      String?   @default("", map: "DF__tblQueue3__deptn__671F4F74") @db.VarChar(50)
+  name          String?   @default("", map: "DF__tblQueue3__name__681373AD") @db.VarChar(50)
+  userid        String?   @default("", map: "DF__tblQueue3__useri__690797E6") @db.VarChar(10)
+  locationname  String?   @default("", map: "DF__tblQueue3__locat__69FBBC1F") @db.VarChar(50)
+  nationality   String?   @default("", map: "DF__tblQueue3__natio__6AEFE058") @db.VarChar(20)
+  id            String?   @default("", map: "DF__tblQueue3__id__6BE40491") @db.VarChar(20)
+  patient_age   Decimal?  @default(0, map: "DF__tblQueue3__patie__6CD828CA") @db.Decimal(10, 0)
+  gender        String?   @default("", map: "DF__tblQueue3__gende__6DCC4D03") @db.VarChar(10)
+  complain      String?   @default("", map: "DF__tblQueue3__compl__6EC0713C") @db.VarChar(50)
+  triage_dt     DateTime?
+  bp            String?   @default("", map: "DF__tblQueue3__bp__6FB49575") @db.VarChar(10)
+  temp          String?   @default("", map: "DF__tblQueue3__temp__70A8B9AE") @db.VarChar(10)
+  hr            String?   @default("", map: "DF__tblQueue3__hr__719CDDE7") @db.VarChar(20)
+  rr            String?   @default("", map: "DF__tblQueue3__rr__72910220") @db.VarChar(20)
+  spo2          String?   @default("", map: "DF__tblQueue3__spo2__73852659") @db.VarChar(20)
+  rbs           String?   @default("", map: "DF__tblQueue3__rbs__74794A92") @db.VarChar(20)
+  height        String?   @default("", map: "DF__tblQueue3__heigh__756D6ECB") @db.VarChar(10)
+  weight        String?   @default("", map: "DF__tblQueue3__weigh__76619304") @db.VarChar(10)
+  allergies     String?   @default("", map: "DF__tblQueue3__aller__7755B73D") @db.VarChar(20)
+  bedassignment String?   @default("", map: "DF__tblQueue3__bedas__7849DB76") @db.VarChar(10)
+  override      Int?      @default(0, map: "DF__tblQueue3__overr__793DFFAF") @db.TinyInt
+  critical      Int?      @default(0, map: "DF__tblQueue3__criti__7A3223E8") @db.TinyInt
+  criticalmsg   String?   @default("", map: "DF__tblQueue3__criti__7B264821") @db.VarChar(10)
+  category      Decimal?  @default(0, map: "DF__tblQueue3__categ__7C1A6C5A") @db.Decimal(10, 0)
+  dept_counter  Decimal?  @default(0, map: "DF__tblQueue3__dept___7D0E9093") @db.Decimal(10, 0)
+  toremarks     String?   @default("", map: "DF__tblQueue3__torem__7E02B4CC") @db.VarChar(100)
+  last_update   DateTime?
+  mobileno      String?   @default("", map: "DF__tblQueue3__mobil__7EF6D905") @db.VarChar(20)
+
+  @@index([deptcode, status], map: "deptcodestatus")
+  @@index([deptcode], map: "WDIDX168085071160")
+  @@index([qnumber], map: "WDIDX168085071161")
+  @@index([status], map: "WDIDX168085071162")
+  @@index([barcode], map: "WDIDX168085071163")
+}
+
+model tblQueuePulmo {
+  tblQueueID         Decimal   @id(map: "PK__tblQueue__610A17BCA5061D70") @unique(map: "WDIDX168085071670") @db.Decimal(19, 0)
+  deptcode           String?   @default("", map: "DF__tblQueue4__deptc__10216507") @db.VarChar(10)
+  qnumber            Decimal?  @default(0, map: "DF__tblQueue4__qnumb__11158940") @db.Decimal(10, 0)
+  issued_dt          DateTime?
+  start_dt           DateTime?
+  finish_dt          DateTime?
+  status             Decimal?  @default(0, map: "DF__tblQueue4__statu__1209AD79") @db.Decimal(10, 0)
+  waiting            Decimal?  @default(0, map: "DF__tblQueue4__waiti__12FDD1B2") @db.Decimal(10, 0)
+  barcode            String?   @default("", map: "DF__tblQueue4__barco__13F1F5EB") @db.VarChar(50)
+  deptname           String?   @default("", map: "DF__tblQueue4__deptn__14E61A24") @db.VarChar(50)
+  name               String?   @default("", map: "DF__tblQueue4__name__15DA3E5D") @db.VarChar(50)
+  userid             String?   @default("", map: "DF__tblQueue4__useri__16CE6296") @db.VarChar(10)
+  locationname       String?   @default("", map: "DF__tblQueue4__locat__17C286CF") @db.VarChar(50)
+  nationality        String?   @default("", map: "DF__tblQueue4__natio__18B6AB08") @db.VarChar(20)
+  id                 String?   @default("", map: "DF__tblQueue4__id__19AACF41") @db.VarChar(20)
+  patient_age        Decimal?  @default(0, map: "DF__tblQueue4__patie__1A9EF37A") @db.Decimal(10, 0)
+  gender             String?   @default("", map: "DF__tblQueue4__gende__1B9317B3") @db.VarChar(10)
+  complain           String?   @default("", map: "DF__tblQueue4__compl__1C873BEC") @db.VarChar(50)
+  triage_dt          DateTime?
+  bp                 String?   @default("", map: "DF__tblQueue4__bp__1D7B6025") @db.VarChar(10)
+  temp               String?   @default("", map: "DF__tblQueue4__temp__1E6F845E") @db.VarChar(10)
+  hr                 String?   @default("", map: "DF__tblQueue4__hr__1F63A897") @db.VarChar(20)
+  rr                 String?   @default("", map: "DF__tblQueue4__rr__2057CCD0") @db.VarChar(20)
+  spo2               String?   @default("", map: "DF__tblQueue4__spo2__214BF109") @db.VarChar(20)
+  rbs                String?   @default("", map: "DF__tblQueue4__rbs__22401542") @db.VarChar(20)
+  height             String?   @default("", map: "DF__tblQueue4__heigh__2334397B") @db.VarChar(10)
+  weight             String?   @default("", map: "DF__tblQueue4__weigh__24285DB4") @db.VarChar(10)
+  allergies          String?   @default("", map: "DF__tblQueue4__aller__251C81ED") @db.VarChar(20)
+  bedassignment      String?   @default("", map: "DF__tblQueue4__bedas__2610A626") @db.VarChar(10)
+  override           Int?      @default(0, map: "DF__tblQueue4__overr__2704CA5F") @db.TinyInt
+  critical           Int?      @default(0, map: "DF__tblQueue4__criti__27F8EE98") @db.TinyInt
+  criticalmsg        String?   @default("", map: "DF__tblQueue4__criti__28ED12D1") @db.VarChar(10)
+  category           Decimal?  @default(0, map: "DF__tblQueue4__categ__29E1370A") @db.Decimal(10, 0)
+  dept_counter       Decimal?  @default(0, map: "DF__tblQueue4__dept___2AD55B43") @db.Decimal(10, 0)
+  toremarks          String?   @default("", map: "DF__tblQueue4__torem__2BC97F7C") @db.VarChar(100)
+  last_update        DateTime?
+  mobileno           String?   @default("", map: "DF__tblQueue4__mobil__2CBDA3B5") @db.VarChar(20)
+  returnvisit72Hrs   Int?      @default(0, map: "DF__tblQueue4__retur__2DB1C7EE") @db.TinyInt
+  admitted           Int?      @default(0, map: "DF__tblQueue4__admit__2EA5EC27") @db.TinyInt
+  admittedIn         String?   @default("", map: "DF__tblQueue4__admit__2F9A1060") @db.VarChar(50)
+  consulted          Int?      @default(0, map: "DF__tblQueue4__consu__308E3499") @db.TinyInt
+  consultspecialtyid Decimal?  @default(0, map: "DF__tblQueue4__consu__318258D2") @db.Decimal(10, 0)
+  consultassign      DateTime?
+  consultarrive      DateTime?
+  consultdesicion    DateTime?
+  transferred        Int?      @default(0, map: "DF__tblQueue4__trans__32767D0B") @db.TinyInt
+  transferid         Decimal?  @default(0, map: "DF__tblQueue4__trans__336AA144") @db.Decimal(10, 0)
+
+  @@index([deptcode, status], map: "deptcodestatus")
+  @@index([deptcode], map: "WDIDX168085071671")
+  @@index([qnumber], map: "WDIDX168085071672")
+  @@index([status], map: "WDIDX168085071673")
+  @@index([barcode], map: "WDIDX168085071674")
+}
+
+model tblQueueSession {
+  tblLocationSessionID Decimal  @id(map: "PK__tblLocat__0F2316E4DCE2D8B0") @unique(map: "WDIDX16808515540") @db.Decimal(19, 0)
+  deptcode             String?  @default("", map: "DF__tblLocati__deptc__36470DEF") @db.VarChar(10)
+  qnumber              Decimal? @default(0, map: "DF__tblLocati__qnumb__373B3228") @db.Decimal(10, 0)
+  tblQueueID           Decimal? @default(0, map: "DF__tblLocati__tblQu__382F5661") @db.Decimal(19, 0)
+
+  @@index([deptcode], map: "WDIDX16808515541")
+  @@index([qnumber], map: "WDIDX16808515552")
+  @@index([tblQueueID], map: "WDIDX16808515553")
+}
+
+model tblQueueTransferDept {
+  tblQueueTransferDeptID Decimal   @id(map: "PK__tblQueue__1DF758744E594C29") @unique(map: "WDIDX168085070955") @db.Decimal(19, 0)
+  barcode                String?   @default("", map: "DF__tblQueueT__barco__5D95E53A") @db.VarChar(50)
+  fromdeptcode           String?   @default("", map: "DF__tblQueueT__fromd__5E8A0973") @db.VarChar(10)
+  todeptcode             String?   @default("", map: "DF__tblQueueT__todep__5F7E2DAC") @db.VarChar(10)
+  last_update            DateTime?
+  issued_dt              DateTime?
+
+  @@index([barcode], map: "WDIDX168085070956")
+  @@index([fromdeptcode], map: "WDIDX168085070957")
+  @@index([todeptcode], map: "WDIDX168085071058")
+}
+
+model tblQueueWait {
+  tblQueueID   Decimal   @id(map: "PK__tblQueue__610A17BC4AB1A538") @unique(map: "WDIDX168085069722") @db.Decimal(19, 0)
+  deptcode     String?   @default("", map: "DF__tblQueue1__deptc__02084FDA") @db.VarChar(10)
+  qnumber      Decimal?  @default(0, map: "DF__tblQueue1__qnumb__02FC7413") @db.Decimal(10, 0)
+  issued_dt    DateTime?
+  start_dt     DateTime?
+  finish_dt    DateTime?
+  status       Decimal?  @default(0, map: "DF__tblQueue1__statu__03F0984C") @db.Decimal(10, 0)
+  waiting      Decimal?  @default(0, map: "DF__tblQueue1__waiti__04E4BC85") @db.Decimal(10, 0)
+  barcode      String?   @default("", map: "DF__tblQueue1__barco__05D8E0BE") @db.VarChar(50)
+  deptname     String?   @default("", map: "DF__tblQueue1__deptn__06CD04F7") @db.VarChar(50)
+  name         String?   @default("", map: "DF__tblQueue1__name__07C12930") @db.VarChar(50)
+  userid       String?   @default("", map: "DF__tblQueue1__useri__08B54D69") @db.VarChar(10)
+  locationname String?   @default("", map: "DF__tblQueue1__locat__09A971A2") @db.VarChar(50)
+  queueID      Decimal?  @unique(map: "UQ__tblQueue__9481329E53FC0553") @default(0, map: "DF__tblQueue1__queue__0A9D95DB") @db.Decimal(10, 0)
+  dept_counter Decimal?  @default(0, map: "DF__tblQueue1__dept___0B91BA14") @db.Decimal(10, 0)
+
+  @@index([deptcode, qnumber], map: "deptcodeqnumber")
+  @@index([deptcode], map: "WDIDX168085069723")
+  @@index([qnumber], map: "WDIDX168085069724")
+  @@index([status], map: "WDIDX168085069725")
+  @@index([barcode], map: "WDIDX168085069726")
+}
+
+model tblSubLocation {
+  tblLocationID Decimal  @id(map: "PK__tblLocat__938E5968A7C9FBA9") @unique(map: "WDIDX168085070545") @db.Decimal(19, 0)
+  loccode       String?  @unique(map: "UQ__tblLocat__EB04BA103F7F786C") @default("", map: "DF__tblLocati__locco__2BFE89A6") @db.VarChar(10)
+  deptcode      String?  @default("", map: "DF__tblLocati__deptc__2CF2ADDF") @db.VarChar(10)
+  locationname  String?  @default("", map: "DF__tblLocati__locat__2DE6D218") @db.VarChar(50)
+  status        Decimal? @default(0, map: "DF__tblLocati__statu__2EDAF651") @db.Decimal(10, 0)
+}
+
+model tblTransfer {
+  tblTransferID Decimal  @id(map: "PK__tblTrans__9F61F8530EF31E02") @unique(map: "WDIDX168085071366") @db.Decimal(19, 0)
+  transferid    Decimal? @unique(map: "UQ__tblTrans__AAAA395805AFE780") @default(0, map: "DF__tblTransf__trans__078C1F06") @db.Decimal(10, 0)
+  transfername  String?  @default("", map: "DF__tblTransf__trans__0880433F") @db.VarChar(50)
+}
+
+model tblUserDepartmentAuth {
+  tblUserDepartmentAuthID Decimal   @id(map: "PK__tblUserD__8FEA368E73E77BE1") @unique(map: "WDIDX168085070441") @db.Decimal(19, 0)
+  authiD                  Decimal?  @unique(map: "UQ__tblUserD__C2E322795FDEFC45") @default(0, map: "DF__tblUserDe__authi__2645B050") @db.Decimal(10, 0)
+  deptcode                String?   @default("", map: "DF__tblUserDe__deptc__2739D489") @db.VarChar(10)
+  userid                  String?   @default("", map: "DF__tblUserDe__useri__282DF8C2") @db.VarChar(10)
+  last_update             DateTime?
+
+  @@index([deptcode, userid], map: "deptcodeuserid")
+  @@index([deptcode], map: "WDIDX168085070443")
+  @@index([userid], map: "WDIDX168085070444")
+}
+
+model tblUserOverrideAuth {
+  tblUserOverrideAuthID Decimal   @id(map: "PK__tblAppAu__F49462A7A028C0FA") @unique(map: "WDIDX168085070852") @db.Decimal(19, 0)
+  appAuthID             Decimal?  @unique(map: "UQ__tblAppAu__9EB469957925D83E") @default(0, map: "DF__tblAppAut__appAu__59C55456") @db.Decimal(10, 0)
+  userid                String?   @unique(map: "UQ__tblAppAu__CBA1B2560AC93C33") @default("", map: "DF__tblAppAut__useri__5AB9788F") @db.VarChar(10)
+  last_update           DateTime?
+}
+
+model tblUsers {
+  tblUsersID        Decimal   @id(map: "PK__tblUsers__F0464A32B974D277") @unique(map: "WDIDX168085069519") @db.Decimal(19, 0)
+  userid            String?   @unique(map: "UQ__tblUsers__CBA1B256CF0D6978") @default("", map: "DF__tblUsers__userid__7B5B524B") @db.VarChar(10)
+  password          String?   @default("", map: "DF__tblUsers__passwo__7C4F7684") @db.VarChar(255)
+  name              String?   @default("", map: "DF__tblUsers__name__7D439ABD") @db.VarChar(50)
+  deptcode          String?   @default("", map: "DF__tblUsers__deptco__7E37BEF6") @db.VarChar(10)
+  date              DateTime? @db.Date
+
+  refreshToken      RefreshToken[]
+  patients          Patient[]
+
+  @@index([deptcode], map: "WDIDX168085069521")
+}

@@ -1,13 +1,11 @@
 model RefreshToken {
   id           String      @id @default(uuid()) @db.UniqueIdentifier
   token        String      @unique
-  userId       String?     @db.UniqueIdentifier
+  userId       String      @db.VarChar(10)
   expiresAt    DateTime
   createdAt    DateTime    @default(now())
-  superadminId String?     @db.UniqueIdentifier
-  superadmin   SuperAdmin? @relation(fields: [superadminId], references: [id], onDelete: Cascade)
-  user         User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tblUser      tblUsers    @relation(fields: [userId], references: [userid], onDelete: Cascade)
 
   @@index([userId])
-  @@index([superadminId])
 }
+    
