@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { userSchema } from "../schemas/user.schema.js";
+import { registerSchema, userSchema } from "../schemas/user.schema.js";
 import MyError from "../utils/error.js";
 import JWT from "../utils/jwt.js";
 import prisma from "../utils/prismaClient.js";
@@ -142,6 +142,48 @@ class UserController {
         console.error("Token refresh failed:", tokenError);
         throw new MyError("Failed to refresh tokens", 500);
       }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async register(req, res, next) {
+    try {
+      const { error, value } = registerSchema.validate(req.body);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
+      const { email, password, name, deptcode } = value;
+
+      // Check if user already exists
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (existingUser) {
+        throw new MyError("Email already registered", 409);
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user
+      const user = await prisma.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          name,
+          deptcode,
+        },
+      });
+
+      // Remove password from response
+      const { password: _, ...userData } = user;
+
+      res
+        .status(201)
+        .json(response(201, true, "User registered successfully", userData));
     } catch (error) {
       next(error);
     }
