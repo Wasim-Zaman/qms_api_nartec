@@ -12,12 +12,12 @@ import swaggerSpec from "./config/swagger.js";
 import cors from "./middlewares/cors.js";
 import { errorHandler, notFoundHandler } from "./middlewares/error.js";
 import routes from "./routes.js";
-dotenv.config();
 
 const PORT = config.PORT;
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+dotenv.config();
 
 app.use(cors);
 app.use(express.json());
