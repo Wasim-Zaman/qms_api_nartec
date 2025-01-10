@@ -1,12 +1,9 @@
-import "./instrument.js";
-
 import dotenv from "dotenv";
 import express from "express";
 import path, { dirname } from "path";
 import swaggerUi from "swagger-ui-express";
 import { fileURLToPath } from "url";
 
-import * as Sentry from "@sentry/node";
 import config from "./config/config.js";
 import swaggerSpec from "./config/swagger.js";
 import cors from "./middlewares/cors.js";
@@ -32,7 +29,6 @@ app.use("/api/v1", routes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Error Routes
-Sentry.setupExpressErrorHandler(app);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
