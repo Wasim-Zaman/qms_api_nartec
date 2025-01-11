@@ -4,6 +4,7 @@ import path, { dirname } from "path";
 import puppeteer from "puppeteer";
 import QRCode from "qrcode";
 import { fileURLToPath } from "url";
+import { ensureDir, getRelativePath } from "./file.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -38,20 +39,15 @@ class PDFGenerator {
         async: true,
       });
 
-      // if folder /uploads/tickets does not exists, create it
-      const ticketFolderPath = path.join("uploads", "tickets");
-      if (!fs.existsSync(ticketFolderPath)) {
-        await fs.ensureDir(ticketFolderPath);
-      }
+      // Ensure uploads directory exists
+      const uploadsDir = await ensureDir("uploads/tickets");
 
       // Generate unique filename
-      const filename = `ticket-${
-        data.ticket
-      }-${data.issueDate.toISOString()}.pdf`;
-      const absolutePath = path.join("uploads", "tickets", filename);
-      const relativePath = path
-        .join("uploads", "tickets", filename)
-        .replace(/\\/g, "/");
+      const fileName = `ticket-${data.deptcode}-${
+        data.counter
+      }-${Date.now()}.pdf`;
+      const absolutePath = path.join(uploadsDir, fileName);
+      const relativePath = getRelativePath(absolutePath);
 
       // Create directory if it doesn't exist
       await fs.ensureDir(path.join("uploads", "tickets"));
@@ -82,7 +78,7 @@ class PDFGenerator {
 
       return {
         absolutePath,
-        relativePath,
+        relativePath: `uploads/tickets/${fileName}`, // Ensure consistent format for database storage
       };
     } catch (error) {
       console.error("Error generating ticket:", error);
