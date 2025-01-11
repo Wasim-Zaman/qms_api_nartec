@@ -1,7 +1,7 @@
 import { Worker } from "bullmq";
 
 import { connection } from "../config/queue.js";
-import { ensureRequiredDirs } from "../utils/file.js";
+import { addDomain, ensureRequiredDirs } from "../utils/file.js";
 import PDFGenerator from "../utils/pdfGenerator.js";
 import prisma from "../utils/prismaClient.js";
 
