@@ -42,8 +42,7 @@ const __dirname = path.dirname(__filename);
 const options = {
   swaggerDefinition: swaggerDefinition,
   apis: [
-    path.join(__dirname, "../docs/swagger/user.js"),
-    path.join(__dirname, "../docs/swagger/admin.js"),
+    path.join(__dirname, "../docs/user.swagger.js"),
     path.join(__dirname, "../docs/patient.swagger.js"),
     // add more paths...
   ],
