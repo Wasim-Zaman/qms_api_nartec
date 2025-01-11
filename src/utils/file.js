@@ -2,6 +2,8 @@ import fs from "fs-extra";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 
+import config from "../config/config.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT_DIR = path.join(__dirname, "../../");
