@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "fs-extra";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -12,28 +12,29 @@ export const addDomain = (filePath) => {
   return `${config.DOMAIN}/${filePath}`;
 };
 
-export const deleteFile = (fileUrl) => {
-  if (!fileUrl) return Promise.resolve();
+export const ensureDirectoryExists = async (dirPath) => {
+  try {
+    await fs.ensureDir(dirPath);
+  } catch (error) {
+    console.error(`Error creating directory ${dirPath}:`, error);
+    throw error;
+  }
+};
+
+export const deleteFile = async (fileUrl) => {
+  if (!fileUrl) return;
 
   const imagePath = fileUrl.replace(config.DOMAIN, "");
-  const fullPath = path.join(__dirname, "..", imagePath);
+  const fullPath = path.join(__dirname, "..", "..", imagePath);
 
-  return new Promise((resolve) => {
-    fs.access(fullPath, fs.constants.F_OK, (err) => {
-      if (err) {
-        // File doesn't exist
-        console.warn(`File not found: ${fullPath}`);
-        resolve();
-        return;
-      }
-
-      // File exists, try to delete it
-      fs.unlink(fullPath, (err) => {
-        if (err) {
-          console.error("Failed to delete file:", err);
-        }
-        resolve();
-      });
-    });
-  });
+  try {
+    const exists = await fs.pathExists(fullPath);
+    if (!exists) {
+      console.warn(`File not found: ${fullPath}`);
+      return;
+    }
+    await fs.unlink(fullPath);
+  } catch (error) {
+    console.error("Failed to delete file:", error);
+  }
 };
