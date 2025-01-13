@@ -1,10 +1,10 @@
-import { patientQueue } from "../config/queue.js";
 import {
   createPatientSchema,
   updatePatientSchema,
 } from "../schemas/patient.schema.js";
 import MyError from "../utils/error.js";
-import { deleteFile } from "../utils/file.js";
+import { addDomain, deleteFile, ensureRequiredDirs } from "../utils/file.js";
+import PDFGenerator from "../utils/pdfGenerator.js";
 import prisma from "../utils/prismaClient.js";
 import response from "../utils/response.js";
 
@@ -16,10 +16,72 @@ class PatientController {
         throw new MyError(error.details[0].message, 400);
       }
 
-      // Add patient to queue
-      await patientQueue.add("add-patient", { userId: req.user.id, value });
+      //   // Add patient to queue
+      //   await patientQueue.add("add-patient", { userId: req.user.id, value });
 
-      res.status(200).json(response(200, true, "Patient created successfully"));
+      // Ensure all required directories exist before processing
+      await ensureRequiredDirs();
+
+      const userId = req.user.id;
+
+      // Use Prisma transaction to ensure data consistency
+      const result = await prisma.$transaction(async (prisma) => {
+        // Get current counter
+        let currentCounter = await prisma.patientCount.findFirst({
+          where: { userId },
+          include: {
+            user: true,
+          },
+          orderBy: {
+            counter: "desc",
+          },
+        });
+
+        if (!currentCounter) {
+          currentCounter = await prisma.patientCount.create({
+            data: {
+              userId,
+              counter: 1,
+            },
+          });
+        }
+
+        const counter = (currentCounter?.counter || 0) + 1;
+        const ticket = `${currentCounter?.user?.deptcode}${counter}`;
+
+        // Generate PDF ticket
+        const pdfData = {
+          patientName: value.name,
+          ticket: ticket,
+          deptcode: currentCounter?.user?.deptcode,
+          counter: counter,
+          issueDate: new Date(),
+          cheifComplaint: value.cheifComplaint,
+        };
+
+        const { relativePath } = await PDFGenerator.generateTicket(pdfData);
+
+        // Create patient record
+        const patient = await prisma.patient.create({
+          data: {
+            ...value,
+            userId,
+            ticket: addDomain(relativePath),
+          },
+        });
+
+        // Update counter
+        await prisma.patientCount.update({
+          where: { id: currentCounter.id },
+          data: { counter: counter + 1 },
+        });
+
+        return patient;
+      });
+
+      res
+        .status(200)
+        .json(response(200, true, "Patient created successfully", result));
     } catch (error) {
       next(error);
     }
