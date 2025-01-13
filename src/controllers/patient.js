@@ -3,7 +3,7 @@ import {
   updatePatientSchema,
 } from "../schemas/patient.schema.js";
 import MyError from "../utils/error.js";
-import { addDomain, deleteFile, ensureRequiredDirs } from "../utils/file.js";
+import { deleteFile, ensureRequiredDirs } from "../utils/file.js";
 import PDFGenerator from "../utils/pdfGenerator.js";
 import prisma from "../utils/prismaClient.js";
 import response from "../utils/response.js";
@@ -66,7 +66,7 @@ class PatientController {
           data: {
             ...value,
             userId,
-            ticket: addDomain(relativePath),
+            ticket: relativePath,
           },
         });
 
@@ -97,21 +97,28 @@ class PatientController {
         order = "desc",
       } = req.query;
 
+      const userId = req.user.id; // Get current user's ID from auth middleware
+
       // Calculate skip value for pagination
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
-      // Build search conditions
-      const searchCondition = search
-        ? {
-            OR: [
-              { name: { contains: search, mode: "insensitive" } },
-              { nationality: { contains: search, mode: "insensitive" } },
-              { idNumber: { contains: search, mode: "insensitive" } },
-              { ticket: { contains: search, mode: "insensitive" } },
-              { cheifComplaint: { contains: search, mode: "insensitive" } },
-            ],
-          }
-        : {};
+      // Build search conditions with userId
+      const searchCondition = {
+        AND: [
+          { userId }, // Add userId filter
+          search
+            ? {
+                OR: [
+                  { name: { contains: search, mode: "insensitive" } },
+                  { nationality: { contains: search, mode: "insensitive" } },
+                  { idNumber: { contains: search, mode: "insensitive" } },
+                  { ticket: { contains: search, mode: "insensitive" } },
+                  { cheifComplaint: { contains: search, mode: "insensitive" } },
+                ],
+              }
+            : {},
+        ],
+      };
 
       // Get total count for pagination
       const total = await prisma.patient.count({
