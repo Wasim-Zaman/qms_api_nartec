@@ -64,7 +64,7 @@ class PDFGenerator {
 
       await page.pdf({
         path: absolutePath,
-        format: "A4",
+        format: "A7",
         margin: {
           top: "20px",
           right: "20px",
