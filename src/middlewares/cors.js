@@ -1,5 +1,6 @@
 import cors from "cors";
 
+import config from "../config/config.js";
 import MyError from "../utils/error.js";
 
 const whitelist = [
