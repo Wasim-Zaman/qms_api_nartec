@@ -5,7 +5,8 @@ import MyError from "../utils/error.js";
 const whitelist = [
   process.env.DOMAIN,
   process.env.FRONTEND_URL,
-  "http://localhost:3095"
+  "http://localhost:3095",
+  "http://gs1ksa.org:3095"
 ].filter(Boolean);
 
 const corsOptions = {
