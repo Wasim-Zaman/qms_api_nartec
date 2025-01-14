@@ -1,17 +1,12 @@
 import cors from "cors";
 
+import config from "../config/config.js";
 import MyError from "../utils/error.js";
 
 const whitelist = [
-  process.env.DOMAIN,
-  process.env.FRONTEND_URL,
-  "https://gstsa1.org",
-  "https://www.gstsa1.org",
-  "https://buybarcodeupc.com",
-  "http://gstsa1.org",
-  "http://www.gstsa1.org",
-  "http://buybarcodeupc.com",
-  "http://localhost:5174",
+  config.DOMAIN,
+  "http://localhost:3095",
+  "http://gs1ksa.org:3095",
 ].filter(Boolean);
 
 const corsOptions = {
