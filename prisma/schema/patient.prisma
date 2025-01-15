@@ -6,13 +6,35 @@ model Patient {
     idNumber        String?
     age             Int?
     mobileNumber    String?
-    status          String?
+    status          String? 
     cheifComplaint  String?
     ticket          String?   
+    barcode         String?   @db.Text
     userId          String?
     user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    state           Int?
+    callPatient     Boolean?
+    vitalSigns      VitalSign[]
 
     createdAt       DateTime  @default(now())
     updatedAt       DateTime  @updatedAt
     @@index([userId])
+}
+
+model VitalSign {
+    id              String    @id @default(uuid())
+    patientId       String?
+    patient         Patient?  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+    bp              String?
+    height          String?
+    temp            String?
+    spo2            String?
+    weight          String?
+    hr              String?
+    rbs             String?
+    rr              String?
+    timeVs          DateTime?
+    allergies       Boolean?
+    createdAt       DateTime  @default(now())
+    updatedAt       DateTime  @updatedAt
 }

@@ -60,16 +60,16 @@
   <body>
     <div class="ticket">
       <div class="department">PMAH</div>
-      <div class="ticket-number"><%= counter %>TR</div>
-      <div class="patient-name"><%= patientName %></div>
-      <div class="datetime-waiting">
-        <%= formattedDateTime %> Waiting <%= waitingCount %>
-      </div>
-      <img src="<%= barcode %>" alt="Barcode" class="barcode" />
-      <div class="barcode-text"><%= barcodeText %></div>
-      <% if (typeof cheifComplaint !== 'undefined' && cheifComplaint) { %>
-      <div class="complaint">Complain: <%= cheifComplaint %></div>
-      <% } %>
+      <div class="ticket-number">5TR</div>
+      <div class="patient-name">Mohammed Ahmed</div>
+      <div class="datetime-waiting">01/11/2016 08:48:27 Waiting 1</div>
+      <img
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+        alt="Barcode"
+        class="barcode"
+      />
+      <div class="barcode-text">201611010848272805</div>
+      <div class="complaint">Complain: Back Pain</div>
     </div>
   </body>
 </html>

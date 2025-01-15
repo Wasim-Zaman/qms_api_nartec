@@ -26,27 +26,27 @@ class PatientController {
 
       // Use Prisma transaction to ensure data consistency
       const result = await prisma.$transaction(async (prisma) => {
+        // Ensure state is 0 (waiting) for new patients
+        if (value.state !== undefined && value.state !== 0) {
+          throw new MyError("New patients must have state=0 (waiting)", 400);
+        }
+
+        // waiting count
+        const waitingCount = await prisma.patient.count({
+          where: { state: 0 },
+        });
+
         // Get current counter
-        let currentCounter = await prisma.patientCount.findFirst({
-          where: { userId },
-          include: {
-            user: true,
-          },
-          orderBy: {
-            counter: "desc",
+        let currentCounter = await prisma.patient.count({
+          // count all the patients for last day
+          where: {
+            createdAt: {
+              gte: new Date(new Date().setDate(new Date().getDate() - 1)),
+            },
           },
         });
 
-        if (!currentCounter) {
-          currentCounter = await prisma.patientCount.create({
-            data: {
-              userId,
-              counter: 1,
-            },
-          });
-        }
-
-        const counter = (currentCounter?.counter || 0) + 1;
+        const counter = (currentCounter || 0) + 1;
         const ticket = `${currentCounter?.user?.deptcode}${counter}`;
 
         // Generate PDF ticket
@@ -57,9 +57,11 @@ class PatientController {
           counter: counter,
           issueDate: new Date(),
           cheifComplaint: value.cheifComplaint,
+          waitingCount: waitingCount,
         };
 
-        const { relativePath } = await PDFGenerator.generateTicket(pdfData);
+        const { relativePath, barcodeBase64 } =
+          await PDFGenerator.generateTicket(pdfData);
 
         // Create patient record
         const patient = await prisma.patient.create({
@@ -67,13 +69,8 @@ class PatientController {
             ...value,
             userId,
             ticket: relativePath,
+            barcode: barcodeBase64,
           },
-        });
-
-        // Update counter
-        await prisma.patientCount.update({
-          where: { id: currentCounter.id },
-          data: { counter: counter + 1 },
         });
 
         return patient;
@@ -102,23 +99,18 @@ class PatientController {
       // Calculate skip value for pagination
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
-      // Build search conditions with userId
-      const searchCondition = {
-        AND: [
-          { userId }, // Add userId filter
-          search
-            ? {
-                OR: [
-                  { name: { contains: search, mode: "insensitive" } },
-                  { nationality: { contains: search, mode: "insensitive" } },
-                  { idNumber: { contains: search, mode: "insensitive" } },
-                  { ticket: { contains: search, mode: "insensitive" } },
-                  { cheifComplaint: { contains: search, mode: "insensitive" } },
-                ],
-              }
-            : {},
-        ],
-      };
+      // Build search conditions
+      const searchCondition = search
+        ? {
+            OR: [
+              { name: { contains: search, mode: "insensitive" } },
+              { nationality: { contains: search, mode: "insensitive" } },
+              { idNumber: { contains: search, mode: "insensitive" } },
+              { ticket: { contains: search, mode: "insensitive" } },
+              { cheifComplaint: { contains: search, mode: "insensitive" } },
+            ],
+          }
+        : {};
 
       // Get total count for pagination
       const total = await prisma.patient.count({

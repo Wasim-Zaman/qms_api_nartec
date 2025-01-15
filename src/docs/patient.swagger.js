@@ -34,19 +34,30 @@
  *           description: Patient's main medical complaint
  *         status:
  *           type: string
- *           enum: [Active, Inactive, Pending]
- *           description: Patient's current status
+ *           enum: [Non-urgent, Urgent, Critical]
+ *           description: Patient's urgency status
+ *         state:
+ *           type: integer
+ *           enum: [0, 1, 2]
+ *           description: Patient's state (0=Waiting, 1=In Progress, 2=Completed)
+ *         callPatient:
+ *           type: boolean
+ *           description: Whether patient has been called
+ *         ticket:
+ *           type: string
+ *           description: Path to patient's ticket PDF
+ *         barcode:
+ *           type: string
+ *           description: Barcode data for the ticket
  *         userId:
  *           type: string
  *           description: ID of the user who created the patient record
  *         createdAt:
  *           type: string
  *           format: date-time
- *           description: Timestamp of when the record was created
  *         updatedAt:
  *           type: string
  *           format: date-time
- *           description: Timestamp of when the record was last updated
  *
  * @swagger
  * /api/v1/patients:
@@ -81,14 +92,31 @@
  *                 type: string
  *               status:
  *                 type: string
- *                 enum: [Active, Inactive, Pending]
+ *                 enum: [Non-urgent, Urgent, Critical]
+ *                 default: Non-urgent
+ *               state:
+ *                 type: integer
+ *                 enum: [0, 1, 2]
+ *                 default: 0
+ *               callPatient:
+ *                 type: boolean
+ *                 default: false
  *     responses:
- *       201:
- *         description: Patient created successfully
+ *       200:
+ *         description: Patient created successfully with ticket
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Patient'
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Patient'
  *
  *   get:
  *     summary: Get all patients
@@ -165,7 +193,7 @@
  *                 type: string
  *               status:
  *                 type: string
- *                 enum: [Active, Inactive, Pending]
+ *                 enum: [Non-urgent, Urgent, Critical]
  *     responses:
  *       200:
  *         description: Patient updated successfully
