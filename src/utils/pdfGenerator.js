@@ -1,8 +1,8 @@
+import bwipjs from "bwip-js";
 import ejs from "ejs";
 import fs from "fs-extra";
 import path, { dirname } from "path";
 import puppeteer from "puppeteer";
-import QRCode from "qrcode";
 import { fileURLToPath } from "url";
 import { ensureDir, getRelativePath } from "./file.js";
 
@@ -20,18 +20,58 @@ class PDFGenerator {
       const templatePath = path.join(__dirname, "../view/ticket.ejs");
       const templateContent = await fs.readFile(templatePath, "utf-8");
 
-      // Generate QR code for the ticket
-      const qrCodeData = `${data.deptcode}-${
-        data.counter
-      }-${data.issueDate.toISOString()}`;
-      const qrCodeDataUrl = await QRCode.toDataURL(qrCodeData);
+      // Format date for barcode and display
+      const now = data.issueDate;
+      const formattedDateTime = now
+        .toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        })
+        .replace(",", "");
 
-      // Prepare data for template
+      // Generate barcode string
+      const barcodeText = `${now.getFullYear()}${String(
+        now.getMonth() + 1
+      ).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}${String(
+        now.getHours()
+      ).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}${String(
+        now.getSeconds()
+      ).padStart(2, "0")}${data.counter}`;
+
+      // Generate barcode using bwip-js
+      const barcodeBuffer = await new Promise((resolve, reject) => {
+        bwipjs.toBuffer(
+          {
+            bcid: "code128", // Barcode type
+            text: barcodeText, // Text to encode
+            scale: 3, // 3x scaling factor
+            height: 10, // Bar height, in millimeters
+            includetext: false, // Don't include text below the barcode
+            textxalign: "center", // Center the text
+          },
+          (err, png) => {
+            if (err) reject(err);
+            else resolve(png);
+          }
+        );
+      });
+
+      // Convert to base64
+      const barcodeBase64 = `data:image/png;base64,${barcodeBuffer.toString(
+        "base64"
+      )}`;
+
+      // Prepare template data
       const templateData = {
         ...data,
-        qrCode: qrCodeDataUrl,
-        formattedDate: data.issueDate.toLocaleDateString(),
-        formattedTime: data.issueDate.toLocaleTimeString(),
+        formattedDateTime,
+        barcode: barcodeBase64,
+        barcodeText,
       };
 
       // Generate HTML
@@ -64,12 +104,13 @@ class PDFGenerator {
 
       await page.pdf({
         path: absolutePath,
-        format: "A4",
+        width: "80mm",
+        height: "150mm",
         margin: {
-          top: "20px",
-          right: "20px",
-          bottom: "20px",
-          left: "20px",
+          top: "10px",
+          right: "10px",
+          bottom: "10px",
+          left: "10px",
         },
         printBackground: true,
       });
@@ -78,7 +119,8 @@ class PDFGenerator {
 
       return {
         absolutePath,
-        relativePath: `uploads/tickets/${fileName}`, // Ensure consistent format for database storage
+        relativePath,
+        barcodeBase64,
       };
     } catch (error) {
       console.error("Error generating ticket:", error);

@@ -1,5 +1,6 @@
 import {
   createPatientSchema,
+  createVitalSignSchema,
   updatePatientSchema,
 } from "../schemas/patient.schema.js";
 import MyError from "../utils/error.js";
@@ -26,27 +27,27 @@ class PatientController {
 
       // Use Prisma transaction to ensure data consistency
       const result = await prisma.$transaction(async (prisma) => {
+        // Ensure state is 0 (waiting) for new patients
+        if (value.state !== undefined && value.state !== 0) {
+          throw new MyError("New patients must have state=0 (waiting)", 400);
+        }
+
+        // waiting count
+        const waitingCount = await prisma.patient.count({
+          where: { state: 0 },
+        });
+
         // Get current counter
-        let currentCounter = await prisma.patientCount.findFirst({
-          where: { userId },
-          include: {
-            user: true,
-          },
-          orderBy: {
-            counter: "desc",
+        let currentCounter = await prisma.patient.count({
+          // count all the patients for last day
+          where: {
+            createdAt: {
+              gte: new Date(new Date().setDate(new Date().getDate() - 1)),
+            },
           },
         });
 
-        if (!currentCounter) {
-          currentCounter = await prisma.patientCount.create({
-            data: {
-              userId,
-              counter: 1,
-            },
-          });
-        }
-
-        const counter = (currentCounter?.counter || 0) + 1;
+        const counter = (currentCounter || 0) + 1;
         const ticket = `${currentCounter?.user?.deptcode}${counter}`;
 
         // Generate PDF ticket
@@ -57,9 +58,11 @@ class PatientController {
           counter: counter,
           issueDate: new Date(),
           cheifComplaint: value.cheifComplaint,
+          waitingCount: waitingCount,
         };
 
-        const { relativePath } = await PDFGenerator.generateTicket(pdfData);
+        const { relativePath, barcodeBase64 } =
+          await PDFGenerator.generateTicket(pdfData);
 
         // Create patient record
         const patient = await prisma.patient.create({
@@ -67,13 +70,8 @@ class PatientController {
             ...value,
             userId,
             ticket: relativePath,
+            barcode: barcodeBase64,
           },
-        });
-
-        // Update counter
-        await prisma.patientCount.update({
-          where: { id: currentCounter.id },
-          data: { counter: counter + 1 },
         });
 
         return patient;
@@ -102,23 +100,18 @@ class PatientController {
       // Calculate skip value for pagination
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
-      // Build search conditions with userId
-      const searchCondition = {
-        AND: [
-          { userId }, // Add userId filter
-          search
-            ? {
-                OR: [
-                  { name: { contains: search, mode: "insensitive" } },
-                  { nationality: { contains: search, mode: "insensitive" } },
-                  { idNumber: { contains: search, mode: "insensitive" } },
-                  { ticket: { contains: search, mode: "insensitive" } },
-                  { cheifComplaint: { contains: search, mode: "insensitive" } },
-                ],
-              }
-            : {},
-        ],
-      };
+      // Build search conditions
+      const searchCondition = search
+        ? {
+            OR: [
+              { name: { contains: search, mode: "insensitive" } },
+              { nationality: { contains: search, mode: "insensitive" } },
+              { idNumber: { contains: search, mode: "insensitive" } },
+              { ticket: { contains: search, mode: "insensitive" } },
+              { cheifComplaint: { contains: search, mode: "insensitive" } },
+            ],
+          }
+        : {};
 
       // Get total count for pagination
       const total = await prisma.patient.count({
@@ -174,6 +167,7 @@ class PatientController {
               deptcode: true,
             },
           },
+          vitalSigns: true,
         },
       });
 
@@ -252,6 +246,86 @@ class PatientController {
       if (error.code === "P2025") {
         throw new MyError("Patient not found", 404);
       }
+      next(error);
+    }
+  }
+
+  static async getPatientsByState(req, res, next) {
+    try {
+      // Get patients with state 0 (waiting)
+      const waitingPatients = await prisma.patient.findMany({
+        where: { state: 0 },
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+              deptcode: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+
+      // Get patients with state 1 (in progress)
+      const inProgressPatients = await prisma.patient.findMany({
+        where: { state: 1 },
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+              deptcode: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+
+      res.status(200).json(
+        response(200, true, "Patients retrieved successfully", {
+          waiting: waitingPatients,
+          inProgress: inProgressPatients,
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async createVitalSign(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { error, value } = createVitalSignSchema.validate(req.body);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
+      const patient = await prisma.patient.findUnique({
+        where: { id },
+      });
+
+      if (!patient) {
+        throw new MyError("Patient not found", 404);
+      }
+
+      const vitalSign = await prisma.vitalSign.create({
+        data: {
+          ...value,
+          patientId: id,
+        },
+      });
+
+      res
+        .status(200)
+        .json(
+          response(200, true, "Vital sign created successfully", vitalSign)
+        );
+    } catch (error) {
       next(error);
     }
   }
