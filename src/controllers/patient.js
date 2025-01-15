@@ -1,5 +1,6 @@
 import {
   createPatientSchema,
+  createVitalSignSchema,
   updatePatientSchema,
 } from "../schemas/patient.schema.js";
 import MyError from "../utils/error.js";
@@ -166,6 +167,7 @@ class PatientController {
               deptcode: true,
             },
           },
+          vitalSigns: true,
         },
       });
 
@@ -244,6 +246,86 @@ class PatientController {
       if (error.code === "P2025") {
         throw new MyError("Patient not found", 404);
       }
+      next(error);
+    }
+  }
+
+  static async getPatientsByState(req, res, next) {
+    try {
+      // Get patients with state 0 (waiting)
+      const waitingPatients = await prisma.patient.findMany({
+        where: { state: 0 },
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+              deptcode: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+
+      // Get patients with state 1 (in progress)
+      const inProgressPatients = await prisma.patient.findMany({
+        where: { state: 1 },
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+              deptcode: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+
+      res.status(200).json(
+        response(200, true, "Patients retrieved successfully", {
+          waiting: waitingPatients,
+          inProgress: inProgressPatients,
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async createVitalSign(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { error, value } = createVitalSignSchema.validate(req.body);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
+      const patient = await prisma.patient.findUnique({
+        where: { id },
+      });
+
+      if (!patient) {
+        throw new MyError("Patient not found", 404);
+      }
+
+      const vitalSign = await prisma.vitalSign.create({
+        data: {
+          ...value,
+          patientId: id,
+        },
+      });
+
+      res
+        .status(200)
+        .json(
+          response(200, true, "Vital sign created successfully", vitalSign)
+        );
+    } catch (error) {
       next(error);
     }
   }

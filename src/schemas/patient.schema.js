@@ -29,3 +29,18 @@ export const updatePatientSchema = Joi.object({
   state: Joi.number().integer().min(0).max(2).allow(null, ""),
   callPatient: Joi.boolean().allow(null, ""),
 });
+
+// VitalSign
+
+export const createVitalSignSchema = Joi.object({
+  bp: Joi.string().allow(null, ""),
+  height: Joi.string().allow(null, ""),
+  temp: Joi.string().allow(null, ""),
+  spo2: Joi.string().allow(null, ""),
+  weight: Joi.string().allow(null, ""),
+  hr: Joi.string().allow(null, ""),
+  rbs: Joi.string().allow(null, ""),
+  rr: Joi.string().allow(null, ""),
+  timeVs: Joi.date().allow(null, ""),
+  allergies: Joi.boolean().allow(null, ""),
+});

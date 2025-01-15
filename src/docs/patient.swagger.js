@@ -221,4 +221,178 @@
  *         description: Patient deleted successfully
  *       404:
  *         description: Patient not found
+ *
+ * @swagger
+ * /api/v1/patients/by-state:
+ *   get:
+ *     summary: Get all patients by state (waiting and in progress)
+ *     tags: [Patients]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Patients retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Patients retrieved successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     waiting:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Patient'
+ *                     inProgress:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Patient'
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ *
+ * @swagger
+ * /api/v1/patients/{id}/vital-sign:
+ *   post:
+ *     summary: Create vital signs for a patient
+ *     tags: [Patients]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Patient ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bp:
+ *                 type: string
+ *                 description: Blood pressure
+ *                 example: "120/80"
+ *               height:
+ *                 type: string
+ *                 description: Height in cm
+ *                 example: "175"
+ *               temp:
+ *                 type: string
+ *                 description: Temperature in celsius
+ *                 example: "37.5"
+ *               spo2:
+ *                 type: string
+ *                 description: Oxygen saturation percentage
+ *                 example: "98"
+ *               weight:
+ *                 type: string
+ *                 description: Weight in kg
+ *                 example: "75"
+ *               hr:
+ *                 type: string
+ *                 description: Heart rate (beats per minute)
+ *                 example: "72"
+ *               rbs:
+ *                 type: string
+ *                 description: Random blood sugar
+ *                 example: "110"
+ *               rr:
+ *                 type: string
+ *                 description: Respiratory rate
+ *                 example: "16"
+ *               timeVs:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Time of vital signs measurement
+ *                 example: "2024-03-20T10:30:00Z"
+ *               allergies:
+ *                 type: boolean
+ *                 description: Whether patient has any allergies
+ *                 example: false
+ *     responses:
+ *       200:
+ *         description: Vital signs created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Vital sign created successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: "123e4567-e89b-12d3-a456-426614174000"
+ *                     patientId:
+ *                       type: string
+ *                       example: "123e4567-e89b-12d3-a456-426614174001"
+ *                     bp:
+ *                       type: string
+ *                       example: "120/80"
+ *                     height:
+ *                       type: string
+ *                       example: "175"
+ *                     temp:
+ *                       type: string
+ *                       example: "37.5"
+ *                     spo2:
+ *                       type: string
+ *                       example: "98"
+ *                     weight:
+ *                       type: string
+ *                       example: "75"
+ *                     hr:
+ *                       type: string
+ *                       example: "72"
+ *                     rbs:
+ *                       type: string
+ *                       example: "110"
+ *                     rr:
+ *                       type: string
+ *                       example: "16"
+ *                     timeVs:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2024-03-20T10:30:00Z"
+ *                     allergies:
+ *                       type: boolean
+ *                       example: false
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Bad request - Invalid input data
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       404:
+ *         description: Patient not found
+ *       500:
+ *         description: Server error
  */
