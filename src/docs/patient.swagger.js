@@ -590,4 +590,58 @@
  *         updatedAt:
  *           type: string
  *           format: date-time
+ *
+ * @swagger
+ * /api/v1/patients/{id}/assign-department:
+ *   patch:
+ *     summary: Assign department to a patient
+ *     tags: [Patients]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Patient ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - departmentId
+ *             properties:
+ *               departmentId:
+ *                 type: number
+ *                 description: ID of the department to assign
+ *     responses:
+ *       200:
+ *         description: Department assigned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Department assigned to patient successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Patient'
+ *       400:
+ *         description: Invalid input
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       404:
+ *         description: Patient or Department not found
+ *       500:
+ *         description: Server error
  */

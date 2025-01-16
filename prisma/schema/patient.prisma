@@ -10,6 +10,8 @@ model Patient {
     cheifComplaint  String?
     ticket          String?   
     barcode         String?   @db.Text
+    departmentId    Decimal?  @db.Decimal(19, 0)
+    department      tblDepartment? @relation(fields: [departmentId], references: [tblDepartmentID])
     userId          String?
     user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
     state           Int?      @default(0)

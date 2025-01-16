@@ -1,4 +1,5 @@
 import {
+  assignDepartmentSchema,
   createPatientSchema,
   createVitalSignSchema,
   updatePatientSchema,
@@ -96,7 +97,7 @@ class PatientController {
         order = "desc",
       } = req.query;
 
-      const userId = req.user.id; // Get current user's ID from auth middleware
+      const userId = req.user?.id; // Get current user's ID from auth middleware
 
       // Calculate skip value for pagination
       const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -105,11 +106,11 @@ class PatientController {
       const searchCondition = search
         ? {
             OR: [
-              { name: { contains: search, mode: "insensitive" } },
-              { nationality: { contains: search, mode: "insensitive" } },
-              { idNumber: { contains: search, mode: "insensitive" } },
-              { ticket: { contains: search, mode: "insensitive" } },
-              { cheifComplaint: { contains: search, mode: "insensitive" } },
+              { name: { contains: search } },
+              { nationality: { contains: search } },
+              { idNumber: { contains: search } },
+              { ticket: { contains: search } },
+              { cheifComplaint: { contains: search } },
             ],
           }
         : {};
@@ -123,6 +124,7 @@ class PatientController {
       const patients = await prisma.patient.findMany({
         where: searchCondition,
         include: {
+          department: true,
           user: {
             select: {
               name: true,
@@ -161,6 +163,7 @@ class PatientController {
       const patient = await prisma.patient.findUnique({
         where: { id },
         include: {
+          department: true,
           user: {
             select: {
               name: true,
@@ -257,6 +260,7 @@ class PatientController {
       const waitingPatients = await prisma.patient.findMany({
         where: { state: 0 },
         include: {
+          department: true,
           user: {
             select: {
               name: true,
@@ -427,6 +431,66 @@ class PatientController {
             true,
             "Called patients retrieved successfully",
             calledPatients
+          )
+        );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async assignDepartment(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { error, value } = assignDepartmentSchema.validate(req.body);
+
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
+      // Check if patient exists
+      const patient = await prisma.patient.findUnique({
+        where: { id },
+      });
+
+      if (!patient) {
+        throw new MyError("Patient not found", 404);
+      }
+
+      // Check if department exists
+      const department = await prisma.tblDepartment.findUnique({
+        where: { tblDepartmentID: value.departmentId },
+      });
+
+      if (!department) {
+        throw new MyError("Department not found", 404);
+      }
+
+      // Update patient with new department
+      const updatedPatient = await prisma.patient.update({
+        where: { id },
+        data: {
+          departmentId: value.departmentId,
+        },
+        include: {
+          department: true,
+          user: {
+            select: {
+              name: true,
+              email: true,
+              deptcode: true,
+            },
+          },
+        },
+      });
+
+      res
+        .status(200)
+        .json(
+          response(
+            200,
+            true,
+            "Department assigned to patient successfully",
+            updatedPatient
           )
         );
     } catch (error) {

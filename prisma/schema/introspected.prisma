@@ -59,6 +59,7 @@ model tblDepartment {
   tblDepartmentID Decimal @id(map: "PK__tblDepar__1C34B58FDF44F0CA") @db.Decimal(19, 0)
   deptcode        String? @unique(map: "UQ__tblDepar__02583B180919AAEA") @default("", map: "DF__tblDepart__deptc__37A5467C") @db.VarChar(10)
   deptname        String? @default("", map: "DF__tblDepart__deptn__38996AB5") @db.VarChar(50)
+  patients        Patient[]
 }
 
 model tblLocation {

@@ -56,3 +56,7 @@ export const createVitalSignSchema = Joi.object({
   timeVs: Joi.date().allow(null, ""),
   allergies: Joi.boolean().allow(null, ""),
 });
+
+export const assignDepartmentSchema = Joi.object({
+  departmentId: Joi.number().required(),
+});

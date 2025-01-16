@@ -18,5 +18,10 @@ router.post(
   PatientController.createVitalSign
 );
 router.patch("/:id/toggle-call", PatientController.togglePatientCall);
+router.patch(
+  "/:id/assign-department",
+  verifyAccessToken,
+  PatientController.assignDepartment
+);
 
 export default router;
