@@ -1,9 +1,9 @@
-import { patientCallQueue } from "../config/queue.js";
 import {
   createPatientSchema,
   createVitalSignSchema,
   updatePatientSchema,
 } from "../schemas/patient.schema.js";
+import socketService from "../services/socket.js";
 import MyError from "../utils/error.js";
 import { deleteFile, ensureRequiredDirs } from "../utils/file.js";
 import PDFGenerator from "../utils/pdfGenerator.js";
@@ -335,7 +335,51 @@ class PatientController {
     try {
       const { id } = req.params;
 
-      await patientCallQueue.add("toggle-patient-call", { id });
+      // Assign job to queue
+      //   await patientCallQueue.add("toggle-patient-call", { id });
+
+      const patient = await prisma.patient.findUnique({
+        where: { id },
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+              deptcode: true,
+            },
+          },
+        },
+      });
+
+      if (!patient) {
+        throw new MyError("Patient not found", 404);
+      }
+
+      const updatedPatient = await prisma.patient.update({
+        where: { id },
+        data: {
+          callPatient: !patient.callPatient,
+        },
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+              deptcode: true,
+            },
+          },
+        },
+      });
+
+      // Emit socket event if patient is being called
+      if (updatedPatient.callPatient) {
+        socketService.emitPatientCall({
+          id: updatedPatient.id,
+          name: updatedPatient.name,
+          ticket: updatedPatient.ticket,
+          deptcode: updatedPatient.user?.deptcode,
+        });
+      }
 
       res
         .status(200)
