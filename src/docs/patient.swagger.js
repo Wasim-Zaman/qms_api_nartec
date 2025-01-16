@@ -395,4 +395,199 @@
  *         description: Patient not found
  *       500:
  *         description: Server error
+ *
+ * @swagger
+ * /api/v1/patients/{id}/toggle-call:
+ *   patch:
+ *     summary: Toggle patient call status
+ *     tags: [Patients]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Patient ID
+ *     responses:
+ *       200:
+ *         description: Patient call status toggled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Patient call status toggled successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Patient'
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       404:
+ *         description: Patient not found
+ *       500:
+ *         description: Server error
+ *
+ * @swagger
+ * /api/v1/patients/called:
+ *   get:
+ *     summary: Get all patients that have been called
+ *     tags: [Patients]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of called patients retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Called patients retrieved successfully"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: "123e4567-e89b-12d3-a456-426614174000"
+ *                       name:
+ *                         type: string
+ *                         example: "John Doe"
+ *                       nationality:
+ *                         type: string
+ *                         example: "US"
+ *                       sex:
+ *                         type: string
+ *                         enum: [M, F, O]
+ *                         example: "M"
+ *                       idNumber:
+ *                         type: string
+ *                         example: "A123456"
+ *                       age:
+ *                         type: integer
+ *                         example: 30
+ *                       mobileNumber:
+ *                         type: string
+ *                         example: "+1234567890"
+ *                       status:
+ *                         type: string
+ *                         enum: [Non-urgent, Urgent, Critical]
+ *                         example: "Non-urgent"
+ *                       cheifComplaint:
+ *                         type: string
+ *                         example: "Headache"
+ *                       ticket:
+ *                         type: string
+ *                         example: "uploads/tickets/ticket-123.pdf"
+ *                       barcode:
+ *                         type: string
+ *                         example: "base64-encoded-barcode-data"
+ *                       state:
+ *                         type: integer
+ *                         example: 0
+ *                       callPatient:
+ *                         type: boolean
+ *                         example: true
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           name:
+ *                             type: string
+ *                             example: "Dr. Smith"
+ *                           email:
+ *                             type: string
+ *                             example: "dr.smith@hospital.com"
+ *                           deptcode:
+ *                             type: string
+ *                             example: "CARD"
+ *                       vitalSigns:
+ *                         type: array
+ *                         items:
+ *                           $ref: '#/components/schemas/VitalSign'
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       500:
+ *         description: Server error
+ *
+ * @swagger
+ * components:
+ *   schemas:
+ *     VitalSign:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: Auto-generated UUID of the vital sign
+ *         patientId:
+ *           type: string
+ *           description: ID of the associated patient
+ *         bp:
+ *           type: string
+ *           description: Blood pressure
+ *           example: "120/80"
+ *         height:
+ *           type: string
+ *           description: Height in cm
+ *           example: "175"
+ *         temp:
+ *           type: string
+ *           description: Temperature in celsius
+ *           example: "37.5"
+ *         spo2:
+ *           type: string
+ *           description: Oxygen saturation percentage
+ *           example: "98"
+ *         weight:
+ *           type: string
+ *           description: Weight in kg
+ *           example: "75"
+ *         hr:
+ *           type: string
+ *           description: Heart rate (beats per minute)
+ *           example: "72"
+ *         rbs:
+ *           type: string
+ *           description: Random blood sugar
+ *           example: "110"
+ *         rr:
+ *           type: string
+ *           description: Respiratory rate
+ *           example: "16"
+ *         timeVs:
+ *           type: string
+ *           format: date-time
+ *           description: Time of vital signs measurement
+ *         allergies:
+ *           type: boolean
+ *           description: Whether patient has any allergies
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
  */

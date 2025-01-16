@@ -23,14 +23,13 @@ const defaultJobOptions = {
   },
 };
 
-// Create queues
-export const userDeletionQueue = new Queue("user-deletion", {
+// Patient Queue
+export const patientQueue = new Queue("patient", {
   connection,
   defaultJobOptions,
 });
 
-// Patient Queue
-export const patientQueue = new Queue("patient", {
+export const patientCallQueue = new Queue("patient-call", {
   connection,
   defaultJobOptions,
 });

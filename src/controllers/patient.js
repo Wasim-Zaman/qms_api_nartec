@@ -3,6 +3,7 @@ import {
   createVitalSignSchema,
   updatePatientSchema,
 } from "../schemas/patient.schema.js";
+import socketService from "../services/socket.js";
 import MyError from "../utils/error.js";
 import { deleteFile, ensureRequiredDirs } from "../utils/file.js";
 import PDFGenerator from "../utils/pdfGenerator.js";
@@ -324,6 +325,109 @@ class PatientController {
         .status(200)
         .json(
           response(200, true, "Vital sign created successfully", vitalSign)
+        );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async togglePatientCall(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      // Assign job to queue
+      //   await patientCallQueue.add("toggle-patient-call", { id });
+
+      const patient = await prisma.patient.findUnique({
+        where: { id },
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+              deptcode: true,
+            },
+          },
+        },
+      });
+
+      if (!patient) {
+        throw new MyError("Patient not found", 404);
+      }
+
+      const result = await prisma.$transaction(async (prisma) => {
+        const updatedPatient = await prisma.patient.update({
+          where: { id },
+          data: {
+            callPatient: !patient.callPatient,
+          },
+          include: {
+            user: {
+              select: {
+                name: true,
+                email: true,
+                deptcode: true,
+              },
+            },
+          },
+        });
+        // Emit socket event if patient is being called
+        if (updatedPatient.callPatient) {
+          socketService.emitPatientCall({
+            id: updatedPatient.id,
+            name: updatedPatient.name,
+            ticket: updatedPatient.ticket,
+            deptcode: updatedPatient.user?.deptcode,
+          });
+        }
+        return updatedPatient;
+      });
+
+      res
+        .status(200)
+        .json(
+          response(
+            200,
+            true,
+            "Patient call status toggled successfully",
+            result
+          )
+        );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getCalledPatients(req, res, next) {
+    try {
+      const calledPatients = await prisma.patient.findMany({
+        where: {
+          callPatient: true,
+        },
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+              deptcode: true,
+            },
+          },
+          vitalSigns: true,
+        },
+        orderBy: {
+          updatedAt: "desc",
+        },
+      });
+
+      res
+        .status(200)
+        .json(
+          response(
+            200,
+            true,
+            "Called patients retrieved successfully",
+            calledPatients
+          )
         );
     } catch (error) {
       next(error);

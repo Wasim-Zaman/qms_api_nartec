@@ -12,8 +12,8 @@ model Patient {
     barcode         String?   @db.Text
     userId          String?
     user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    state           Int?
-    callPatient     Boolean?
+    state           Int?      @default(0)
+    callPatient     Boolean?  @default(false)
     vitalSigns      VitalSign[]
 
     createdAt       DateTime  @default(now())

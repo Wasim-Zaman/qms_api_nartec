@@ -1,6 +1,8 @@
 import { Worker } from "bullmq";
 
 import { connection } from "../config/queue.js";
+import socketService from "../services/socket.js";
+import MyError from "../utils/error.js";
 import { addDomain, ensureRequiredDirs } from "../utils/file.js";
 import PDFGenerator from "../utils/pdfGenerator.js";
 import prisma from "../utils/prismaClient.js";
@@ -72,14 +74,77 @@ const processPatient = async (job) => {
   }
 };
 
-const worker = new Worker("patient", processPatient, { connection });
+const processPatientCall = async (job) => {
+  try {
+    const { id } = job.data;
+    const patient = await prisma.patient.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+            deptcode: true,
+          },
+        },
+      },
+    });
 
-worker.on("completed", (job) => {
+    if (!patient) {
+      throw new MyError("Patient not found", 404);
+    }
+
+    const updatedPatient = await prisma.patient.update({
+      where: { id },
+      data: {
+        callPatient: !patient.callPatient,
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+            deptcode: true,
+          },
+        },
+      },
+    });
+
+    // Emit socket event if patient is being called
+    if (updatedPatient.callPatient) {
+      socketService.emitPatientCall({
+        id: updatedPatient.id,
+        name: updatedPatient.name,
+        ticket: updatedPatient.ticket,
+        deptcode: updatedPatient.user?.deptcode,
+      });
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const processPatientWorker = new Worker("patient", processPatient, {
+  connection,
+});
+export const processPatientCallWorker = new Worker(
+  "patient-call",
+  processPatientCall,
+  { connection }
+);
+
+processPatientWorker.on("completed", (job) => {
   console.log(`Patient Creation job ${job.id} completed successfully`);
 });
 
-worker.on("failed", (job, err) => {
+processPatientWorker.on("failed", (job, err) => {
   console.error(`Patient Creation job ${job.id} failed with error:`, err);
 });
 
-export default worker;
+processPatientCallWorker.on("completed", (job) => {
+  console.log(`Patient Call job ${job.id} completed successfully`);
+});
+
+processPatientCallWorker.on("failed", (job, err) => {
+  console.error(`Patient Call job ${job.id} failed with error:`, err);
+});
