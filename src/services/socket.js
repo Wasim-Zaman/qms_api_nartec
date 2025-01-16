@@ -29,6 +29,7 @@ class SocketService {
       console.error("Socket.IO not initialized");
       return;
     }
+    console.log("Emitting patient call event:", patientData);
     this.io.emit("patient-call", patientData);
   }
 }
