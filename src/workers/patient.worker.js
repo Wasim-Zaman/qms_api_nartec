@@ -2,8 +2,8 @@ import { Worker } from "bullmq";
 
 import { connection } from "../config/queue.js";
 import socketService from "../services/socket.js";
+import MyError from "../utils/error.js";
 import { addDomain, ensureRequiredDirs } from "../utils/file.js";
-import MyError from "../utils/myError.js";
 import PDFGenerator from "../utils/pdfGenerator.js";
 import prisma from "../utils/prismaClient.js";
 
