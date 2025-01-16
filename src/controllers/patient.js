@@ -355,35 +355,44 @@ class PatientController {
         throw new MyError("Patient not found", 404);
       }
 
-      const updatedPatient = await prisma.patient.update({
-        where: { id },
-        data: {
-          callPatient: !patient.callPatient,
-        },
-        include: {
-          user: {
-            select: {
-              name: true,
-              email: true,
-              deptcode: true,
+      const result = await prisma.$transaction(async (prisma) => {
+        const updatedPatient = await prisma.patient.update({
+          where: { id },
+          data: {
+            callPatient: !patient.callPatient,
+          },
+          include: {
+            user: {
+              select: {
+                name: true,
+                email: true,
+                deptcode: true,
+              },
             },
           },
-        },
-      });
-
-      // Emit socket event if patient is being called
-      if (updatedPatient.callPatient) {
-        socketService.emitPatientCall({
-          id: updatedPatient.id,
-          name: updatedPatient.name,
-          ticket: updatedPatient.ticket,
-          deptcode: updatedPatient.user?.deptcode,
         });
-      }
+        // Emit socket event if patient is being called
+        if (updatedPatient.callPatient) {
+          socketService.emitPatientCall({
+            id: updatedPatient.id,
+            name: updatedPatient.name,
+            ticket: updatedPatient.ticket,
+            deptcode: updatedPatient.user?.deptcode,
+          });
+        }
+        return updatedPatient;
+      });
 
       res
         .status(200)
-        .json(response(200, true, "Patient call status toggled successfully"));
+        .json(
+          response(
+            200,
+            true,
+            "Patient call status toggled successfully",
+            result
+          )
+        );
     } catch (error) {
       next(error);
     }
