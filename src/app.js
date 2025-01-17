@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 import express from "express";
-import { createServer } from "http";
 import path, { dirname } from "path";
 import swaggerUi from "swagger-ui-express";
 import { fileURLToPath } from "url";
@@ -34,9 +33,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// Initialize socket
-socketService.initialize(createServer(app));
-
-app.listen(PORT, function () {
+const server = app.listen(PORT, function () {
   console.log(`Server is running on port ${PORT}`);
 });
+
+// Initialize socket
+socketService.initialize(server);
