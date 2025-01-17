@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Department Patient Ticket</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      .ticket {
+        width: 300px;
+        padding: 10px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .department {
+        font-size: 48px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .sub-department {
+        font-size: 20px;
+        margin: 5px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+      }
+
+      .dept-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .arabic-text {
+        font-family: "Arial Unicode MS", Arial, sans-serif;
+        font-size: 16px;
+      }
+
+      .ticket-number {
+        font-size: 42px;
+        font-weight: bold;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .patient-name {
+        font-size: 20px;
+        margin: 15px 0;
+      }
+
+      .info-line {
+        display: flex;
+        gap: 20px;
+        margin: 8px 0;
+      }
+
+      .datetime-waiting {
+        margin: 8px 0;
+      }
+
+      .barcode {
+        margin: 15px 0 5px 0;
+        width: 100%;
+        height: 60px;
+        background-color: #000;
+      }
+
+      .barcode-number {
+        text-align: center;
+        font-size: 14px;
+        margin: 5px 0;
+      }
+
+      .complain {
+        margin: 10px 0;
+      }
+
+      .vital-signs-header {
+        font-weight: bold;
+        text-align: center;
+        margin: 15px 0 10px 0;
+        font-size: 16px;
+      }
+
+      .vital-signs-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 20px;
+        margin: 10px 0;
+      }
+
+      .vital-sign {
+        display: flex;
+        align-items: center;
+      }
+
+      .vital-sign .label {
+        font-weight: bold;
+        min-width: 55px;
+        margin-right: 5px;
+      }
+
+      .vital-sign .value {
+        flex: 1;
+      }
+
+      .time-vs {
+        margin-top: 15px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ticket">
+      <div class="header">
+        <div class="department">PMAH</div>
+        <div class="sub-department">
+          <div class="dept-info">
+            <span>ACU</span>
+            <span class="arabic-text">المعالجة الفائقة</span>
+          </div>
+          <span class="ticket-number">1A</span>
+        </div>
+      </div>
+
+      <div class="patient-name">Mohammed Ahmed</div>
+
+      <div class="info-line">
+        <span>Age: 34</span>
+      </div>
+
+      <div class="datetime-waiting">01/11/2016 08:48:27 Waiting 6</div>
+
+      <div class="barcode"></div>
+      <div class="barcode-number">201611010848280-5</div>
+
+      <div class="complain">Complain: Back Pain</div>
+
+      <div class="vital-signs-header">Vital Signs</div>
+      <div class="vital-signs-grid">
+        <div class="vital-sign">
+          <span class="label">BP:</span>
+          <span class="value">120/80</span>
+        </div>
+        <div class="vital-sign">
+          <span class="label">SPO2:</span>
+          <span class="value">98</span>
+        </div>
+        <div class="vital-sign">
+          <span class="label">TEMP:</span>
+          <span class="value">37.5</span>
+        </div>
+        <div class="vital-sign">
+          <span class="label">RBS:</span>
+          <span class="value">110</span>
+        </div>
+        <div class="vital-sign">
+          <span class="label">HR:</span>
+          <span class="value">72</span>
+        </div>
+        <div class="vital-sign">
+          <span class="label">HT:</span>
+          <span class="value">175</span>
+        </div>
+        <div class="vital-sign">
+          <span class="label">RR:</span>
+          <span class="value">16</span>
+        </div>
+        <div class="vital-sign">
+          <span class="label">WT:</span>
+          <span class="value">75</span>
+        </div>
+      </div>
+
+      <div class="vital-sign">
+        <span>ALLERGIES:</span>
+        <span>No</span>
+      </div>
+
+      <div class="time-vs">Time VS Taken: 01/11/2016 10:02:45</div>
+    </div>
+  </body>
+</html>
