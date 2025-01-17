@@ -1,36 +1,77 @@
-import { Server } from "socket.io";
-import config from "../config/config.js";
+import { WebSocketServer } from "ws";
 
 class SocketService {
   constructor() {
-    this.io = null;
+    this.wss = null;
+    this.clients = new Set();
   }
 
   initialize(server) {
-    this.io = new Server(server, {
-      cors: {
-        origin: config.FRONTEND_URL,
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        credentials: true,
-      },
+    this.wss = new WebSocketServer({ server });
+
+    this.wss.on("connection", (ws, req) => {
+      console.log("Client connected");
+      this.clients.add(ws);
+
+      // Handle client disconnection
+      ws.on("close", () => {
+        console.log("Client disconnected");
+        this.clients.delete(ws);
+      });
+
+      // Handle errors
+      ws.on("error", (error) => {
+        console.error("WebSocket error:", error);
+        this.clients.delete(ws);
+      });
+
+      // Send initial connection success message
+      ws.send(
+        JSON.stringify({
+          type: "connection",
+          message: "Connected successfully",
+        })
+      );
     });
 
-    this.io.on("connection", (socket) => {
-      console.log("Client connected:", socket.id);
-
-      socket.on("disconnect", () => {
-        console.log("Client disconnected:", socket.id);
-      });
+    // Handle server errors
+    this.wss.on("error", (error) => {
+      console.error("WebSocket server error:", error);
     });
   }
 
+  // Broadcast message to all connected clients
+  broadcastMessage(message) {
+    const messageString = JSON.stringify(message);
+    this.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(messageString);
+      }
+    });
+  }
+
+  // Emit patient call event
   emitPatientCall(patientData) {
-    if (!this.io) {
-      console.error("Socket.IO not initialized");
+    if (!this.wss) {
+      console.error("WebSocket server not initialized");
       return;
     }
     console.log("Emitting patient call event:", patientData);
-    this.io.emit("patient-call", patientData);
+    this.broadcastMessage({
+      type: "patient-call",
+      data: patientData,
+    });
+  }
+
+  // Close all connections
+  closeAll() {
+    if (this.wss) {
+      this.clients.forEach((client) => {
+        client.close();
+      });
+      this.clients.clear();
+      this.wss.close();
+    }
   }
 }
 

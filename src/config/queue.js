@@ -33,3 +33,8 @@ export const patientCallQueue = new Queue("patient-call", {
   connection,
   defaultJobOptions,
 });
+
+export const assignDepartmentQueue = new Queue("assign-department", {
+  connection,
+  defaultJobOptions,
+});

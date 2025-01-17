@@ -1,3 +1,4 @@
+import { assignDepartmentQueue } from "../config/queue.js";
 import {
   assignDepartmentSchema,
   createPatientSchema,
@@ -376,15 +377,15 @@ class PatientController {
             },
           },
         });
+
         // Emit socket event if patient is being called
-        if (updatedPatient.callPatient) {
-          socketService.emitPatientCall({
-            id: updatedPatient.id,
-            name: updatedPatient.name,
-            ticket: updatedPatient.ticket,
-            deptcode: updatedPatient.user?.deptcode,
-          });
-        }
+        socketService.emitPatientCall({
+          id: updatedPatient.id,
+          name: updatedPatient.name,
+          ticket: updatedPatient.ticket,
+          deptcode: updatedPatient.user?.deptcode,
+        });
+
         return updatedPatient;
       });
 
@@ -478,75 +479,77 @@ class PatientController {
         throw new MyError("Department not found", 404);
       }
 
-      // Get latest patient count for ticket number
-      const ticketNumber = patient.ticketNumber;
+      //   // Get latest patient count for ticket number
+      //   const ticketNumber = patient.ticketNumber;
 
-      // Generate barcode
-      const barcode = patient.barcode;
+      //   // Generate barcode
+      //   const barcode = patient.barcode;
 
-      // waiting count
-      const waitingCount = await prisma.patient.count({
-        where: { state: 0 },
-      });
+      //   // waiting count
+      //   const waitingCount = await prisma.patient.count({
+      //     where: { state: 0 },
+      //   });
 
-      // Get current counter
-      let currentCounter = await prisma.patient.count({
-        // count all the patients for last day
-        where: {
-          createdAt: {
-            gte: new Date(new Date().setDate(new Date().getDate() - 1)),
-          },
-        },
-      });
+      //   // Get current counter
+      //   let currentCounter = await prisma.patient.count({
+      //     // count all the patients for last day
+      //     where: {
+      //       createdAt: {
+      //         gte: new Date(new Date().setDate(new Date().getDate() - 1)),
+      //       },
+      //     },
+      //   });
 
-      // Generate department ticket
-      const ticketData = await PDFGenerator.generateDepartmentTicket({
-        ...patient,
+      //   // Generate department ticket
+      //   const ticketData = await PDFGenerator.generateDepartmentTicket({
+      //     ...patient,
+      //     department,
+      //     ticketNumber,
+      //     barcode,
+      //     vitalSigns: patient.vitalSigns[0],
+      //     waitingCount,
+      //     issueDate: new Date(),
+      //     counter: currentCounter,
+      //   });
+
+      //   // Delete old ticket if exists
+      //   if (patient.ticket) {
+      //     await deleteFile(patient.ticket);
+      //   }
+
+      //   // Update patient with new department and ticket
+      //   const updatedPatient = await prisma.patient.update({
+      //     where: { id },
+      //     data: {
+      //       departmentId: value.departmentId,
+      //       ticket: ticketData.relativePath,
+      //       ticketNumber,
+      //       barcode,
+      //     },
+      //     include: {
+      //       department: true,
+      //       vitalSigns: true,
+      //       user: {
+      //         select: {
+      //           name: true,
+      //           email: true,
+      //           deptcode: true,
+      //         },
+      //       },
+      //     },
+      //   });
+
+      await assignDepartmentQueue.add("assign-department", {
+        id,
+        value,
+        patient,
         department,
-        ticketNumber,
-        barcode,
-        vitalSigns: patient.vitalSigns[0],
-        waitingCount,
-        issueDate: new Date(),
-        counter: currentCounter,
-      });
-
-      // Delete old ticket if exists
-      if (patient.ticket) {
-        await deleteFile(patient.ticket);
-      }
-
-      // Update patient with new department and ticket
-      const updatedPatient = await prisma.patient.update({
-        where: { id },
-        data: {
-          departmentId: value.departmentId,
-          ticket: ticketData.relativePath,
-          ticketNumber,
-          barcode,
-        },
-        include: {
-          department: true,
-          vitalSigns: true,
-          user: {
-            select: {
-              name: true,
-              email: true,
-              deptcode: true,
-            },
-          },
-        },
       });
 
       res
         .status(200)
         .json(
-          response(
-            200,
-            true,
-            "Department assigned to patient successfully",
-            updatedPatient
-          )
+          response(200, true, "Department assigned to patient successfully")
         );
     } catch (error) {
       next(error);
