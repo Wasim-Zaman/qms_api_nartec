@@ -73,6 +73,7 @@ class PatientController {
             userId,
             ticket: relativePath,
             barcode: barcodeBase64,
+            ticketNumber: Number(counter),
           },
         });
 
@@ -409,6 +410,7 @@ class PatientController {
           callPatient: true,
         },
         include: {
+          department: true,
           user: {
             select: {
               name: true,
