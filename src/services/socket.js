@@ -10,7 +10,7 @@ class SocketService {
     this.io = new Server(server, {
       cors: {
         origin: config.FRONTEND_URL,
-        methods: ["GET", "POST"],
+        methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
       },
     });
