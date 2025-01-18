@@ -280,6 +280,7 @@ class PatientController {
       const inProgressPatients = await prisma.patient.findMany({
         where: { state: 1 },
         include: {
+          department: true,
           user: {
             select: {
               name: true,
@@ -347,6 +348,7 @@ class PatientController {
       const patient = await prisma.patient.findUnique({
         where: { id },
         include: {
+          department: true,
           user: {
             select: {
               name: true,

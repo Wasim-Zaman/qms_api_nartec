@@ -175,6 +175,7 @@ const processAssignDepartment = async (job) => {
         ticketNumber,
         barcode,
         state: 1, // 0: waiting, 1: serving, 2: served
+        callPatient: false,
       },
       include: {
         department: true,
@@ -188,6 +189,8 @@ const processAssignDepartment = async (job) => {
         },
       },
     });
+
+    console.log(updatedPatient);
   } catch (error) {
     throw error;
   }
