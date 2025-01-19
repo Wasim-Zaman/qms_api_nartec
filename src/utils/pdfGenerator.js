@@ -162,7 +162,7 @@ class PDFGenerator {
       // Generate ticket number format: {counter}+{first letter of department}
       const ticketNumber = `${data.ticketNumber}${
         data.department?.deptname?.[0]?.toUpperCase() || ""
-      }`;
+      }${data.department?.deptname?.[1]?.toUpperCase() || ""}`;
 
       // Prepare template data
       const templateData = {

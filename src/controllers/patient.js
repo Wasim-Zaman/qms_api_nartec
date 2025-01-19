@@ -321,12 +321,24 @@ class PatientController {
         throw new MyError("Patient not found", 404);
       }
 
-      const vitalSign = await prisma.vitalSign.create({
-        data: {
-          ...value,
-          patientId: id,
-        },
-      });
+      let vitalSign;
+
+      // check if patient has already vital signs
+      if (patient.vitalSigns.length) {
+        // update the existing vital sign
+        vitalSign = await prisma.vitalSign.update({
+          where: { id: patient.vitalSigns[0].id },
+          data: value,
+        });
+      } else {
+        // create new vital sign
+        vitalSign = await prisma.vitalSign.create({
+          data: {
+            ...value,
+            patientId: id,
+          },
+        });
+      }
 
       res
         .status(200)
