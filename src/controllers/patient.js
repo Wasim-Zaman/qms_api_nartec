@@ -315,6 +315,9 @@ class PatientController {
 
       const patient = await prisma.patient.findUnique({
         where: { id },
+        include: {
+          vitalSigns: true,
+        },
       });
 
       if (!patient) {
@@ -324,7 +327,7 @@ class PatientController {
       let vitalSign;
 
       // check if patient has already vital signs
-      if (patient.vitalSigns.length) {
+      if (patient?.vitalSigns?.length) {
         // update the existing vital sign
         vitalSign = await prisma.vitalSign.update({
           where: { id: patient.vitalSigns[0].id },
