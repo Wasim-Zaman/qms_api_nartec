@@ -137,6 +137,93 @@ class KPIController {
       next(error);
     }
   }
+
+  static async getEyeballToTriageTime(req, res, next) {
+    try {
+      // Get data for the last 30 days by default, or use query param
+      const days = parseInt(req.query.days) || 30;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const patients = await prisma.patient.findMany({
+        where: {
+          createdAt: {
+            gte: startDate,
+          },
+          vitalSigns: {
+            some: {
+              timeVs: {
+                not: null,
+              },
+            },
+          },
+        },
+        select: {
+          id: true,
+          createdAt: true, // eyeball time
+          vitalSigns: {
+            select: {
+              timeVs: true,
+            },
+            where: {
+              timeVs: {
+                not: null,
+              },
+            },
+            take: 1,
+            orderBy: {
+              timeVs: "asc",
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+
+      // Calculate time difference in minutes for each patient
+      const timeData = patients
+        .map((patient) => {
+          const eyeballTime = new Date(patient.createdAt);
+          const triageTime = new Date(patient.vitalSigns[0]?.timeVs);
+          const diffInMinutes = (triageTime - eyeballTime) / (1000 * 60);
+
+          return {
+            patientId: patient.id,
+            eyeballTime: eyeballTime.toISOString(),
+            triageTime: triageTime.toISOString(),
+            timeToTriage: Math.round(diffInMinutes),
+          };
+        })
+        .filter((data) => !isNaN(data.timeToTriage)); // Filter out invalid calculations
+
+      // Add statistics
+      const stats = {
+        totalPatients: timeData.length,
+        averageTime: Math.round(
+          timeData.reduce((acc, curr) => acc + curr.timeToTriage, 0) /
+            timeData.length
+        ),
+        minTime: Math.min(...timeData.map((d) => d.timeToTriage)),
+        maxTime: Math.max(...timeData.map((d) => d.timeToTriage)),
+      };
+
+      res.status(200).json(
+        response(
+          200,
+          true,
+          "Eyeball to triage time data retrieved successfully",
+          {
+            timeData,
+            stats,
+          }
+        )
+      );
+    } catch (error) {
+      console.error("Error in getEyeballToTriageTime:", error);
+      next(error);
+    }
+  }
 }
 
 export default KPIController;

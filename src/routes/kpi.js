@@ -15,4 +15,10 @@ router.get(
   KPIController.getPatientRegistrationTrend
 );
 
+router.get(
+  "/eyeball-to-triage",
+  //   verifyAccessToken,  // Uncomment if you want to require authentication
+  KPIController.getEyeballToTriageTime
+);
+
 export default router;

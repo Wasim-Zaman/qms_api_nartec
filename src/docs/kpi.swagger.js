@@ -118,3 +118,65 @@
  *                 data:
  *                   type: null
  */
+
+/**
+ * @swagger
+ * /api/v1/kpi/eyeball-to-triage:
+ *   get:
+ *     summary: Get time difference between eyeball and triage for patients
+ *     tags: [KPI]
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *           default: 30
+ *         description: Number of days to look back (default is 30)
+ *     responses:
+ *       200:
+ *         description: Eyeball to triage time data retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Eyeball to triage time data retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       patientId:
+ *                         type: string
+ *                         example: "123e4567-e89b-12d3-a456-426614174000"
+ *                       timeToTriage:
+ *                         type: number
+ *                         description: Time in minutes from eyeball to triage
+ *                         example: 15
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ *                 data:
+ *                   type: null
+ */
