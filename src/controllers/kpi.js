@@ -26,9 +26,6 @@ class KPIController {
         },
       });
 
-      console.log(departmentCounts);
-      console.log(departments);
-
       // Combine counts with department names
       const result = departmentCounts.map((dc) => {
         const dept = departments.find(
