@@ -9,4 +9,10 @@ router.get(
   KPIController.getPatientCounts
 );
 
+router.get(
+  "/registration-trend",
+  //   verifyAccessToken,
+  KPIController.getPatientRegistrationTrend
+);
+
 export default router;

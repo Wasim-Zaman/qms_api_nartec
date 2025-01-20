@@ -67,6 +67,76 @@ class KPIController {
       next(error);
     }
   }
+
+  static async getPatientRegistrationTrend(req, res, next) {
+    try {
+      // Get the date 7 days ago from now
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // -6 to include today
+      sevenDaysAgo.setHours(0, 0, 0, 0); // Start of day
+
+      // Get all patients created in the last 7 days
+      const patients = await prisma.patient.findMany({
+        where: {
+          createdAt: {
+            gte: sevenDaysAgo,
+          },
+        },
+        select: {
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+
+      // Create an array of the last 7 days
+      const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        date.setHours(0, 0, 0, 0);
+        return date;
+      }).reverse();
+
+      // Group patients by date
+      const trend = last7Days.map((date) => {
+        // Count patients for this date
+        const dayCount = patients.filter((patient) => {
+          const patientDate = new Date(patient.createdAt);
+          return (
+            patientDate.getDate() === date.getDate() &&
+            patientDate.getMonth() === date.getMonth() &&
+            patientDate.getFullYear() === date.getFullYear()
+          );
+        }).length;
+
+        return {
+          date: date.toISOString().split("T")[0], // Format as YYYY-MM-DD
+          count: dayCount,
+          formattedDate: date.toLocaleDateString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+          }), // Format as MM/DD
+        };
+      });
+
+      res.status(200).json(
+        response(
+          200,
+          true,
+          "Patient registration trend retrieved successfully",
+          {
+            trend,
+            totalPatients: patients.length,
+            averageDaily: Math.round(patients.length / 7),
+          }
+        )
+      );
+    } catch (error) {
+      console.error("Error in getPatientRegistrationTrend:", error);
+      next(error);
+    }
+  }
 }
 
 export default KPIController;

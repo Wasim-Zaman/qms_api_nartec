@@ -63,3 +63,58 @@
  *       500:
  *         description: Internal server error
  */
+
+/**
+ * @swagger
+ * /api/v1/kpi/registration-trend:
+ *   get:
+ *     summary: Get patient registration trend for the past 7 days
+ *     tags: [KPI]
+ *     responses:
+ *       200:
+ *         description: Patient registration trend retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Patient registration trend retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       date:
+ *                         type: string
+ *                         format: date
+ *                         example: "2024-03-20"
+ *                       count:
+ *                         type: integer
+ *                         example: 15
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ *                 data:
+ *                   type: null
+ */
