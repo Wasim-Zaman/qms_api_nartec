@@ -113,27 +113,24 @@ class PatientController {
               { idNumber: { contains: search } },
               { ticket: { contains: search } },
               { cheifComplaint: { contains: search } },
+              { mobileNumber: { contains: search } },
             ],
           }
         : {};
 
       // Get total count for pagination
       const total = await prisma.patient.count({
-        where: searchCondition,
+        where: {
+          userId,
+          ...searchCondition,
+        },
       });
 
-      // Get paginated and filtered results
+      // Get paginated patients with search
       const patients = await prisma.patient.findMany({
-        where: searchCondition,
-        include: {
-          department: true,
-          user: {
-            select: {
-              name: true,
-              email: true,
-              deptcode: true,
-            },
-          },
+        where: {
+          userId,
+          ...searchCondition,
         },
         orderBy: {
           [sortBy]: order.toLowerCase(),

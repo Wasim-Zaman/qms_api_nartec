@@ -119,19 +119,167 @@
  *                   $ref: '#/components/schemas/Patient'
  *
  *   get:
- *     summary: Get all patients
+ *     summary: Get all patients with pagination and search
  *     tags: [Patients]
- *     security:
- *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term for filtering patients (searches across name, nationality, ID, ticket, complaint, mobile)
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           default: createdAt
+ *           enum: [createdAt, name, nationality, idNumber, ticket]
+ *         description: Field to sort by
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           default: desc
+ *           enum: [asc, desc]
+ *         description: Sort order (ascending or descending)
  *     responses:
  *       200:
- *         description: List of all patients
+ *         description: Patients retrieved successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Patient'
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Patients retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: "123e4567-e89b-12d3-a456-426614174000"
+ *                           name:
+ *                             type: string
+ *                             example: "John Doe"
+ *                           nationality:
+ *                             type: string
+ *                             example: "US"
+ *                           sex:
+ *                             type: string
+ *                             example: "M"
+ *                           idNumber:
+ *                             type: string
+ *                             example: "A123456"
+ *                           age:
+ *                             type: integer
+ *                             example: 30
+ *                           mobileNumber:
+ *                             type: string
+ *                             example: "+1234567890"
+ *                           cheifComplaint:
+ *                             type: string
+ *                             example: "Headache"
+ *                           ticket:
+ *                             type: string
+ *                             example: "T001"
+ *                           state:
+ *                             type: integer
+ *                             example: 0
+ *                           department:
+ *                             type: object
+ *                             properties:
+ *                               deptcode:
+ *                                 type: string
+ *                                 example: "CARD"
+ *                               deptname:
+ *                                 type: string
+ *                                 example: "Cardiology"
+ *                           user:
+ *                             type: object
+ *                             properties:
+ *                               name:
+ *                                 type: string
+ *                                 example: "Dr. Smith"
+ *                               email:
+ *                                 type: string
+ *                                 example: "dr.smith@hospital.com"
+ *                               deptcode:
+ *                                 type: string
+ *                                 example: "CARD"
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                           example: 100
+ *                         page:
+ *                           type: integer
+ *                           example: 1
+ *                         limit:
+ *                           type: integer
+ *                           example: 10
+ *                         totalPages:
+ *                           type: integer
+ *                           example: 10
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Invalid query parameters
+ *                 data:
+ *                   type: null
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ *                 data:
+ *                   type: null
  *
  * @swagger
  * /api/v1/patients/{id}:
