@@ -26,7 +26,7 @@ class UserController {
       }
 
       // Check if password is correct
-      const isPasswordCorrect = bcrypt.compare(password, user.password);
+      const isPasswordCorrect = await bcrypt.compare(password, user.password);
       console.log(user.password);
       if (!isPasswordCorrect) {
         throw new MyError("Invalid password", 401);
