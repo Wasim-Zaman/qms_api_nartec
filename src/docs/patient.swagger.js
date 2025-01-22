@@ -373,10 +373,16 @@
  * @swagger
  * /api/v1/patients/by-state:
  *   get:
- *     summary: Get all patients by state (waiting and in progress)
+ *     summary: Get patients by state (waiting/in-progress) with optional department filter
  *     tags: [Patients]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: dept
+ *         schema:
+ *           type: string
+ *         description: Department code to filter patients (optional)
  *     responses:
  *       200:
  *         description: Patients retrieved successfully
@@ -400,15 +406,114 @@
  *                     waiting:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/Patient'
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: "123e4567-e89b-12d3-a456-426614174000"
+ *                           name:
+ *                             type: string
+ *                             example: "John Doe"
+ *                           state:
+ *                             type: integer
+ *                             example: 0
+ *                           department:
+ *                             type: object
+ *                             properties:
+ *                               tblDepartmentID:
+ *                                 type: string
+ *                                 example: "1"
+ *                               deptcode:
+ *                                 type: string
+ *                                 example: "CARD"
+ *                               deptname:
+ *                                 type: string
+ *                                 example: "Cardiology"
+ *                           user:
+ *                             type: object
+ *                             properties:
+ *                               name:
+ *                                 type: string
+ *                                 example: "Dr. Smith"
+ *                               email:
+ *                                 type: string
+ *                                 example: "dr.smith@hospital.com"
+ *                               deptcode:
+ *                                 type: string
+ *                                 example: "CARD"
  *                     inProgress:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/Patient'
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: "123e4567-e89b-12d3-a456-426614174001"
+ *                           name:
+ *                             type: string
+ *                             example: "Jane Doe"
+ *                           state:
+ *                             type: integer
+ *                             example: 1
+ *                           department:
+ *                             type: object
+ *                             properties:
+ *                               tblDepartmentID:
+ *                                 type: string
+ *                                 example: "1"
+ *                               deptcode:
+ *                                 type: string
+ *                                 example: "CARD"
+ *                               deptname:
+ *                                 type: string
+ *                                 example: "Cardiology"
+ *                           user:
+ *                             type: object
+ *                             properties:
+ *                               name:
+ *                                 type: string
+ *                                 example: "Dr. Smith"
+ *                               email:
+ *                                 type: string
+ *                                 example: "dr.smith@hospital.com"
+ *                               deptcode:
+ *                                 type: string
+ *                                 example: "CARD"
+ *                     counts:
+ *                       type: object
+ *                       properties:
+ *                         waiting:
+ *                           type: integer
+ *                           example: 5
+ *                           description: Number of waiting patients
+ *                         inProgress:
+ *                           type: integer
+ *                           example: 3
+ *                           description: Number of in-progress patients
+ *                         total:
+ *                           type: integer
+ *                           example: 8
+ *                           description: Total number of patients (waiting + in-progress)
  *       401:
- *         description: Unauthorized
+ *         description: Unauthorized - Invalid or missing token
  *       500:
  *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error"
+ *                 data:
+ *                   type: null
  *
  * @swagger
  * /api/v1/patients/{id}/vital-sign:

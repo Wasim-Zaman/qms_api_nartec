@@ -255,9 +255,31 @@ class PatientController {
 
   static async getPatientsByState(req, res, next) {
     try {
+      const { dept } = req.query;
+
+      // Base where condition for waiting patients
+      const waitingWhereCondition = {
+        state: 0,
+        ...(dept && {
+          departmentId: {
+            equals: dept,
+          },
+        }),
+      };
+
+      // Base where condition for in-progress patients
+      const inProgressWhereCondition = {
+        state: 1,
+        ...(dept && {
+          departmentId: {
+            equals: dept,
+          },
+        }),
+      };
+
       // Get patients with state 0 (waiting)
       const waitingPatients = await prisma.patient.findMany({
-        where: { state: 0 },
+        where: waitingWhereCondition,
         include: {
           department: true,
           user: {
@@ -275,7 +297,7 @@ class PatientController {
 
       // Get patients with state 1 (in progress)
       const inProgressPatients = await prisma.patient.findMany({
-        where: { state: 1 },
+        where: inProgressWhereCondition,
         include: {
           department: true,
           user: {
@@ -291,10 +313,18 @@ class PatientController {
         },
       });
 
+      // Get counts
+      const counts = {
+        waiting: waitingPatients.length,
+        inProgress: inProgressPatients.length,
+        total: waitingPatients.length + inProgressPatients.length,
+      };
+
       res.status(200).json(
         response(200, true, "Patients retrieved successfully", {
           waiting: waitingPatients,
           inProgress: inProgressPatients,
+          counts,
         })
       );
     } catch (error) {
