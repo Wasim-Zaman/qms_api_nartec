@@ -14,7 +14,7 @@ class DepartmentController {
         throw new MyError(error.details[0].message, 400);
       }
 
-      const existingDepartment = await prisma.tblDepartment.findUnique({
+      const existingDepartment = await prisma.tblDepartment.findFirst({
         where: { deptcode: value.deptcode },
       });
 
