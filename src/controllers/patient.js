@@ -709,7 +709,7 @@ class PatientController {
           where: { id },
           data: {
             endTime,
-            bedId: null, // Remove bed assignment
+            state: 2, // Patient is discharged | Served
           },
           include: {
             department: true,
