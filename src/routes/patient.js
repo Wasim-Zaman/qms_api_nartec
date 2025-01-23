@@ -23,5 +23,12 @@ router.patch(
   verifyAccessToken,
   PatientController.assignDepartment
 );
+router.patch("/:id/assign-bed", verifyAccessToken, PatientController.assignBed);
+router.patch(
+  "/:id/begin-time",
+  verifyAccessToken,
+  PatientController.setBeginTime
+);
+router.patch("/:id/end-time", verifyAccessToken, PatientController.setEndTime);
 
 export default router;

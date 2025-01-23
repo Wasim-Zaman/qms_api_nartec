@@ -599,6 +599,117 @@ class PatientController {
       next(error);
     }
   }
+
+  static async assignBed(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { bedId } = req.body;
+
+      // Check if bed exists and is available
+      const bed = await prisma.bed.findUnique({
+        where: { id: bedId },
+        include: { patient: true },
+      });
+
+      if (!bed) {
+        throw new MyError("Bed not found", 404);
+      }
+
+      if (bed.bedStatus === "Occupied") {
+        throw new MyError("Bed is already occupied", 400);
+      }
+
+      // Update patient and bed in a transaction
+      const updatedPatient = await prisma.$transaction(async (tx) => {
+        // Update bed status
+        await tx.bed.update({
+          where: { id: bedId },
+          data: { bedStatus: "Occupied" },
+        });
+
+        // Update patient with bed assignment
+        return await tx.patient.update({
+          where: { id },
+          data: { bedId },
+          include: {
+            bed: true,
+            department: true,
+          },
+        });
+      });
+
+      res
+        .status(200)
+        .json(response(200, true, "Bed assigned successfully", updatedPatient));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async setBeginTime(req, res, next) {
+    try {
+      const { id } = req.params;
+      const beginTime = new Date();
+
+      const updatedPatient = await prisma.patient.update({
+        where: { id },
+        data: { beginTime },
+        include: {
+          bed: true,
+          department: true,
+        },
+      });
+
+      res
+        .status(200)
+        .json(
+          response(200, true, "Begin time set successfully", updatedPatient)
+        );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async setEndTime(req, res, next) {
+    try {
+      const { id } = req.params;
+      const endTime = new Date();
+
+      // Update patient and free up bed in a transaction
+      const updatedPatient = await prisma.$transaction(async (tx) => {
+        const patient = await tx.patient.findUnique({
+          where: { id },
+          include: { bed: true },
+        });
+
+        // If patient has a bed, update its status
+        if (patient.bedId) {
+          await tx.bed.update({
+            where: { id: patient.bedId },
+            data: { bedStatus: "Available" },
+          });
+        }
+
+        // Update patient
+        return await tx.patient.update({
+          where: { id },
+          data: {
+            endTime,
+            bedId: null, // Remove bed assignment
+          },
+          include: {
+            department: true,
+          },
+        });
+      });
+
+      res
+        .status(200)
+        .json(response(200, true, "End time set successfully", updatedPatient));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default PatientController;

@@ -897,4 +897,78 @@
  *         description: Patient or Department not found
  *       500:
  *         description: Server error
+ *
+ * @swagger
+ * /api/v1/patients/{id}/assign-bed:
+ *   patch:
+ *     summary: Assign a bed to a patient
+ *     tags: [Patients]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Patient ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - bedId
+ *             properties:
+ *               bedId:
+ *                 type: string
+ *                 description: ID of the bed to assign
+ *     responses:
+ *       200:
+ *         description: Bed assigned successfully
+ *       400:
+ *         description: Bed is already occupied
+ *       404:
+ *         description: Patient or bed not found
+ *
+ * @swagger
+ * /api/v1/patients/{id}/begin-time:
+ *   patch:
+ *     summary: Set patient begin time
+ *     tags: [Patients]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Patient ID
+ *     responses:
+ *       200:
+ *         description: Begin time set successfully
+ *       404:
+ *         description: Patient not found
+ *
+ * @swagger
+ * /api/v1/patients/{id}/end-time:
+ *   patch:
+ *     summary: Set patient end time and free up assigned bed
+ *     tags: [Patients]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Patient ID
+ *     responses:
+ *       200:
+ *         description: End time set successfully
+ *       404:
+ *         description: Patient not found
  */
