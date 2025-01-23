@@ -4,19 +4,21 @@ import { verifyAccessToken } from "../middlewares/auth.js";
 
 const router = express.Router();
 
-router.post("/", verifyAccessToken, DepartmentController.createDepartment);
-router.get("/all", DepartmentController.getAllDepartmentsNoPagination);
-router.get("/", DepartmentController.getAllDepartments);
-router.get("/:deptcode", DepartmentController.getDepartmentByCode);
+const departmentController = new DepartmentController();
+
+router.post("/", verifyAccessToken, departmentController.createDepartment);
+router.get("/all", departmentController.getAllDepartmentsNoPagination);
+router.get("/", departmentController.getAllDepartments);
+router.get("/:deptcode", departmentController.getDepartmentByCode);
 router.put(
   "/:deptcode",
   verifyAccessToken,
-  DepartmentController.updateDepartment
+  departmentController.updateDepartment
 );
 router.delete(
   "/:deptcode",
   verifyAccessToken,
-  DepartmentController.deleteDepartment
+  departmentController.deleteDepartment
 );
 
 export default router;

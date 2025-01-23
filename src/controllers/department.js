@@ -7,7 +7,7 @@ import prisma from "../utils/prismaClient.js";
 import response from "../utils/response.js";
 
 class DepartmentController {
-  static async createDepartment(req, res, next) {
+  async createDepartment(req, res, next) {
     try {
       const { error, value } = createDepartmentSchema.validate(req.body);
       if (error) {
@@ -39,7 +39,7 @@ class DepartmentController {
     }
   }
 
-  static async getAllDepartments(req, res, next) {
+  async getAllDepartments(req, res, next) {
     try {
       const {
         page = 1,
@@ -89,7 +89,7 @@ class DepartmentController {
     }
   }
 
-  static async getDepartmentByCode(req, res, next) {
+  async getDepartmentByCode(req, res, next) {
     try {
       const { deptcode } = req.params;
 
@@ -111,7 +111,7 @@ class DepartmentController {
     }
   }
 
-  static async updateDepartment(req, res, next) {
+  async updateDepartment(req, res, next) {
     try {
       const { deptcode } = req.params;
       const { error, value } = updateDepartmentSchema.validate(req.body);
@@ -138,7 +138,7 @@ class DepartmentController {
     }
   }
 
-  static async deleteDepartment(req, res, next) {
+  async deleteDepartment(req, res, next) {
     try {
       const { deptcode } = req.params;
 
@@ -157,7 +157,7 @@ class DepartmentController {
     }
   }
 
-  static async getNextDepartmentId() {
+  async getNextDepartmentId() {
     const lastDepartment = await prisma.tblDepartment.findFirst({
       orderBy: {
         tblDepartmentID: "desc",
@@ -166,7 +166,7 @@ class DepartmentController {
     return lastDepartment ? lastDepartment.tblDepartmentID + 1 : 1;
   }
 
-  static async getAllDepartmentsNoPagination(req, res, next) {
+  async getAllDepartmentsNoPagination(req, res, next) {
     try {
       const departments = await prisma.tblDepartment.findMany({
         orderBy: {
