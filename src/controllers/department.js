@@ -7,6 +7,15 @@ import prisma from "../utils/prismaClient.js";
 import response from "../utils/response.js";
 
 class DepartmentController {
+  static async getNextDepartmentId() {
+    const lastDepartment = await prisma.tblDepartment.findFirst({
+      orderBy: {
+        tblDepartmentID: "desc",
+      },
+    });
+    return lastDepartment ? lastDepartment.tblDepartmentID + 1 : 1;
+  }
+
   async createDepartment(req, res, next) {
     try {
       const { error, value } = createDepartmentSchema.validate(req.body);
@@ -22,10 +31,13 @@ class DepartmentController {
         throw new MyError("Department with this code already exists", 409);
       }
 
+      const deptId = await DepartmentController.getNextDepartmentId();
+      console.log(deptId);
+
       const department = await prisma.tblDepartment.create({
         data: {
           ...value,
-          tblDepartmentID: await this.getNextDepartmentId(),
+          tblDepartmentID: deptId,
         },
       });
 
@@ -155,15 +167,6 @@ class DepartmentController {
       }
       next(error);
     }
-  }
-
-  async getNextDepartmentId() {
-    const lastDepartment = await prisma.tblDepartment.findFirst({
-      orderBy: {
-        tblDepartmentID: "desc",
-      },
-    });
-    return lastDepartment ? lastDepartment.tblDepartmentID + 1 : 1;
   }
 
   async getAllDepartmentsNoPagination(req, res, next) {
