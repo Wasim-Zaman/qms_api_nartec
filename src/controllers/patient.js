@@ -1,6 +1,8 @@
 import { assignDepartmentQueue } from "../config/queue.js";
 import {
+  assignBedSchema,
   assignDepartmentSchema,
+  beginTimeSchema,
   createPatientSchema,
   createVitalSignSchema,
   updatePatientSchema,
@@ -603,11 +605,14 @@ class PatientController {
   static async assignBed(req, res, next) {
     try {
       const { id } = req.params;
-      const { bedId } = req.body;
+      const { error, value } = assignBedSchema.validate(req.body);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
 
       // Check if bed exists and is available
       const bed = await prisma.bed.findUnique({
-        where: { id: bedId },
+        where: { id: value.bedId },
         include: { patient: true },
       });
 
@@ -623,14 +628,14 @@ class PatientController {
       const updatedPatient = await prisma.$transaction(async (tx) => {
         // Update bed status
         await tx.bed.update({
-          where: { id: bedId },
+          where: { id: value.bedId },
           data: { bedStatus: "Occupied" },
         });
 
         // Update patient with bed assignment
         return await tx.patient.update({
           where: { id },
-          data: { bedId },
+          data: { bedId: value.bedId },
           include: {
             bed: true,
             department: true,
@@ -649,7 +654,12 @@ class PatientController {
   static async setBeginTime(req, res, next) {
     try {
       const { id } = req.params;
-      const beginTime = new Date();
+      const { error, value } = beginTimeSchema.validate(req.body);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
+      const beginTime = value.beginTime || new Date();
 
       const updatedPatient = await prisma.patient.update({
         where: { id },
@@ -673,7 +683,11 @@ class PatientController {
   static async setEndTime(req, res, next) {
     try {
       const { id } = req.params;
-      const endTime = new Date();
+      const { error, value } = endTimeSchema.validate(req.body);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+      const endTime = value.endTime || new Date();
 
       // Update patient and free up bed in a transaction
       const updatedPatient = await prisma.$transaction(async (tx) => {

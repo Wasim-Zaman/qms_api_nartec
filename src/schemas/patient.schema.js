@@ -60,3 +60,15 @@ export const createVitalSignSchema = Joi.object({
 export const assignDepartmentSchema = Joi.object({
   departmentId: Joi.number().required(),
 });
+
+export const assignBedSchema = Joi.object({
+  bedId: Joi.string().required(),
+});
+
+export const beginTimeSchema = Joi.object({
+  beginTime: Joi.date().allow(null, ""),
+});
+
+export const endTimeSchema = Joi.object({
+  endTime: Joi.date().allow(null, ""),
+});
