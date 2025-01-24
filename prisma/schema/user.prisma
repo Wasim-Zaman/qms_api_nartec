@@ -10,4 +10,5 @@ model User {
   refreshToken      RefreshToken[]
   patients          Patient[]
   patientCounts     PatientCount[]
+  roles             Role[]
 }

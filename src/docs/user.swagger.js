@@ -12,7 +12,7 @@
  *       properties:
  *         id:
  *           type: string
- *           description: Auto-generated unique identifier
+ *           description: Auto-generated ID of the user
  *         email:
  *           type: string
  *           format: email
@@ -22,15 +22,17 @@
  *           description: User's full name
  *         deptcode:
  *           type: string
- *           description: Department code
+ *           description: User's department code
+ *         roles:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Role'
  *         createdAt:
  *           type: string
  *           format: date-time
- *           description: Timestamp of user creation
  *         updatedAt:
  *           type: string
  *           format: date-time
- *           description: Timestamp of last update
  *     LoginResponse:
  *       type: object
  *       properties:
@@ -91,10 +93,12 @@
 
 /**
  * @swagger
- * /api/v1/user/register:
+ * /api/v1/users:
  *   post:
- *     summary: Register a new user
+ *     summary: Create a new user
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -104,100 +108,128 @@
  *             required:
  *               - email
  *               - password
- *               - name
- *               - deptcode
  *             properties:
  *               email:
  *                 type: string
  *                 format: email
  *               password:
  *                 type: string
- *                 minimum: 6
  *               name:
  *                 type: string
  *               deptcode:
  *                 type: string
  *     responses:
  *       201:
- *         description: User registered successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: integer
- *                   example: 201
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: User registered successfully
- *                 data:
- *                   $ref: '#/components/schemas/User'
- *       400:
- *         description: Invalid input data
+ *         description: User created successfully
  *       409:
- *         description: Email already registered
+ *         description: User already exists
  *
- * /api/v1/user/login:
- *   post:
- *     summary: Login user
+ *   get:
+ *     summary: Get all users with pagination and search
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term for name, email, or department code
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           default: createdAt
+ *         description: Field to sort by
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order
+ *     responses:
+ *       200:
+ *         description: List of users retrieved successfully
+ *
+ * /api/v1/users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User details retrieved successfully
+ *       404:
+ *         description: User not found
+ *
+ *   put:
+ *     summary: Update user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
- *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - email
- *               - password
  *             properties:
  *               email:
  *                 type: string
  *                 format: email
  *               password:
  *                 type: string
- *     responses:
- *       200:
- *         description: Login successful
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/LoginResponse'
- *       400:
- *         description: Invalid credentials
- *       404:
- *         description: User not found
- *
- * /api/v1/user/refresh-token:
- *   post:
- *     summary: Refresh access token
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - refreshToken
- *             properties:
- *               refreshToken:
+ *               name:
+ *                 type: string
+ *               deptcode:
  *                 type: string
  *     responses:
  *       200:
- *         description: Tokens refreshed successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/TokenResponse'
- *       401:
- *         description: Invalid refresh token
+ *         description: User updated successfully
  *       404:
  *         description: User not found
- *       419:
- *         description: Refresh token expired
+ *       409:
+ *         description: Email already taken
+ *
+ *   delete:
+ *     summary: Delete user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       404:
+ *         description: User not found
  */
