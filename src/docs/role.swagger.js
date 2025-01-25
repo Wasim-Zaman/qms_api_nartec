@@ -115,7 +115,7 @@
  *
  * /api/v1/roles/assign:
  *   post:
- *     summary: Assign role to user
+ *     summary: Assign multiple roles to a user
  *     tags: [Roles]
  *     security:
  *       - bearerAuth: []
@@ -127,19 +127,52 @@
  *             type: object
  *             required:
  *               - userId
- *               - roleId
+ *               - roleIds
  *             properties:
  *               userId:
  *                 type: string
- *               roleId:
- *                 type: string
+ *                 description: ID of the user to assign roles to
+ *               roleIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Array of role IDs to assign to the user
  *     responses:
  *       200:
- *         description: Role assigned successfully
+ *         description: Roles assigned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Roles assigned successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     roles:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Role'
  *       404:
  *         description: User or role not found
  *       409:
- *         description: User already has this role
+ *         description: User already has all specified roles
+ *       500:
+ *         description: Server error
  *
  * /api/v1/roles/remove/{userId}/{roleId}:
  *   delete:

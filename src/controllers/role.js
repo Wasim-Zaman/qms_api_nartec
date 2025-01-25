@@ -110,28 +110,45 @@ class RoleController {
 
   static async assignRoleToUser(req, res, next) {
     try {
-      const { userId, roleId } = req.body;
+      const { userId, roleIds } = req.body;
 
-      // Check if user and role exist
-      const user = await prisma.user.findUnique({ where: { id: userId } });
-      const role = await prisma.role.findUnique({ where: { id: roleId } });
+      // Check if user exists
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          roles: true,
+        },
+      });
 
       if (!user) throw new MyError("User not found", 404);
-      if (!role) throw new MyError("Role not found", 404);
 
-      // Check if assignment already exists
-      const existingAssignment = role.userId == user.id;
+      // Check if all roles exist
+      const roles = await prisma.role.findMany({
+        where: {
+          id: {
+            in: roleIds,
+          },
+        },
+      });
 
-      if (existingAssignment) {
-        throw new MyError("User already has this role", 409);
+      if (roles.length !== roleIds.length) {
+        throw new MyError("One or more roles not found", 404);
       }
 
-      // Assign role to user
+      // Check for existing role assignments
+      const existingRoleIds = user.roles.map((role) => role.id);
+      const newRoleIds = roleIds.filter((id) => !existingRoleIds.includes(id));
+
+      if (newRoleIds.length === 0) {
+        throw new MyError("User already has all specified roles", 409);
+      }
+
+      // Assign roles to user
       const userRole = await prisma.user.update({
         where: { id: userId },
         data: {
           roles: {
-            connect: { id: roleId },
+            connect: newRoleIds.map((id) => ({ id })),
           },
         },
         include: {
@@ -141,7 +158,7 @@ class RoleController {
 
       res
         .status(200)
-        .json(response(200, true, "Role assigned successfully", userRole));
+        .json(response(200, true, "Roles assigned successfully", userRole));
     } catch (error) {
       next(error);
     }
