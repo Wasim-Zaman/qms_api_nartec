@@ -196,4 +196,55 @@
  *         description: Role removed successfully
  *       404:
  *         description: Role assignment not found
+ *
+ * /api/v1/roles/all:
+ *   get:
+ *     summary: Get all roles without pagination
+ *     tags: [Roles]
+ *     description: Retrieve a list of all roles ordered by name
+ *     responses:
+ *       200:
+ *         description: All roles retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "All roles retrieved successfully"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         description: The role's ID
+ *                       name:
+ *                         type: string
+ *                         description: The role name
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           email:
+ *                             type: string
+ *       500:
+ *         description: Server error
  */

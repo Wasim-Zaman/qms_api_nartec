@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.post("/", controller.createRole);
 router.get("/", controller.getAllRoles);
+router.get("/all", controller.getAllRolesNoPagination);
 router.get("/:id", controller.getRoleById);
 router.put("/:id", controller.updateRole);
 router.delete("/:id", controller.deleteRole);

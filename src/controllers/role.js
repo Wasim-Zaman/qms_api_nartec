@@ -206,6 +206,22 @@ class RoleController {
       }
     }
   }
+
+  static async getAllRolesNoPagination(req, res, next) {
+    try {
+      const roles = await prisma.role.findMany({
+        orderBy: {
+          name: "asc",
+        },
+      });
+
+      res
+        .status(200)
+        .json(response(200, true, "All roles retrieved successfully", roles));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default RoleController;
