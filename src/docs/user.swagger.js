@@ -88,12 +88,12 @@
  * @swagger
  * tags:
  *   name: Users
- *   description: User management APIs
+ *   description: User management and authentication APIs
  */
 
 /**
  * @swagger
- * /api/v1/users:
+ * /api/v1/user:
  *   post:
  *     summary: Create a new user
  *     tags: [Users]
@@ -164,7 +164,7 @@
  *       200:
  *         description: List of users retrieved successfully
  *
- * /api/v1/users/{id}:
+ * /api/v1/user/{id}:
  *   get:
  *     summary: Get user by ID
  *     tags: [Users]
@@ -232,4 +232,130 @@
  *         description: User deleted successfully
  *       404:
  *         description: User not found
+ */
+
+/**
+ * @swagger
+ * /api/v1/user/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - name
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 minLength: 6
+ *               name:
+ *                 type: string
+ *               deptcode:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: Invalid input data
+ *       409:
+ *         description: Email already registered
+ *
+ * @swagger
+ * /api/v1/user/login:
+ *   post:
+ *     summary: Login user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: number
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                         name:
+ *                           type: string
+ *                         deptcode:
+ *                           type: string
+ *                         accessToken:
+ *                           type: string
+ *                         refreshToken:
+ *                           type: string
+ *       401:
+ *         description: Invalid credentials
+ *       404:
+ *         description: User not found
+ *
+ * @swagger
+ * /api/v1/user/refresh-token:
+ *   post:
+ *     summary: Refresh access token
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Tokens refreshed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                 refreshToken:
+ *                   type: string
+ *       401:
+ *         description: Invalid refresh token
+ *       419:
+ *         description: Refresh token expired
  */

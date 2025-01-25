@@ -1,5 +1,6 @@
 import express from "express";
 
+import bedRoutes from "./routes/bed.js";
 import departmentRoutes from "./routes/department.js";
 import kpiRoutes from "./routes/kpi.js";
 import patientRoutes from "./routes/patient.js";
@@ -13,5 +14,6 @@ router.use("/patients", patientRoutes);
 router.use("/departments", departmentRoutes);
 router.use("/kpi", kpiRoutes);
 router.use("/roles", roleRoutes);
+router.use("/beds", bedRoutes);
 
 export default router;

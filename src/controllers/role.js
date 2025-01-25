@@ -33,21 +33,7 @@ class RoleController {
 
   static async getAllRoles(req, res, next) {
     try {
-      const roles = await prisma.role.findMany({
-        include: {
-          users: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                },
-              },
-            },
-          },
-        },
-      });
+      const roles = await prisma.role.findMany();
 
       res
         .status(200)
@@ -63,19 +49,6 @@ class RoleController {
 
       const role = await prisma.role.findUnique({
         where: { id },
-        include: {
-          users: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                },
-              },
-            },
-          },
-        },
       });
 
       if (!role) {
@@ -147,27 +120,22 @@ class RoleController {
       if (!role) throw new MyError("Role not found", 404);
 
       // Check if assignment already exists
-      const existingAssignment = await prisma.userRole.findUnique({
-        where: {
-          userId_roleId: {
-            userId,
-            roleId,
-          },
-        },
-      });
+      const existingAssignment = role.userId == user.id;
 
       if (existingAssignment) {
         throw new MyError("User already has this role", 409);
       }
 
-      const userRole = await prisma.userRole.create({
+      // Assign role to user
+      const userRole = await prisma.user.update({
+        where: { id: userId },
         data: {
-          userId,
-          roleId,
+          roles: {
+            connect: { id: roleId },
+          },
         },
         include: {
-          user: true,
-          role: true,
+          roles: true,
         },
       });
 

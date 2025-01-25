@@ -47,13 +47,3 @@ model VitalSign {
     updatedAt       DateTime  @updatedAt
 }
 
-model Bed {
-    id              String    @id @default(uuid())
-    bedNumber       String?
-    bedStatus       String?     // Available, Occupied
-    patient         Patient[]   // Add reverse relation to Patient
-    createdAt       DateTime  @default(now())
-    updatedAt       DateTime  @updatedAt
-
-    @@index([bedNumber])
-}
