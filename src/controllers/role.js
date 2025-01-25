@@ -174,11 +174,23 @@ class RoleController {
     try {
       const { userId, roleId } = req.params;
 
-      await prisma.userRole.delete({
-        where: {
-          userId_roleId: {
-            userId,
-            roleId,
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) throw new MyError("User not found", 404);
+
+      const role = await prisma.role.findUnique({
+        where: { id: roleId },
+      });
+
+      if (!role) throw new MyError("Role not found", 404);
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          roles: {
+            disconnect: [{ id: roleId }],
           },
         },
       });
