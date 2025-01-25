@@ -193,6 +193,22 @@ class BedController {
       }
     }
   }
+
+  static async getAllBedsNoPagination(req, res, next) {
+    try {
+      const beds = await prisma.bed.findMany({
+        orderBy: {
+          bedNumber: "asc",
+        },
+      });
+
+      res
+        .status(200)
+        .json(response(200, true, "All beds retrieved successfully", beds));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default BedController;

@@ -1,3 +1,4 @@
+import { assignRoleSchema } from "../schemas/role.schema.js";
 import MyError from "../utils/error.js";
 import prisma from "../utils/prismaClient.js";
 import response from "../utils/response.js";
@@ -110,7 +111,12 @@ class RoleController {
 
   static async assignRoleToUser(req, res, next) {
     try {
-      const { userId, roleIds } = req.body;
+      const { error, value } = assignRoleSchema.validate(req.body);
+      if (error) {
+        throw new MyError(error.message, 400);
+      }
+
+      const { userId, roleIds } = value;
 
       // Check if user exists
       const user = await prisma.user.findUnique({

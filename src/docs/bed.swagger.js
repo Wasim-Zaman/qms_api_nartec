@@ -153,4 +153,60 @@
  *         description: Bed deleted successfully
  *       404:
  *         description: Bed not found
+ *
+ * /api/v1/beds/all:
+ *   get:
+ *     summary: Get all beds without pagination
+ *     tags: [Beds]
+ *     description: Retrieve a list of all beds ordered by bed number
+ *     responses:
+ *       200:
+ *         description: All beds retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "All beds retrieved successfully"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         description: The bed's ID
+ *                       bedNumber:
+ *                         type: string
+ *                         description: The bed number
+ *                       bedStatus:
+ *                         type: string
+ *                         description: Current status of the bed (Available/Occupied)
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                       patient:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: string
+ *                             name:
+ *                               type: string
+ *                             status:
+ *                               type: string
+ *       500:
+ *         description: Server error
  */
