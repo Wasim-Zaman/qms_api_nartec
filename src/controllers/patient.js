@@ -9,10 +9,10 @@ import {
 } from "../schemas/patient.schema.js";
 import socketService from "../services/socket.js";
 import MyError from "../utils/error.js";
+import { deleteFile, ensureRequiredDirs } from "../utils/file.js";
 import PDFGenerator from "../utils/pdfGenerator.js";
 import prisma from "../utils/prismaClient.js";
 import response from "../utils/response.js";
-import { deleteFile, ensureRequiredDirs } from "../utils/file.js";
 
 class PatientController {
   static async createPatient(req, res, next) {
@@ -717,6 +717,7 @@ class PatientController {
             state: 2, // Patient is discharged | Served
             ticket: null,
             barcode: null,
+            bedId: null, // remove bed assignment
           },
           include: {
             department: true,
