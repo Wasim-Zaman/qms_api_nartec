@@ -5,6 +5,7 @@ import {
   beginTimeSchema,
   createPatientSchema,
   createVitalSignSchema,
+  endTimeSchema,
   updatePatientSchema,
 } from "../schemas/patient.schema.js";
 import socketService from "../services/socket.js";
