@@ -197,6 +197,9 @@ class BedController {
   static async getAllBedsNoPagination(req, res, next) {
     try {
       const beds = await prisma.bed.findMany({
+        where: {
+          bedStatus: "Available",
+        },
         orderBy: {
           bedNumber: "asc",
         },
