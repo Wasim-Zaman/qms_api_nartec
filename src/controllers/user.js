@@ -312,19 +312,23 @@ class UserController {
           name: true,
           deptcode: true,
           createdAt: true,
-          roles: true,
-          patients: {
+          roles: {
             select: {
-              id: true,
               name: true,
-              status: true,
-              createdAt: true,
             },
-            orderBy: {
-              createdAt: "desc",
-            },
-            take: 5,
           },
+          //   patients: {
+          //     select: {
+          //       id: true,
+          //       name: true,
+          //       status: true,
+          //       createdAt: true,
+          //     },
+          //     orderBy: {
+          //       createdAt: "desc",
+          //     },
+          //     take: 5,
+          //   },
           _count: {
             select: {
               patients: true,
