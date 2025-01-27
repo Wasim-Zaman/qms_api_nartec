@@ -133,7 +133,7 @@ class BedController {
   static async updateBed(req, res, next) {
     try {
       const { id } = req.params;
-      const { bedNumber, bedStatus } = req.body;
+      const { bedNumber } = req.body;
 
       // Check if bed number is being changed and if it's already taken
       if (bedNumber) {

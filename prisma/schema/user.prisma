@@ -10,5 +10,5 @@ model User {
   refreshToken      RefreshToken[]
   patients          Patient[]
   patientCounts     PatientCount[]
-  roles             Role[]
+  roles             Role[]     @relation("UserRoles")
 }

@@ -1,4 +1,4 @@
-import { assignRoleSchema } from "../schemas/role.schema.js";
+import { assignRoleSchema, removeRoleSchema } from "../schemas/role.schema.js";
 import MyError from "../utils/error.js";
 import prisma from "../utils/prismaClient.js";
 import response from "../utils/response.js";
@@ -109,11 +109,12 @@ class RoleController {
     }
   }
 
-  static async assignRoleToUser(req, res, next) {
+  static async assignRolesToUser(req, res, next) {
     try {
+      // Validate request using schema
       const { error, value } = assignRoleSchema.validate(req.body);
       if (error) {
-        throw new MyError(error.message, 400);
+        throw new MyError(error.details[0].message, 400);
       }
 
       const { userId, roleIds } = value;
@@ -121,12 +122,12 @@ class RoleController {
       // Check if user exists
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        include: {
-          roles: true,
-        },
+        include: { roles: true },
       });
 
-      if (!user) throw new MyError("User not found", 404);
+      if (!user) {
+        throw new MyError("User not found", 404);
+      }
 
       // Check if all roles exist
       const roles = await prisma.role.findMany({
@@ -141,20 +142,12 @@ class RoleController {
         throw new MyError("One or more roles not found", 404);
       }
 
-      // Check for existing role assignments
-      const existingRoleIds = user.roles.map((role) => role.id);
-      const newRoleIds = roleIds.filter((id) => !existingRoleIds.includes(id));
-
-      if (newRoleIds.length === 0) {
-        throw new MyError("User already has all specified roles", 409);
-      }
-
-      // Assign roles to user
-      const userRole = await prisma.user.update({
+      // Update user's roles
+      const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: {
           roles: {
-            connect: newRoleIds.map((id) => ({ id })),
+            set: roleIds.map((id) => ({ id })),
           },
         },
         include: {
@@ -164,46 +157,50 @@ class RoleController {
 
       res
         .status(200)
-        .json(response(200, true, "Roles assigned successfully", userRole));
+        .json(response(200, true, "Roles assigned successfully", updatedUser));
     } catch (error) {
       next(error);
     }
   }
 
-  static async removeRoleFromUser(req, res, next) {
+  static async removeRolesFromUser(req, res, next) {
     try {
-      const { userId, roleId } = req.params;
+      // Validate request using the same schema
+      const { error, value } = assignRoleSchema.validate(req.body);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
 
+      const { userId, roleIds } = value;
+
+      // Check if user exists
       const user = await prisma.user.findUnique({
         where: { id: userId },
+        include: { roles: true },
       });
 
-      if (!user) throw new MyError("User not found", 404);
+      if (!user) {
+        throw new MyError("User not found", 404);
+      }
 
-      const role = await prisma.role.findUnique({
-        where: { id: roleId },
-      });
-
-      if (!role) throw new MyError("Role not found", 404);
-
-      await prisma.user.update({
+      // Remove specified roles from user
+      const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: {
           roles: {
-            disconnect: [{ id: roleId }],
+            disconnect: roleIds.map((id) => ({ id })),
           },
+        },
+        include: {
+          roles: true,
         },
       });
 
       res
         .status(200)
-        .json(response(200, true, "Role removed from user successfully", null));
+        .json(response(200, true, "Roles removed successfully", updatedUser));
     } catch (error) {
-      if (error.code === "P2025") {
-        next(new MyError("Role assignment not found", 404));
-      } else {
-        next(error);
-      }
+      next(error);
     }
   }
 
@@ -218,6 +215,53 @@ class RoleController {
       res
         .status(200)
         .json(response(200, true, "All roles retrieved successfully", roles));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async removeRoleFromUser(req, res, next) {
+    try {
+      // Validate request using the removeRoleSchema
+      const { error, value } = removeRoleSchema.validate(req.body);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
+      const { userId, roleId } = value;
+
+      // Check if user exists
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { roles: true },
+      });
+
+      if (!user) {
+        throw new MyError("User not found", 404);
+      }
+
+      // Check if user has this role
+      const hasRole = user.roles.some((role) => role.id === roleId);
+      if (!hasRole) {
+        throw new MyError("User does not have this role", 400);
+      }
+
+      // Remove specified role from user
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          roles: {
+            disconnect: { id: roleId },
+          },
+        },
+        include: {
+          roles: true,
+        },
+      });
+
+      res
+        .status(200)
+        .json(response(200, true, "Role removed successfully", updatedUser));
     } catch (error) {
       next(error);
     }
