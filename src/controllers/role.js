@@ -230,6 +230,14 @@ class RoleController {
 
       const { userId, roleId } = value;
 
+      const role = await prisma.role.findUnique({
+        where: { id: roleId },
+      });
+
+      if (!role) {
+        throw new MyError("Role not found", 404);
+      }
+
       // Check if user exists
       const user = await prisma.user.findUnique({
         where: { id: userId },
@@ -246,7 +254,7 @@ class RoleController {
         throw new MyError("User does not have this role", 400);
       }
 
-      // Remove specified role from user
+      // Remove role from user
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: {

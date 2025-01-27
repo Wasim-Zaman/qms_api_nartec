@@ -11,7 +11,7 @@ router.put("/:id", controller.updateRole);
 router.delete("/:id", controller.deleteRole);
 
 // Role assignment routes
-router.post("/assign", controller.assignRoleToUser);
+router.post("/assign", controller.assignRolesToUser);
 router.delete("/remove/:userId/:roleId", controller.removeRoleFromUser);
 
 export default router;
