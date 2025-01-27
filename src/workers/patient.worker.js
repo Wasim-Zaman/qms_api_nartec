@@ -227,13 +227,13 @@ const processUpdateTicket = async (job) => {
       const { relativePath, barcodeText } =
         await PDFGenerator.generateDepartmentTicket({
           ...patient,
-          department,
-          ticketNumber,
-          barcode,
+          department: patient.department,
+          ticketNumber: patient.ticketNumber,
+          barcode: patient.barcode,
           vitalSigns: patient.vitalSigns[0],
           waitingCount,
           issueDate: new Date(),
-          counter: currentCounter,
+          counter: patient.ticketNumber,
         });
 
       // Update patient with new department and ticket
