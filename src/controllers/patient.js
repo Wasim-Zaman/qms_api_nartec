@@ -71,15 +71,36 @@ class PatientController {
         const { relativePath, barcodeBase64 } =
           await PDFGenerator.generateTicket(pdfData);
 
+        // assign default department (TRIAGE) to the patient
+        const department = await prisma.tblDepartment.findFirst({
+          where: {
+            deptname: {
+              contains: "TRIAGE",
+            },
+          },
+        });
+
+        let data = {
+          ...value,
+          userId,
+          ticket: relativePath,
+          barcode: barcodeBase64,
+          ticketNumber: Number(counter),
+        };
+
+        // if department is found, connect with department
+        if (department) {
+          data.departmentId = department.tblDepartmentID;
+          data.department = {
+            connect: {
+              tblDepartmentID: department.tblDepartmentID,
+            },
+          };
+        }
+
         // Create patient record
         const patient = await prisma.patient.create({
-          data: {
-            ...value,
-            userId,
-            ticket: relativePath,
-            barcode: barcodeBase64,
-            ticketNumber: Number(counter),
-          },
+          data: data,
         });
 
         return patient;
