@@ -6,6 +6,7 @@ import {
   createPatientSchema,
   createVitalSignSchema,
   endTimeSchema,
+  getPatientsByDepartmentSchema,
   updatePatientSchema,
 } from "../schemas/patient.schema.js";
 import socketService from "../services/socket.js";
@@ -729,6 +730,57 @@ class PatientController {
       res
         .status(200)
         .json(response(200, true, "End time set successfully", updatedPatient));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getPatientsByDepartment(req, res, next) {
+    try {
+      const { error, value } = getPatientsByDepartmentSchema.validate(
+        req.query
+      );
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
+      const { deptId, page = 1, limit = 10, search = "" } = value;
+
+      const department = await prisma.tblDepartment.findUnique({
+        where: { tblDepartmentID: deptId },
+      });
+
+      if (!department) {
+        throw new MyError("Department not found", 404);
+      }
+
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      const patients = await prisma.patient.findMany({
+        where: {
+          departmentId: deptId,
+          ...(search && {
+            OR: [
+              { name: { contains: search } },
+              { ticket: { contains: search } },
+              { cheifComplaint: { contains: search } },
+              { mobileNumber: { contains: search } },
+            ],
+          }),
+        },
+        include: {
+          department: true,
+        },
+        skip,
+        take: parseInt(limit),
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      res
+        .status(200)
+        .json(response(200, true, "Patients retrieved successfully", patients));
     } catch (error) {
       next(error);
     }

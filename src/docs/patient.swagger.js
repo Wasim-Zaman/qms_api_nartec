@@ -971,4 +971,118 @@
  *         description: End time set successfully
  *       404:
  *         description: Patient not found
+ *
+ * @swagger
+ * /api/v1/patients/by-department:
+ *   get:
+ *     summary: Get patients by department
+ *     tags: [Patients]
+ *     description: Retrieve a paginated list of patients filtered by department ID with optional search
+ *     parameters:
+ *       - in: query
+ *         name: deptId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Department ID to filter patients
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term to filter patients by name, ticket, chief complaint, or mobile number
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved patients
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Patients retrieved successfully"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         description: Patient ID
+ *                       name:
+ *                         type: string
+ *                         description: Patient name
+ *                       ticket:
+ *                         type: string
+ *                         description: Patient ticket number
+ *                       cheifComplaint:
+ *                         type: string
+ *                         description: Patient's chief complaint
+ *                       mobileNumber:
+ *                         type: string
+ *                         description: Patient's mobile number
+ *                       departmentId:
+ *                         type: string
+ *                         description: Department ID
+ *                       department:
+ *                         type: object
+ *                         description: Department details
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *       400:
+ *         description: Bad request - Invalid parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Validation error message"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error"
  */

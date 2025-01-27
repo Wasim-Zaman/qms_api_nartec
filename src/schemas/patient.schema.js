@@ -72,3 +72,9 @@ export const beginTimeSchema = Joi.object({
 export const endTimeSchema = Joi.object({
   endTime: Joi.date().allow(null, ""),
 });
+
+export const getPatientsByDepartmentSchema = Joi.object({
+  page: Joi.number().default(1),
+  limit: Joi.number().default(10),
+  deptId: Joi.number().required(),
+});

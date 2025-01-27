@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get("/by-state", PatientController.getPatientsByState);
 router.get("/called", PatientController.getCalledPatients);
+router.get("/by-department", PatientController.getPatientsByDepartment);
 router.post("/", verifyAccessToken, PatientController.createPatient);
 router.get("/", PatientController.getAllPatients);
 router.get("/:id", PatientController.getPatientById);
