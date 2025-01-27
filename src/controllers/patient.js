@@ -737,42 +737,22 @@ class PatientController {
 
   static async getPatientsByDepartment(req, res, next) {
     try {
-      const { error, value } = getPatientsByDepartmentSchema.validate(
-        req.query
-      );
+      const { error, value } = getPatientsByDepartmentSchema.validate(req.query);
       if (error) {
         throw new MyError(error.details[0].message, 400);
       }
 
-      const { deptId, page = 1, limit = 10, search = "" } = value;
+      const { deptId } = value; // Removed search parameter
 
-      const department = await prisma.tblDepartment.findUnique({
-        where: { tblDepartmentID: deptId },
-      });
-
-      if (!department) {
-        throw new MyError("Department not found", 404);
-      }
-
-      const skip = (parseInt(page) - 1) * parseInt(limit);
+     
 
       const patients = await prisma.patient.findMany({
         where: {
           departmentId: deptId,
-          ...(search && {
-            OR: [
-              { name: { contains: search } },
-              { ticket: { contains: search } },
-              { cheifComplaint: { contains: search } },
-              { mobileNumber: { contains: search } },
-            ],
-          }),
         },
         include: {
           department: true,
         },
-        skip,
-        take: parseInt(limit),
         orderBy: {
           createdAt: "desc",
         },
