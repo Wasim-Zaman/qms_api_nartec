@@ -38,3 +38,8 @@ export const assignDepartmentQueue = new Queue("assign-department", {
   connection,
   defaultJobOptions,
 });
+
+export const updateTicketQueue = new Queue("update-ticket", {
+  connection,
+  defaultJobOptions,
+});

@@ -189,8 +189,82 @@ const processAssignDepartment = async (job) => {
         },
       },
     });
+  } catch (error) {
+    throw error;
+  }
+};
 
-    console.log(updatedPatient);
+const updateTicket = async (job) => {
+  try {
+    const { id, value, patient, department } = job.data;
+
+    // waiting count
+    const waitingCount = await prisma.patient.count({
+      where: { state: 0 },
+    });
+
+    // Get current counter
+    // let currentCounter = await prisma.patient.count({
+    //   // count all the patients for last day
+    //   where: {
+    //     createdAt: {
+    //       gte: new Date(new Date().setDate(new Date().getDate() - 1)),
+    //     },
+    //   },
+    // });
+
+    // Delete old ticket if exists
+    if (patient.ticket) {
+      await deleteFile(patient.ticket);
+    }
+
+    if (patient.vitalSigns.length != 0 && !patient.department) {
+      // Generate department ticket
+      const { relativePath, barcodeText } =
+        await PDFGenerator.generateDepartmentTicket({
+          ...patient,
+          department,
+          ticketNumber,
+          barcode,
+          vitalSigns: patient.vitalSigns[0],
+          waitingCount,
+          issueDate: new Date(),
+          counter: currentCounter,
+        });
+
+      // Update patient with new department and ticket
+      const updatedPatient = await prisma.patient.update({
+        where: { id },
+        data: {
+          ticket: relativePath,
+          barcode: barcodeText,
+        },
+      });
+    } else {
+      // Generate PDF ticket
+      const pdfData = {
+        patientName: patient.name,
+        ticket: patient.ticket,
+        deptcode: patient.user?.deptcode,
+        counter: patient.ticketNumber,
+        issueDate: new Date(),
+        cheifComplaint: patient.cheifComplaint,
+        waitingCount: waitingCount,
+      };
+
+      const { relativePath, barcodeBase64 } = await PDFGenerator.generateTicket(
+        pdfData
+      );
+
+      // Update patient with new department and ticket
+      const updatedPatient = await prisma.patient.update({
+        where: { id },
+        data: {
+          ticket: relativePath,
+          barcode: barcodeBase64,
+        },
+      });
+    }
   } catch (error) {
     throw error;
   }
@@ -209,6 +283,12 @@ export const processPatientCallWorker = new Worker(
 export const processAssignDepartmentWorker = new Worker(
   "assign-department",
   processAssignDepartment,
+  { connection }
+);
+
+export const processUpdateTicketWorker = new Worker(
+  "update-ticket",
+  processUpdateTicket,
   { connection }
 );
 
@@ -234,4 +314,12 @@ processAssignDepartmentWorker.on("completed", (job) => {
 
 processAssignDepartmentWorker.on("failed", (job, err) => {
   console.error(`Assign Department job ${job.id} failed with error:`, err);
+});
+
+processUpdateTicketWorker.on("completed", (job) => {
+  console.log(`Update Ticket job ${job.id} completed successfully`);
+});
+
+processUpdateTicketWorker.on("failed", (job, err) => {
+  console.error(`Update Ticket job ${job.id} failed with error:`, err);
 });

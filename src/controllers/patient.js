@@ -1,4 +1,4 @@
-import { assignDepartmentQueue } from "../config/queue.js";
+import { assignDepartmentQueue, updateTicketQueue } from "../config/queue.js";
 import {
   assignBedSchema,
   assignDepartmentSchema,
@@ -203,6 +203,7 @@ class PatientController {
         where: { id },
         data: value,
         include: {
+          department: true,
           user: {
             select: {
               name: true,
@@ -211,6 +212,13 @@ class PatientController {
             },
           },
         },
+      });
+
+      // Update ticket
+      await updateTicketQueue.add("update-ticket", {
+        id,
+        value,
+        patient,
       });
 
       res
@@ -737,14 +745,14 @@ class PatientController {
 
   static async getPatientsByDepartment(req, res, next) {
     try {
-      const { error, value } = getPatientsByDepartmentSchema.validate(req.query);
+      const { error, value } = getPatientsByDepartmentSchema.validate(
+        req.query
+      );
       if (error) {
         throw new MyError(error.details[0].message, 400);
       }
 
       const { deptId } = value; // Removed search parameter
-
-     
 
       const patients = await prisma.patient.findMany({
         where: {
