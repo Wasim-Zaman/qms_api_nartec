@@ -194,7 +194,7 @@ const processAssignDepartment = async (job) => {
   }
 };
 
-const updateTicket = async (job) => {
+const processUpdateTicket = async (job) => {
   try {
     const { id, value, patient, department } = job.data;
 
