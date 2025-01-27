@@ -80,27 +80,17 @@ class PatientController {
           },
         });
 
-        let data = {
-          ...value,
-          userId,
-          ticket: relativePath,
-          barcode: barcodeBase64,
-          ticketNumber: Number(counter),
-        };
-
-        // if department is found, connect with department
-        if (department) {
-          data.departmentId = department.tblDepartmentID;
-          data.department = {
-            connect: {
-              tblDepartmentID: department.tblDepartmentID,
-            },
-          };
-        }
-
         // Create patient record
         const patient = await prisma.patient.create({
-          data: data,
+          data: {
+            ...value,
+            userId,
+            ticket: relativePath,
+            barcode: barcodeBase64,
+            ticketNumber: Number(counter),
+            // connect with department
+            departmentId: department ? department.tblDepartmentID : null,
+          },
         });
 
         return patient;
