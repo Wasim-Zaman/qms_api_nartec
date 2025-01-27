@@ -218,7 +218,11 @@ const processUpdateTicket = async (job) => {
       await deleteFile(patient.ticket);
     }
 
-    if (patient.vitalSigns.length != 0 && !patient.department) {
+    if (
+      patient?.vitalSigns &&
+      patient?.vitalSigns?.length != 0 &&
+      !patient?.department
+    ) {
       // Generate department ticket
       const { relativePath, barcodeText } =
         await PDFGenerator.generateDepartmentTicket({
