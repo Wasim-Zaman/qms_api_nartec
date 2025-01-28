@@ -168,7 +168,7 @@ class RoleController {
   static async removeRolesFromUser(req, res, next) {
     try {
       // Validate request using the same schema
-      const { error, value } = removeRoleSchema.validate(req.body);
+      const { error, value } = removeRoleSchema.validate(req.params);
       if (error) {
         throw new MyError(error.details[0].message, 400);
       }
