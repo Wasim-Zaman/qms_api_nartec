@@ -138,7 +138,11 @@ class RoleController {
         },
       });
 
-      if (roles.length !== roleIds.length) {
+      // combine old roles with new roles, and remove duplicates
+      const allRoles = [...user.roles, ...roles];
+      const uniqueRoles = [...new Set(allRoles)];
+
+      if (uniqueRoles.length !== roleIds.length) {
         throw new MyError("One or more roles not found", 404);
       }
 
@@ -147,7 +151,7 @@ class RoleController {
         where: { id: userId },
         data: {
           roles: {
-            set: roleIds.map((id) => ({ id })),
+            set: uniqueRoles.map((id) => ({ id })),
           },
         },
         include: {
