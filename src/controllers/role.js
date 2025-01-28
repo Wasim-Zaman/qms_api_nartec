@@ -142,16 +142,14 @@ class RoleController {
         throw new MyError("One or more roles not found", 404);
       }
 
-      // combine old roles with new roles, and remove duplicates
-      const allRoles = [...user.roles, ...roles];
-      const uniqueRoles = [...new Set(allRoles)];
-
+      const allRolesIds = [...user.roles.map((role) => role.id), ...roleIds];
+      const uniqueRolesIds = [...new Set(allRolesIds)];
       // Update user's roles
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: {
           roles: {
-            set: uniqueRoles.map((id) => ({ id })),
+            set: uniqueRolesIds.map((id) => ({ id })),
           },
         },
         include: {
