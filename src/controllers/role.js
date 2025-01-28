@@ -138,13 +138,13 @@ class RoleController {
         },
       });
 
+      if (roles.length !== roleIds.length) {
+        throw new MyError("One or more roles not found", 404);
+      }
+
       // combine old roles with new roles, and remove duplicates
       const allRoles = [...user.roles, ...roles];
       const uniqueRoles = [...new Set(allRoles)];
-
-      if (uniqueRoles.length !== roleIds.length) {
-        throw new MyError("One or more roles not found", 404);
-      }
 
       // Update user's roles
       const updatedUser = await prisma.user.update({
