@@ -784,6 +784,162 @@ class PatientController {
       next(error);
     }
   }
+
+  static async searchPatients(req, res, next) {
+    try {
+      const { idNumber, mobileNumber } = req.query;
+
+      if (!idNumber && !mobileNumber) {
+        throw new MyError(
+          "Please provide either ID number or mobile number",
+          400
+        );
+      }
+
+      // Build search conditions
+      const whereConditions = {
+        OR: [],
+      };
+
+      if (idNumber) {
+        whereConditions.OR.push({ idNumber: { equals: idNumber } });
+      }
+
+      if (mobileNumber) {
+        whereConditions.OR.push({ mobileNumber: { equals: mobileNumber } });
+      }
+
+      const patient = await prisma.patient.findFirst({
+        where: whereConditions,
+        include: {
+          department: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          bed: true,
+          vitalSigns: {
+            orderBy: {
+              createdAt: "desc",
+            },
+            take: 1,
+          },
+        },
+      });
+
+      if (!patient) {
+        throw new MyError("Patient not found", 404);
+      }
+
+      res
+        .status(200)
+        .json(response(200, true, "Patient retrieved successfully", patient));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async reRegisterPatient(req, res, next) {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id; // From auth middleware
+
+      const { error, value } = updatePatientSchema.validate(req.body);
+
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
+      // Find existing patient
+      const existingPatient = await prisma.patient.findUnique({
+        where: { id },
+      });
+
+      if (!existingPatient) {
+        throw new MyError("Patient not found", 404);
+      }
+
+      // we will update the patient data, and reset the state to 0 (waiting), delete the ticket and barcode
+
+      const result = await prisma.$transaction(async (tx) => {
+        // assign default department (TRIAGE) to the patient
+        const department = await tx.tblDepartment.findFirst({
+          where: {
+            deptname: {
+              contains: "TRIAGE",
+            },
+          },
+        });
+
+        // waiting count
+        const waitingCount = await prisma.patient.count({
+          where: { state: 0 },
+        });
+
+        // Get current counter
+        let currentCounter = await prisma.patient.count({
+          // count all the patients for last day
+          where: {
+            createdAt: {
+              gte: new Date(new Date().setDate(new Date().getDate() - 1)),
+            },
+          },
+        });
+
+        const counter = (currentCounter || 0) + 1;
+        const ticket = `${currentCounter?.user?.deptcode}${counter}`;
+
+        // Generate PDF ticket
+        const pdfData = {
+          patientName: value.name,
+          ticket: ticket,
+          deptcode: currentCounter?.user?.deptcode,
+          counter: counter,
+          issueDate: new Date(),
+          cheifComplaint: value.cheifComplaint,
+          waitingCount: waitingCount,
+        };
+
+        const { relativePath, barcodeBase64 } =
+          await PDFGenerator.generateTicket(pdfData);
+
+        const patient = await tx.patient.update({
+          where: { id },
+          data: {
+            ...value,
+            state: 0, // waiting
+            ticket: relativePath,
+            barcode: barcodeBase64,
+            departmentId: department ? department.tblDepartmentID : null,
+            bedId: null,
+            beginTime: null,
+            endTime: null,
+            callPatient: false,
+            vitalSigns: {
+              deleteMany: {},
+            },
+          },
+          include: {
+            department: true,
+            user: true,
+          },
+        });
+
+        return patient;
+      });
+
+      res
+        .status(201)
+        .json(
+          response(201, true, "Patient re-registered successfully", result)
+        );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default PatientController;

@@ -1085,4 +1085,187 @@
  *                 message:
  *                   type: string
  *                   example: "Internal server error"
+ *
+ * @swagger
+ * /api/v1/patients/search:
+ *   get:
+ *     summary: Search for a specific patient by ID number or mobile number
+ *     tags: [Patients]
+ *     parameters:
+ *       - in: query
+ *         name: idNumber
+ *         schema:
+ *           type: string
+ *         description: Patient's exact ID number (optional if mobile number is provided)
+ *       - in: query
+ *         name: mobileNumber
+ *         schema:
+ *           type: string
+ *         description: Patient's exact mobile number (optional if ID number is provided)
+ *     responses:
+ *       200:
+ *         description: Patient found successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Patient retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     nationality:
+ *                       type: string
+ *                     idNumber:
+ *                       type: string
+ *                     mobileNumber:
+ *                       type: string
+ *                     status:
+ *                       type: string
+ *                     department:
+ *                       type: object
+ *                     user:
+ *                       type: object
+ *                     bed:
+ *                       type: object
+ *                     vitalSigns:
+ *                       type: array
+ *       400:
+ *         description: Bad request - Missing search parameters
+ *       404:
+ *         description: Patient not found
+ *       500:
+ *         description: Server error
+ *
+ * @swagger
+ * /api/v1/patients/re-register/{id}:
+ *   post:
+ *     summary: Re-register an existing patient with a new ticket and reset their state
+ *     description: Re-registers a patient by updating their information, resetting state to waiting (0), generating new ticket and barcode, and assigning to TRIAGE department
+ *     tags: [Patients]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the existing patient to re-register
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Patient's full name
+ *               nationality:
+ *                 type: string
+ *                 description: Patient's nationality
+ *               sex:
+ *                 type: string
+ *                 enum: [M, F, O]
+ *                 description: Patient's gender
+ *               idNumber:
+ *                 type: string
+ *                 description: Patient's ID number
+ *               age:
+ *                 type: integer
+ *                 description: Patient's age
+ *               mobileNumber:
+ *                 type: string
+ *                 description: Patient's contact number
+ *               cheifComplaint:
+ *                 type: string
+ *                 description: Patient's main medical complaint
+ *               status:
+ *                 type: string
+ *                 enum: [Non-urgent, Urgent, Critical]
+ *                 description: Patient's urgency status
+ *     responses:
+ *       201:
+ *         description: Patient re-registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 201
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Patient re-registered successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     nationality:
+ *                       type: string
+ *                     sex:
+ *                       type: string
+ *                     idNumber:
+ *                       type: string
+ *                     age:
+ *                       type: integer
+ *                     mobileNumber:
+ *                       type: string
+ *                     cheifComplaint:
+ *                       type: string
+ *                     status:
+ *                       type: string
+ *                     state:
+ *                       type: integer
+ *                       example: 0
+ *                     ticket:
+ *                       type: string
+ *                     barcode:
+ *                       type: string
+ *                     departmentId:
+ *                       type: string
+ *                     department:
+ *                       type: object
+ *                       properties:
+ *                         tblDepartmentID:
+ *                           type: string
+ *                         deptname:
+ *                           type: string
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         name:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *       400:
+ *         description: Bad request - Invalid input data
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       404:
+ *         description: Patient not found
+ *       500:
+ *         description: Server error
  */

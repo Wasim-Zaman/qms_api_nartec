@@ -7,6 +7,7 @@ const router = express.Router();
 router.get("/by-state", PatientController.getPatientsByState);
 router.get("/called", PatientController.getCalledPatients);
 router.get("/by-department", PatientController.getPatientsByDepartment);
+router.get("/search", PatientController.searchPatients);
 router.post("/", verifyAccessToken, PatientController.createPatient);
 router.get("/", PatientController.getAllPatients);
 router.get("/:id", PatientController.getPatientById);
@@ -31,5 +32,11 @@ router.patch(
   PatientController.setBeginTime
 );
 router.patch("/:id/end-time", verifyAccessToken, PatientController.setEndTime);
+
+router.post(
+  "/re-register/:id",
+  verifyAccessToken,
+  PatientController.reRegisterPatient
+);
 
 export default router;
