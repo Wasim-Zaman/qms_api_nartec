@@ -1,4 +1,4 @@
-import { assignDepartmentQueue, updateTicketQueue } from "../config/queue.js";
+import { assignDepartmentQueue } from "../config/queue.js";
 import {
   assignBedSchema,
   assignDepartmentSchema,
@@ -225,16 +225,91 @@ class PatientController {
         },
       });
 
-      // Update ticket
-      await updateTicketQueue.add("update-ticket", {
-        id,
-        value,
-        patient,
+      //   // Update ticket
+      //   await updateTicketQueue.add("update-ticket", {
+      //     id,
+      //     value,
+      //     patient,
+      //   });
+
+      // waiting count
+      const waitingCount = await prisma.patient.count({
+        where: { state: 0 },
       });
+
+      // Get current counter
+      // let currentCounter = await prisma.patient.count({
+      //   // count all the patients for last day
+      //   where: {
+      //     createdAt: {
+      //       gte: new Date(new Date().setDate(new Date().getDate() - 1)),
+      //     },
+      //   },
+      // });
+
+      // Delete old ticket if exists
+      if (patient.ticket) {
+        await deleteFile(patient.ticket);
+      }
+
+      let updatedPatient;
+
+      if (
+        patient?.vitalSigns &&
+        patient?.vitalSigns?.length != 0 &&
+        !patient?.department
+      ) {
+        // Generate department ticket
+        const { relativePath, barcodeText } =
+          await PDFGenerator.generateDepartmentTicket({
+            ...patient,
+            department: patient.department,
+            ticketNumber: patient.ticketNumber,
+            barcode: patient.barcode,
+            vitalSigns: patient.vitalSigns[0],
+            waitingCount,
+            issueDate: new Date(),
+            counter: patient.ticketNumber,
+          });
+
+        // Update patient with new department and ticket
+        updatedPatient = await prisma.patient.update({
+          where: { id },
+          data: {
+            ticket: relativePath,
+            barcode: barcodeText,
+          },
+        });
+      } else {
+        // Generate PDF ticket
+        const pdfData = {
+          patientName: patient.name,
+          ticket: patient.ticket,
+          deptcode: patient.user?.deptcode,
+          counter: patient.ticketNumber,
+          issueDate: new Date(),
+          cheifComplaint: patient.cheifComplaint,
+          waitingCount: waitingCount,
+        };
+
+        const { relativePath, barcodeBase64 } =
+          await PDFGenerator.generateTicket(pdfData);
+
+        // Update patient with new department and ticket
+        updatedPatient = await prisma.patient.update({
+          where: { id },
+          data: {
+            ticket: relativePath,
+            barcode: barcodeBase64,
+          },
+        });
+      }
 
       res
         .status(200)
-        .json(response(200, true, "Patient updated successfully", patient));
+        .json(
+          response(200, true, "Patient updated successfully", updatedPatient)
+        );
     } catch (error) {
       if (error.code === "P2025") {
         throw new MyError("Patient not found", 404);
