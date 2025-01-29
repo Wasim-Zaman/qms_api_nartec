@@ -32,6 +32,11 @@ router.patch(
   PatientController.setBeginTime
 );
 router.patch("/:id/end-time", verifyAccessToken, PatientController.setEndTime);
+router.patch(
+  "/:id/discharge",
+  verifyAccessToken,
+  PatientController.dischargePatient
+);
 
 router.post(
   "/re-register/:id",

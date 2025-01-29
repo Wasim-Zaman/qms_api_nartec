@@ -819,10 +819,6 @@ class PatientController {
   static async dischargePatient(req, res, next) {
     try {
       const { id } = req.params;
-      const { error, value } = dischargePatientSchema.validate(req.body);
-      if (error) {
-        throw new MyError(error.details[0].message, 400);
-      }
 
       const updatedPatient = await prisma.$transaction(async (tx) => {
         const patient = await tx.patient.findUnique({
@@ -833,7 +829,7 @@ class PatientController {
           throw new MyError("Patient not found", 404);
         }
 
-        // If patient has a bed, update its status
+        // If patient has a bed, update its status to release it
         if (patient.bedId) {
           await tx.bed.update({
             where: { id: patient.bedId },
@@ -851,7 +847,7 @@ class PatientController {
           data: {
             state: 2, // Patient is discharged | Served
             ticket: null,
-            barcode: null,
+            // barcode: null,
             bedId: null, // remove bed assignment
           },
           include: {

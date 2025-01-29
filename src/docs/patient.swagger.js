@@ -1344,4 +1344,56 @@
  *         description: Patient not found
  *       500:
  *         description: Server error
+ *
+ * @swagger
+ * /api/v1/patients/{id}/discharge:
+ *   patch:
+ *     summary: Discharge a patient and free up associated resources
+ *     tags: [Patients]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the patient to discharge
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               dischargeNotes:
+ *                 type: string
+ *                 description: Optional notes about the discharge
+ *     responses:
+ *       200:
+ *         description: Patient discharged successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Patient discharged successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Patient'
+ *       400:
+ *         description: Bad request - Invalid input data
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       404:
+ *         description: Patient not found
+ *       500:
+ *         description: Server error
  */
