@@ -22,6 +22,9 @@ export const createPatientSchema = Joi.object({
     .valid(...patientState)
     .default(0),
   callPatient: Joi.boolean().default(false),
+  bloodGroup: Joi.string().allow(null, ""),
+  birthDate: Joi.date().allow(null, ""),
+  mrnNumber: Joi.string().allow(null, ""),
 });
 
 export const updatePatientSchema = Joi.object({
@@ -40,6 +43,9 @@ export const updatePatientSchema = Joi.object({
     .valid(...patientState)
     .allow(null, ""),
   callPatient: Joi.boolean().allow(null, ""),
+  bloodGroup: Joi.string().allow(null, ""),
+  birthDate: Joi.date().allow(null, ""),
+  mrnNumber: Joi.string().allow(null, ""),
 });
 
 // VitalSign

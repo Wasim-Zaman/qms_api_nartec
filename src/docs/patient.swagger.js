@@ -77,33 +77,43 @@
  *             properties:
  *               name:
  *                 type: string
+ *                 description: Patient's full name
  *               nationality:
  *                 type: string
+ *                 description: Patient's nationality
  *               sex:
  *                 type: string
  *                 enum: [M, F, O]
+ *                 description: Patient's gender (M=Male, F=Female, O=Other)
  *               idNumber:
  *                 type: string
+ *                 description: Patient's ID number
  *               age:
  *                 type: integer
+ *                 description: Patient's age
  *               mobileNumber:
  *                 type: string
- *               cheifComplaint:
- *                 type: string
+ *                 description: Patient's contact number
  *               status:
  *                 type: string
  *                 enum: [Non-urgent, Urgent, Critical]
- *                 default: Non-urgent
- *               state:
- *                 type: integer
- *                 enum: [0, 1, 2]
- *                 default: 0
- *               callPatient:
- *                 type: boolean
- *                 default: false
+ *                 description: Patient's urgency status
+ *               cheifComplaint:
+ *                 type: string
+ *                 description: Patient's main medical complaint
+ *               bloodGroup:
+ *                 type: string
+ *                 description: Patient's blood group
+ *               birthDate:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Patient's date of birth
+ *               mrnNumber:
+ *                 type: string
+ *                 description: Medical Record Number
  *     responses:
- *       200:
- *         description: Patient created successfully with ticket
+ *       201:
+ *         description: Patient created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -111,12 +121,78 @@
  *               properties:
  *                 status:
  *                   type: integer
+ *                   example: 201
  *                 success:
  *                   type: boolean
+ *                   example: true
  *                 message:
  *                   type: string
+ *                   example: Patient created successfully
  *                 data:
- *                   $ref: '#/components/schemas/Patient'
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: Auto-generated UUID
+ *                     name:
+ *                       type: string
+ *                     nationality:
+ *                       type: string
+ *                     sex:
+ *                       type: string
+ *                     idNumber:
+ *                       type: string
+ *                     age:
+ *                       type: integer
+ *                     mobileNumber:
+ *                       type: string
+ *                     status:
+ *                       type: string
+ *                     cheifComplaint:
+ *                       type: string
+ *                     ticket:
+ *                       type: string
+ *                     ticketNumber:
+ *                       type: integer
+ *                     barcode:
+ *                       type: string
+ *                     bloodGroup:
+ *                       type: string
+ *                     birthDate:
+ *                       type: string
+ *                       format: date-time
+ *                     mrnNumber:
+ *                       type: string
+ *                     departmentId:
+ *                       type: string
+ *                     userId:
+ *                       type: string
+ *                     bedId:
+ *                       type: string
+ *                     state:
+ *                       type: integer
+ *                       example: 0
+ *                     callPatient:
+ *                       type: boolean
+ *                       example: false
+ *                     beginTime:
+ *                       type: string
+ *                       format: date-time
+ *                     endTime:
+ *                       type: string
+ *                       format: date-time
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Bad request - Invalid input data
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       500:
+ *         description: Server error
  *
  *   get:
  *     summary: Get all patients with pagination and search

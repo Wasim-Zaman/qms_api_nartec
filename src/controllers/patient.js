@@ -792,17 +792,8 @@ class PatientController {
           include: { bed: true },
         });
 
-        // If patient has a bed, update its status
-        if (patient.bedId) {
-          await tx.bed.update({
-            where: { id: patient.bedId },
-            data: { bedStatus: "Available" },
-          });
-        }
-
-        // Delete ticket pdf
-        if (patient.ticket) {
-          await deleteFile(patient.ticket);
+        if (!patient) {
+          throw new MyError("Patient not found", 404);
         }
 
         // Update patient
@@ -810,10 +801,6 @@ class PatientController {
           where: { id },
           data: {
             endTime,
-            state: 2, // Patient is discharged | Served
-            ticket: null,
-            barcode: null,
-            bedId: null, // remove bed assignment
           },
           include: {
             department: true,
@@ -829,6 +816,59 @@ class PatientController {
     }
   }
 
+  static async dischargePatient(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { error, value } = dischargePatientSchema.validate(req.body);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
+      const updatedPatient = await prisma.$transaction(async (tx) => {
+        const patient = await tx.patient.findUnique({
+          where: { id },
+        });
+
+        if (!patient) {
+          throw new MyError("Patient not found", 404);
+        }
+
+        // If patient has a bed, update its status
+        if (patient.bedId) {
+          await tx.bed.update({
+            where: { id: patient.bedId },
+            data: { bedStatus: "Available" },
+          });
+        }
+
+        // Delete ticket pdf
+        if (patient.ticket) {
+          await deleteFile(patient.ticket);
+        }
+
+        return await tx.patient.update({
+          where: { id },
+          data: {
+            state: 2, // Patient is discharged | Served
+            ticket: null,
+            barcode: null,
+            bedId: null, // remove bed assignment
+          },
+          include: {
+            department: true,
+          },
+        });
+      });
+
+      res
+        .status(200)
+        .json(
+          response(200, true, "Patient discharged successfully", updatedPatient)
+        );
+    } catch (error) {
+      next(error);
+    }
+  }
   static async getPatientsByDepartment(req, res, next) {
     try {
       const { error, value } = getPatientsByDepartmentSchema.validate(

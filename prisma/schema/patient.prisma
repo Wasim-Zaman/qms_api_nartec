@@ -11,6 +11,9 @@ model Patient {
     ticket          String?
     ticketNumber    Int?
     barcode         String?   @db.Text
+    bloodGroup      String?
+    birthDate       DateTime?
+    mrnNumber       String?
     departmentId    Decimal?  @db.Decimal(19, 0)
     department      tblDepartment? @relation(fields: [departmentId], references: [tblDepartmentID])
     userId          String?
@@ -21,6 +24,7 @@ model Patient {
     callPatient     Boolean?  @default(false)
     beginTime       DateTime?
     endTime         DateTime?
+
     vitalSigns      VitalSign[]
 
     createdAt       DateTime  @default(now())
