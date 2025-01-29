@@ -5,6 +5,9 @@ echo "🚀 Starting deployment..."
 echo "📥 Pulling latest changes..."
 git pull
 
+echo "📦 Installing dependencies..."
+pnpm install
+
 echo "⏸️ Stopping PM2 processes..."
 pm2 stop qms qms-workers
 
