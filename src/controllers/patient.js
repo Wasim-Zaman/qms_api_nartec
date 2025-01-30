@@ -129,6 +129,8 @@ class PatientController {
               { ticket: { contains: search } },
               { cheifComplaint: { contains: search } },
               { mobileNumber: { contains: search } },
+              { sex: { contains: search } },
+              { bloodGroup: { contains: search } },
             ],
           }
         : {};

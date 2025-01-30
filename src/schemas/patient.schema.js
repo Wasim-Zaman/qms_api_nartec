@@ -2,7 +2,7 @@ import Joi from "joi";
 
 export const patientStatus = ["Non-urgent", "Urgent", "Critical"];
 export const patientState = [0, 1, 2]; // --> 0: Waiting, 1: Serving, 2: Served
-export const patientSex = ["M", "F", "O"];
+export const patientSex = ["M", "F"]; // --> M: Male, F: Female
 
 export const createPatientSchema = Joi.object({
   name: Joi.string().required(),
