@@ -798,11 +798,28 @@ class PatientController {
           throw new MyError("Patient not found", 404);
         }
 
+        // If patient has a bed, update its status to release it
+        if (patient.bedId) {
+          await tx.bed.update({
+            where: { id: patient.bedId },
+            data: { bedStatus: "Available" },
+          });
+        }
+
+        // Delete ticket pdf
+        if (patient.ticket) {
+          await deleteFile(patient.ticket);
+        }
+
         // Update patient
         return await tx.patient.update({
           where: { id },
           data: {
             endTime,
+            state: 2, // Patient is discharged | Served
+            ticket: null,
+            barcode: null,
+            bedId: null, // remove bed assignment
           },
           include: {
             department: true,
