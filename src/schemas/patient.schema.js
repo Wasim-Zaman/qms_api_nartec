@@ -3,7 +3,7 @@ import Joi from "joi";
 export const patientStatus = ["Non-urgent", "Urgent", "Critical"];
 export const patientState = [0, 1, 2]; // --> 0: Waiting, 1: Serving, 2: Served
 export const patientSex = ["M", "F"]; // --> M: Male, F: Female
-
+export const patientCall = ["first", "second"]; // --> first: First Call, second: Second Call
 export const createPatientSchema = Joi.object({
   name: Joi.string().required(),
   nationality: Joi.string().allow(null, ""),
@@ -87,4 +87,10 @@ export const getPatientsByDepartmentSchema = Joi.object({
 
 export const dischargePatientSchema = Joi.object({
   remarks: Joi.string().required(),
+});
+
+export const callPatientSchema = Joi.object({
+  call: Joi.string()
+    .valid(...patientCall)
+    .optional(),
 });

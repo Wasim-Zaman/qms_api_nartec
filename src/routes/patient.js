@@ -8,6 +8,8 @@ router.get("/by-state", PatientController.getPatientsByState);
 router.get("/called", PatientController.getCalledPatients);
 router.get("/by-department", PatientController.getPatientsByDepartment);
 router.get("/search", PatientController.searchPatients);
+router.get("/journey-time/:id", PatientController.getPatientJourneyTime);
+router.get("/journeys", PatientController.getPatientJourneys);
 router.post("/", verifyAccessToken, PatientController.createPatient);
 router.get("/", PatientController.getAllPatients);
 router.get("/:id", PatientController.getPatientById);

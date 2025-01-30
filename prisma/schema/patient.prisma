@@ -15,6 +15,14 @@ model Patient {
     birthDate       DateTime?
     mrnNumber       String?
     remarks         String?
+    
+    // Journey Time
+    firstCallTime      DateTime?
+    vitalTime          DateTime?
+    assignDeptTime     DateTime?
+    secondCallTime     DateTime?
+
+
     departmentId    Decimal?  @db.Decimal(19, 0)
     department      tblDepartment? @relation(fields: [departmentId], references: [tblDepartmentID])
     userId          String?

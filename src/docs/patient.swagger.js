@@ -58,6 +58,44 @@
  *         updatedAt:
  *           type: string
  *           format: date-time
+ *         journeyTimes:
+ *           type: object
+ *           properties:
+ *             createdAt:
+ *               type: string
+ *               format: date-time
+ *               example: "2024-03-20T08:00:00Z"
+ *               description: Initial registration timestamp
+ *             firstCallTime:
+ *               type: string
+ *               format: date-time
+ *               example: "2024-03-20T08:05:00Z"
+ *               description: First call to waiting area timestamp
+ *             vitalTime:
+ *               type: string
+ *               format: date-time
+ *               example: "2024-03-20T08:15:00Z"
+ *               description: Vital signs collection timestamp
+ *             assignDeptTime:
+ *               type: string
+ *               format: date-time
+ *               example: "2024-03-20T08:30:00Z"
+ *               description: Department assignment timestamp
+ *             secondCallTime:
+ *               type: string
+ *               format: date-time
+ *               example: "2024-03-20T08:45:00Z"
+ *               description: Second call to treatment area timestamp
+ *             beginTime:
+ *               type: string
+ *               format: date-time
+ *               example: "2024-03-20T09:00:00Z"
+ *               description: Treatment start timestamp
+ *             endTime:
+ *               type: string
+ *               format: date-time
+ *               example: "2024-03-20T10:00:00Z"
+ *               description: Treatment completion timestamp
  *
  * @swagger
  * /api/v1/patients:
@@ -1393,6 +1431,160 @@
  *         description: Bad request - Invalid input data
  *       401:
  *         description: Unauthorized - Invalid or missing token
+ *       404:
+ *         description: Patient not found
+ *       500:
+ *         description: Server error
+ *
+ * @swagger
+ * /api/v1/patients/journeys:
+ *   get:
+ *     summary: Get paginated patient journey timelines
+ *     tags: [Patients]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Items per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by patient name or MRN
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [createdAt, firstCallTime, vitalTime, assignDeptTime, secondCallTime, beginTime, endTime]
+ *           default: createdAt
+ *         description: Field to sort by
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order
+ *     responses:
+ *       200:
+ *         description: Patient journeys retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Patient journeys retrieved"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           patientId:
+ *                             type: string
+ *                             example: "123e4567-e89b-12d3-a456-426614174000"
+ *                           name:
+ *                             type: string
+ *                             example: "John Doe"
+ *                           mrnNumber:
+ *                             type: string
+ *                             example: "MRN123456"
+ *                           journey:
+ *                             type: object
+ *                             properties:
+ *                               registration:
+ *                                 type: string
+ *                                 format: date-time
+ *                               firstCall:
+ *                                 type: string
+ *                                 format: date-time
+ *                               vitalSigns:
+ *                                 type: string
+ *                                 format: date-time
+ *                               departmentAssigned:
+ *                                 type: string
+ *                                 format: date-time
+ *                               secondCall:
+ *                                 type: string
+ *                                 format: date-time
+ *                               treatmentBegan:
+ *                                 type: string
+ *                                 format: date-time
+ *                               treatmentEnded:
+ *                                 type: string
+ *                                 format: date-time
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                           example: 100
+ *                         page:
+ *                           type: integer
+ *                           example: 1
+ *                         limit:
+ *                           type: integer
+ *                           example: 10
+ *                         totalPages:
+ *                           type: integer
+ *                           example: 10
+ *       400:
+ *         description: Invalid query parameters
+ *       500:
+ *         description: Server error
+ *
+ * @swagger
+ * /api/v1/patients/journey-time/{id}:
+ *   get:
+ *     summary: Get individual patient journey timestamps
+ *     description: Retrieve all timing milestones for a specific patient's journey
+ *     tags: [Patients]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         example: "550e8400-e29b-41d4-a716-446655440000"
+ *         description: Patient ID
+ *     responses:
+ *       200:
+ *         description: Patient journey times retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Patient journey time retrieved successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Patient/properties/journeyTimes'
  *       404:
  *         description: Patient not found
  *       500:

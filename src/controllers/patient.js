@@ -3,6 +3,7 @@ import {
   assignBedSchema,
   assignDepartmentSchema,
   beginTimeSchema,
+  callPatientSchema,
   createPatientSchema,
   createVitalSignSchema,
   dischargePatientSchema,
@@ -471,6 +472,12 @@ class PatientController {
         });
       }
 
+      // update patient with vital time
+      await prisma.patient.update({
+        where: { id },
+        data: { vitalTime: new Date() },
+      });
+
       res
         .status(200)
         .json(
@@ -484,6 +491,12 @@ class PatientController {
   static async togglePatientCall(req, res, next) {
     try {
       const { id } = req.params;
+      const { error, value } = callPatientSchema.validate(req.query);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
+      const { call } = value;
 
       // Assign job to queue
       //   await patientCallQueue.add("toggle-patient-call", { id });
@@ -511,6 +524,10 @@ class PatientController {
           where: { id },
           data: {
             callPatient: !patient.callPatient,
+
+            // set first call time and second call time
+            ...(call === "first" && { firstCallTime: new Date() }),
+            ...(call === "second" && { secondCallTime: new Date() }),
           },
           include: {
             user: {
@@ -1076,6 +1093,119 @@ class PatientController {
         .json(
           response(201, true, "Patient re-registered successfully", result)
         );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // get patient journey time
+  static async getPatientJourneyTime(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      const patient = await prisma.patient.findUnique({
+        where: { id },
+        select: {
+          createdAt: true,
+          firstCallTime: true,
+          secondCallTime: true,
+          vitalTime: true,
+          assignDeptTime: true,
+          beginTime: true,
+          endTime: true,
+        },
+      });
+
+      if (!patient) {
+        throw new MyError("Patient not found", 404);
+      }
+
+      res
+        .status(200)
+        .json(
+          response(
+            200,
+            true,
+            "Patient journey time retrieved successfully",
+            patient
+          )
+        );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getPatientJourneys(req, res, next) {
+    try {
+      const {
+        page = 1,
+        limit = 10,
+        search = "",
+        sortBy = "createdAt",
+        order = "desc",
+      } = req.query;
+
+      const skip = (page - 1) * limit;
+
+      const whereCondition = {
+        OR: [
+          { name: { contains: search } },
+          { mrnNumber: { contains: search } },
+          { idNumber: { contains: search } },
+          { mobileNumber: { contains: search } },
+          { user: { name: { contains: search } } },
+          { remarks: { contains: search } },
+          { cheifComplaint: { contains: search } },
+        ],
+      };
+
+      const total = await prisma.patient.count({ where: whereCondition });
+
+      const patients = await prisma.patient.findMany({
+        where: whereCondition,
+        select: {
+          id: true,
+          name: true,
+          mrnNumber: true,
+          createdAt: true,
+          firstCallTime: true,
+          vitalTime: true,
+          assignDeptTime: true,
+          secondCallTime: true,
+          beginTime: true,
+          endTime: true,
+        },
+        skip,
+        take: Number(limit),
+        orderBy: { [sortBy]: order },
+      });
+
+      const journeys = patients.map((patient) => ({
+        patientId: patient.id,
+        name: patient.name,
+        mrnNumber: patient.mrnNumber,
+        journey: {
+          registration: patient.createdAt,
+          firstCall: patient.firstCallTime,
+          vitalSigns: patient.vitalTime,
+          departmentAssigned: patient.assignDeptTime,
+          secondCall: patient.secondCallTime,
+          treatmentBegan: patient.beginTime,
+          treatmentEnded: patient.endTime,
+        },
+      }));
+
+      res.status(200).json(
+        response(200, true, "Patient journeys retrieved", {
+          data: journeys,
+          pagination: {
+            total,
+            page: Number(page),
+            limit: Number(limit),
+            totalPages: Math.ceil(total / limit),
+          },
+        })
+      );
     } catch (error) {
       next(error);
     }
