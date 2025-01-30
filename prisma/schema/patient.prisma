@@ -14,6 +14,7 @@ model Patient {
     bloodGroup      String?
     birthDate       DateTime?
     mrnNumber       String?
+    remarks         String?
     departmentId    Decimal?  @db.Decimal(19, 0)
     department      tblDepartment? @relation(fields: [departmentId], references: [tblDepartmentID])
     userId          String?

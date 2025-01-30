@@ -5,6 +5,7 @@ import {
   beginTimeSchema,
   createPatientSchema,
   createVitalSignSchema,
+  dischargePatientSchema,
   endTimeSchema,
   getPatientsByDepartmentSchema,
   updatePatientSchema,
@@ -839,7 +840,14 @@ class PatientController {
     try {
       const { id } = req.params;
 
+      const { error, value } = dischargePatientSchema.validate(req.body);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
       const updatedPatient = await prisma.$transaction(async (tx) => {
+        const remarks = value.remarks;
+
         const patient = await tx.patient.findUnique({
           where: { id },
         });
@@ -868,6 +876,7 @@ class PatientController {
             ticket: null,
             // barcode: null,
             bedId: null, // remove bed assignment
+            remarks,
           },
           include: {
             department: true,
@@ -884,6 +893,7 @@ class PatientController {
       next(error);
     }
   }
+
   static async getPatientsByDepartment(req, res, next) {
     try {
       const { error, value } = getPatientsByDepartmentSchema.validate(

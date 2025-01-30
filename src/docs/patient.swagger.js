@@ -1366,9 +1366,10 @@
  *           schema:
  *             type: object
  *             properties:
- *               dischargeNotes:
+ *               remarks:
  *                 type: string
- *                 description: Optional notes about the discharge
+ *                 description: Discharge remarks/notes
+ *                 example: "Patient discharged after full recovery"
  *     responses:
  *       200:
  *         description: Patient discharged successfully

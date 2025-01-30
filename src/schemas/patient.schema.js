@@ -84,3 +84,7 @@ export const getPatientsByDepartmentSchema = Joi.object({
   limit: Joi.number().default(10),
   deptId: Joi.number().required(),
 });
+
+export const dischargePatientSchema = Joi.object({
+  remarks: Joi.string().required(),
+});
