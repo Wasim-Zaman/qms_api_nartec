@@ -94,3 +94,36 @@ export const callPatientSchema = Joi.object({
     .valid(...patientCall)
     .optional(),
 });
+
+export const getPatientJourneysSchema = Joi.object({
+  page: Joi.number().min(1).default(1),
+  limit: Joi.number().min(1).default(10),
+  search: Joi.string().allow("", null),
+  sortBy: Joi.string()
+    .valid(
+      "createdAt",
+      "name",
+      "age",
+      "firstCallTime",
+      "vitalTime",
+      "assignDeptTime",
+      "secondCallTime",
+      "beginTime",
+      "endTime"
+    )
+    .default("createdAt"),
+  order: Joi.string().valid("asc", "desc").default("desc"),
+  // Add filters
+  startDate: Joi.date().iso(),
+  endDate: Joi.date().iso().min(Joi.ref("startDate")),
+  state: Joi.number().valid(0, 1, 2), // Waiting, Serving, Served
+  status: Joi.string().valid("Non-urgent", "Urgent", "Critical"),
+  sex: Joi.string().valid("M", "F"),
+  departmentId: Joi.number(),
+  age: Joi.object({
+    min: Joi.number().min(0),
+    max: Joi.number().min(Joi.ref("min")),
+  }),
+  hasVitalSigns: Joi.boolean(),
+  hasBed: Joi.boolean(),
+});

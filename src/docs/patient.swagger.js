@@ -1439,26 +1439,28 @@
  * @swagger
  * /api/v1/patients/journeys:
  *   get:
- *     summary: Get paginated patient journey timelines
+ *     summary: Get paginated and filtered patient journey timelines
  *     tags: [Patients]
  *     parameters:
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
+ *           minimum: 1
  *           default: 1
  *         description: Page number
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
+ *           minimum: 1
  *           default: 10
  *         description: Items per page
  *       - in: query
  *         name: search
  *         schema:
  *           type: string
- *         description: Search by patient name or MRN
+ *         description: Search by patient name, MRN, ID, mobile, or complaint
  *       - in: query
  *         name: sortBy
  *         schema:
@@ -1473,6 +1475,62 @@
  *           enum: [asc, desc]
  *           default: desc
  *         description: Sort order
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter by start date (ISO format)
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter by end date (ISO format)
+ *       - in: query
+ *         name: state
+ *         schema:
+ *           type: integer
+ *           enum: [0, 1, 2]
+ *         description: Filter by patient state (0=Waiting, 1=Serving, 2=Served)
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [Non-urgent, Urgent, Critical]
+ *         description: Filter by patient status
+ *       - in: query
+ *         name: sex
+ *         schema:
+ *           type: string
+ *           enum: [M, F]
+ *         description: Filter by patient sex
+ *       - in: query
+ *         name: departmentId
+ *         schema:
+ *           type: integer
+ *         description: Filter by department ID
+ *       - in: query
+ *         name: age[min]
+ *         schema:
+ *           type: integer
+ *           minimum: 0
+ *         description: Filter by minimum age
+ *       - in: query
+ *         name: age[max]
+ *         schema:
+ *           type: integer
+ *         description: Filter by maximum age
+ *       - in: query
+ *         name: hasVitalSigns
+ *         schema:
+ *           type: boolean
+ *         description: Filter patients with/without vital signs
+ *       - in: query
+ *         name: hasBed
+ *         schema:
+ *           type: boolean
+ *         description: Filter patients with/without bed assignment
  *     responses:
  *       200:
  *         description: Patient journeys retrieved successfully
@@ -1489,104 +1547,27 @@
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: "Patient journeys retrieved"
+ *                   example: Patient journeys retrieved
  *                 data:
  *                   type: object
  *                   properties:
  *                     data:
  *                       type: array
  *                       items:
- *                         type: object
- *                         properties:
- *                           patientId:
- *                             type: string
- *                             example: "123e4567-e89b-12d3-a456-426614174000"
- *                           name:
- *                             type: string
- *                             example: "John Doe"
- *                           mrnNumber:
- *                             type: string
- *                             example: "MRN123456"
- *                           journey:
- *                             type: object
- *                             properties:
- *                               registration:
- *                                 type: string
- *                                 format: date-time
- *                               firstCall:
- *                                 type: string
- *                                 format: date-time
- *                               vitalSigns:
- *                                 type: string
- *                                 format: date-time
- *                               departmentAssigned:
- *                                 type: string
- *                                 format: date-time
- *                               secondCall:
- *                                 type: string
- *                                 format: date-time
- *                               treatmentBegan:
- *                                 type: string
- *                                 format: date-time
- *                               treatmentEnded:
- *                                 type: string
- *                                 format: date-time
+ *                         $ref: '#/components/schemas/PatientJourney'
  *                     pagination:
  *                       type: object
  *                       properties:
  *                         total:
  *                           type: integer
- *                           example: 100
  *                         page:
  *                           type: integer
- *                           example: 1
  *                         limit:
  *                           type: integer
- *                           example: 10
  *                         totalPages:
  *                           type: integer
- *                           example: 10
  *       400:
  *         description: Invalid query parameters
- *       500:
- *         description: Server error
- *
- * @swagger
- * /api/v1/patients/journey-time/{id}:
- *   get:
- *     summary: Get individual patient journey timestamps
- *     description: Retrieve all timing milestones for a specific patient's journey
- *     tags: [Patients]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *         example: "550e8400-e29b-41d4-a716-446655440000"
- *         description: Patient ID
- *     responses:
- *       200:
- *         description: Patient journey times retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: integer
- *                   example: 200
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Patient journey time retrieved successfully"
- *                 data:
- *                   $ref: '#/components/schemas/Patient/properties/journeyTimes'
- *       404:
- *         description: Patient not found
  *       500:
  *         description: Server error
  */

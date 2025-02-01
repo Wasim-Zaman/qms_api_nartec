@@ -8,6 +8,7 @@ import {
   createVitalSignSchema,
   dischargePatientSchema,
   endTimeSchema,
+  getPatientJourneysSchema,
   getPatientsByDepartmentSchema,
   updatePatientSchema,
 } from "../schemas/patient.schema.js";
@@ -1141,25 +1142,73 @@ class PatientController {
 
   static async getPatientJourneys(req, res, next) {
     try {
+      const { error, value } = getPatientJourneysSchema.validate(req.query);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
       const {
-        page = 1,
-        limit = 10,
-        search = "",
-        sortBy = "createdAt",
-        order = "desc",
-      } = req.query;
+        page,
+        limit,
+        search,
+        sortBy,
+        order,
+        startDate,
+        endDate,
+        state,
+        status,
+        sex,
+        departmentId,
+        age,
+        hasVitalSigns,
+        hasBed,
+      } = value;
 
       const skip = (page - 1) * limit;
 
+      // Build where condition
       const whereCondition = {
-        OR: [
-          { name: { contains: search } },
-          { mrnNumber: { contains: search } },
-          { idNumber: { contains: search } },
-          { mobileNumber: { contains: search } },
-          { user: { name: { contains: search } } },
-          { remarks: { contains: search } },
-          { cheifComplaint: { contains: search } },
+        AND: [
+          // Search condition
+          search
+            ? {
+                OR: [
+                  { name: { contains: search } },
+                  { mrnNumber: { contains: search } },
+                  { idNumber: { contains: search } },
+                  { mobileNumber: { contains: search } },
+                  { user: { name: { contains: search } } },
+                  { remarks: { contains: search } },
+                  { cheifComplaint: { contains: search } },
+                ],
+              }
+            : {},
+          // Date range
+          startDate ? { createdAt: { gte: new Date(startDate) } } : {},
+          endDate ? { createdAt: { lte: new Date(endDate) } } : {},
+          // State
+          state !== undefined ? { state } : {},
+          // Status
+          status ? { status } : {},
+          // Sex
+          sex ? { sex } : {},
+          // Department
+          departmentId ? { departmentId } : {},
+          // Age range
+          age?.min ? { age: { gte: age.min } } : {},
+          age?.max ? { age: { lte: age.max } } : {},
+          // Vital signs
+          hasVitalSigns !== undefined
+            ? {
+                vitalSigns: hasVitalSigns ? { some: {} } : { none: {} },
+              }
+            : {},
+          // Bed assignment
+          hasBed !== undefined
+            ? {
+                bedId: hasBed ? { not: null } : null,
+              }
+            : {},
         ],
       };
 
@@ -1176,6 +1225,8 @@ class PatientController {
           sex: true,
           idNumber: true,
           mobileNumber: true,
+          status: true,
+          state: true,
           createdAt: true,
           firstCallTime: true,
           vitalTime: true,
@@ -1183,6 +1234,18 @@ class PatientController {
           secondCallTime: true,
           beginTime: true,
           endTime: true,
+          department: {
+            select: {
+              tblDepartmentID: true,
+              deptname: true,
+            },
+          },
+          bed: {
+            select: {
+              id: true,
+              bedNumber: true,
+            },
+          },
         },
         skip,
         take: Number(limit),
@@ -1198,6 +1261,10 @@ class PatientController {
         sex: patient.sex,
         idNumber: patient.idNumber,
         mobileNumber: patient.mobileNumber,
+        status: patient.status,
+        state: patient.state,
+        department: patient.department,
+        bed: patient.bed,
         journey: {
           registration: patient.createdAt,
           firstCall: patient.firstCallTime,
