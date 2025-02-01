@@ -1171,6 +1171,11 @@ class PatientController {
           id: true,
           name: true,
           mrnNumber: true,
+          bloodGroup: true,
+          age: true,
+          sex: true,
+          idNumber: true,
+          mobileNumber: true,
           createdAt: true,
           firstCallTime: true,
           vitalTime: true,
@@ -1185,10 +1190,14 @@ class PatientController {
       });
 
       const journeys = patients.map((patient) => ({
-        // patientId: patient.id,
-        // name: patient.name,
-        // mrnNumber: patient.mrnNumber,
-        ...patient,
+        patientId: patient.id,
+        name: patient.name,
+        mrnNumber: patient.mrnNumber,
+        bloodGroup: patient.bloodGroup,
+        age: patient.age,
+        sex: patient.sex,
+        idNumber: patient.idNumber,
+        mobileNumber: patient.mobileNumber,
         journey: {
           registration: patient.createdAt,
           firstCall: patient.firstCallTime,
