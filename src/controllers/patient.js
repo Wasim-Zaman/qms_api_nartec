@@ -816,6 +816,10 @@ class PatientController {
           throw new MyError("Patient not found", 404);
         }
 
+        if (!patient.beginTime) {
+          throw new MyError("Patient begin time is not set", 400);
+        }
+
         // If patient has a bed, update its status to release it
         if (patient.bedId) {
           await tx.bed.update({
@@ -1181,9 +1185,10 @@ class PatientController {
       });
 
       const journeys = patients.map((patient) => ({
-        patientId: patient.id,
-        name: patient.name,
-        mrnNumber: patient.mrnNumber,
+        // patientId: patient.id,
+        // name: patient.name,
+        // mrnNumber: patient.mrnNumber,
+        ...patient,
         journey: {
           registration: patient.createdAt,
           firstCall: patient.firstCallTime,
