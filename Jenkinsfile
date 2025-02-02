@@ -33,17 +33,19 @@ pipeline {
                     def processStatus = bat(script: 'pm2 list', returnStdout: true).trim()
                     if (processStatus.contains('qms')) {
                         bat 'pm2 stop qms qms-workers || exit 0'
-                        // bat 'pm2 delete solitaireMallBackend || exit 0'
+                        bat 'pm2 delete qms || exit 0'
+                        bat 'pm2 delete qms-workers || exit 0'
                     }
                 }
-                // echo "Installing dependencies for QMS..."
-                // bat 'npm ci'
-                // echo "Generating Prisma files..."
-                // bat 'npx prisma generate'
-                // echo "Restarting PM2 process..."
-                // // bat 'pm2 start server.js --name solitaireMallBackend'
+                echo "Installing dependencies for QMS..."
+                bat 'npm ci'
+                echo "Generating Prisma files..."
+                bat 'npx prisma generate'
+                echo "Restarting PM2 process..."
+                bat 'pm2 start app.js --name qms'
+                bat 'pm2 start workers/index.js --name qms-workers'
                 // bat 'pm2 restart qms qms-workers'
-                bat 'deploy.bat'
+                // bat 'deploy.bat'
             }
         }
     }
