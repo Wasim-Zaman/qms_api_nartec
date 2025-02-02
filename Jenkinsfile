@@ -37,17 +37,16 @@ pipeline {
                         // bat 'pm2 delete qms-workers || exit 0'
                     }
                 }
-                // echo "Installing dependencies for QMS..."
-                // bat 'npm ci'
-                // echo "Generating Prisma files..."
-                // bat 'npx prisma generate'
-                // echo "Restarting PM2 process..."
+                echo "Installing dependencies for QMS..."
+                bat 'npm ci'
+                echo "Generating Prisma files..."
+                bat 'npx prisma generate'
+                echo "Restarting PM2 process..."
+                bat 'pm2 restart qms qms-workers'
+                echo "Restarting PM2 process... Done"
+                bat 'pm2 save'
                 // bat 'pm2 start src/app.js --name qms'
                 // bat 'pm2 start src/workers/index.js --name qms-workers'
-                // // bat 'pm2 restart qms qms-workers'
-                // bat 'deploy.bat'
-                // I have deploy.bat file in the root directory of the project, which i want to run
-                deploy.bat
             }
         }
     }
