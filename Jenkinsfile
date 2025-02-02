@@ -37,13 +37,14 @@ pipeline {
                         // bat 'pm2 delete solitaireMallBackend || exit 0'
                     }
                 }
-                echo "Installing dependencies for QMS..."
-                bat 'npm ci'
-                echo "Generating Prisma files..."
-                bat 'npx prisma generate'
-                echo "Restarting PM2 process..."
-                // bat 'pm2 start server.js --name solitaireMallBackend'
-                bat 'pm2 restart qms qms-workers'
+                // echo "Installing dependencies for QMS..."
+                // bat 'npm ci'
+                // echo "Generating Prisma files..."
+                // bat 'npx prisma generate'
+                // echo "Restarting PM2 process..."
+                // // bat 'pm2 start server.js --name solitaireMallBackend'
+                // bat 'pm2 restart qms qms-workers'
+                bat 'deploy.bat'
             }
         }
     }
