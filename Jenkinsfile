@@ -31,7 +31,7 @@ pipeline {
                 script {
                     echo "Stopping PM2 process if running..."
                     def processStatus = bat(script: 'pm2 list', returnStdout: true).trim()
-                    if (processStatus.contains('qms')) {
+                    if (processStatus.contains('qms') || processStatus.contains('qms-workers')) {
                         bat 'pm2 stop qms qms-workers || exit 0'
                         // bat 'pm2 delete qms || exit 0'
                         // bat 'pm2 delete qms-workers || exit 0'
