@@ -1,4 +1,3 @@
-// Jenkins Pipeline for SolitaireMallBackend.
 pipeline {
     agent any
 
