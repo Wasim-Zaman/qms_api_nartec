@@ -46,7 +46,8 @@ pipeline {
                 // bat 'pm2 start src/workers/index.js --name qms-workers'
                 // // bat 'pm2 restart qms qms-workers'
                 // bat 'deploy.bat'
-                ./deploy.bat
+                // I have deploy.bat file in the root directory of the project, which i want to run
+                deploy.bat
             }
         }
     }
