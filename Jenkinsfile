@@ -33,8 +33,6 @@ pipeline {
                     def processStatus = bat(script: 'pm2 list', returnStdout: true).trim()
                     if (processStatus.contains('qms') || processStatus.contains('qms-workers')) {
                         bat 'pm2 stop qms qms-workers || exit 0'
-                        // bat 'pm2 delete qms || exit 0'
-                        // bat 'pm2 delete qms-workers || exit 0'
                     }
                 }
                 echo "Installing dependencies for QMS..."
@@ -45,8 +43,6 @@ pipeline {
                 bat 'pm2 restart qms qms-workers'
                 echo "Restarting PM2 process... Done"
                 bat 'pm2 save'
-                // bat 'pm2 start src/app.js --name qms'
-                // bat 'pm2 start src/workers/index.js --name qms-workers'
             }
         }
     }
