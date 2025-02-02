@@ -45,7 +45,8 @@ pipeline {
                 // bat 'pm2 start src/app.js --name qms'
                 // bat 'pm2 start src/workers/index.js --name qms-workers'
                 // // bat 'pm2 restart qms qms-workers'
-                bat 'deploy.bat'
+                // bat 'deploy.bat'
+                ./deploy.bat
             }
         }
     }
