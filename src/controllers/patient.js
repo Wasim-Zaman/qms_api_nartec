@@ -858,6 +858,63 @@ class PatientController {
     }
   }
 
+  static async voidPatient(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { error, value } = endTimeSchema.validate(req.body);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+      const endTime = value.endTime || new Date();
+
+      // Update patient and free up bed in a transaction
+      const updatedPatient = await prisma.$transaction(async (tx) => {
+        const patient = await tx.patient.findUnique({
+          where: { id },
+          include: { bed: true },
+        });
+
+        if (!patient) {
+          throw new MyError("Patient not found", 404);
+        }
+
+        // If patient has a bed, update its status to release it
+        if (patient.bedId) {
+          await tx.bed.update({
+            where: { id: patient.bedId },
+            data: { bedStatus: "Available" },
+          });
+        }
+
+        // Delete ticket pdf
+        if (patient.ticket) {
+          await deleteFile(patient.ticket);
+        }
+
+        // Update patient
+        return await tx.patient.update({
+          where: { id },
+          data: {
+            endTime,
+            state: 3, // Patient is voided
+            ticket: null,
+            barcode: null,
+            bedId: null, // remove bed assignment
+          },
+          include: {
+            department: true,
+          },
+        });
+      });
+
+      res
+        .status(200)
+        .json(response(200, true, "End time set successfully", updatedPatient));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async dischargePatient(req, res, next) {
     try {
       const { id } = req.params;

@@ -22,6 +22,7 @@ router.post(
   PatientController.createVitalSign
 );
 router.patch("/:id/toggle-call", PatientController.togglePatientCall);
+router.patch("/:id/void", verifyAccessToken, PatientController.voidPatient);
 router.patch(
   "/:id/assign-department",
   verifyAccessToken,

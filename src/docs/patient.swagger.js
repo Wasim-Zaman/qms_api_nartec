@@ -1570,4 +1570,119 @@
  *         description: Invalid query parameters
  *       500:
  *         description: Server error
+ *
+ * @swagger
+ * /api/v1/patients/{id}/void:
+ *   patch:
+ *     summary: Void a patient record and free up associated resources
+ *     description: Marks a patient as voided, releases bed if assigned, and cleans up associated resources
+ *     tags: [Patients]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: The ID of the patient to void
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               endTime:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Time when the patient was voided (defaults to current time if not provided)
+ *                 example: "2024-03-20T10:30:00Z"
+ *     responses:
+ *       200:
+ *         description: Patient voided successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: End time set successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: "123e4567-e89b-12d3-a456-426614174000"
+ *                     state:
+ *                       type: integer
+ *                       example: 3
+ *                       description: Patient state (3 = voided)
+ *                     endTime:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2024-03-20T10:30:00Z"
+ *                     department:
+ *                       $ref: '#/components/schemas/Department'
+ *       400:
+ *         description: Bad request - Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Invalid request data
+ *                 data:
+ *                   type: null
+ *       404:
+ *         description: Patient not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 404
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Patient not found
+ *                 data:
+ *                   type: null
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ *                 data:
+ *                   type: null
  */
