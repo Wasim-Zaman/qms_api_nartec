@@ -21,4 +21,8 @@ router.get(
   KPIController.getEyeballToTriageTime
 );
 
+router.get("/hourly-flow", KPIController.getHourlyPatientFlow);
+router.get("/department-performance", KPIController.getDepartmentPerformance);
+router.get("/waiting-times", KPIController.getPatientWaitingTimes);
+
 export default router;

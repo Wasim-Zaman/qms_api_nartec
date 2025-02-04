@@ -180,3 +180,188 @@
  *                 data:
  *                   type: null
  */
+
+/**
+ * @swagger
+ * /api/v1/kpi/hourly-flow:
+ *   get:
+ *     summary: Get hourly patient flow distribution
+ *     tags: [KPI]
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Date to get hourly flow (default is today)
+ *         example: "2024-03-20"
+ *     responses:
+ *       200:
+ *         description: Hourly patient flow retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Hourly patient flow retrieved
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     date:
+ *                       type: string
+ *                       format: date
+ *                       example: "2024-03-20"
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           hour:
+ *                             type: integer
+ *                             example: 9
+ *                           count:
+ *                             type: integer
+ *                             example: 12
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/v1/kpi/department-performance:
+ *   get:
+ *     summary: Get department-wise performance metrics
+ *     tags: [KPI]
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *           default: 30
+ *         description: Number of days to analyze (default is 30)
+ *     responses:
+ *       200:
+ *         description: Department performance retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Department performance retrieved
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     timeRange:
+ *                       type: string
+ *                       example: "Last 30 days"
+ *                     departments:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           departmentName:
+ *                             type: string
+ *                             example: "Emergency"
+ *                           totalPatients:
+ *                             type: integer
+ *                             example: 150
+ *                           avgServiceTime:
+ *                             type: number
+ *                             example: 45.5
+ *                             description: Average service time in minutes
+ *                           totalServiceTime:
+ *                             type: number
+ *                             example: 6825
+ *                             description: Total service time in minutes
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/v1/kpi/waiting-times:
+ *   get:
+ *     summary: Get patient waiting times analysis
+ *     tags: [KPI]
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *           default: 7
+ *         description: Number of days to analyze (default is 7)
+ *     responses:
+ *       200:
+ *         description: Patient waiting times retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Patient waiting times retrieved
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     timeRange:
+ *                       type: string
+ *                       example: "Last 7 days"
+ *                     data:
+ *                       type: object
+ *                       additionalProperties:
+ *                         type: object
+ *                         properties:
+ *                           avgWaitTime:
+ *                             type: number
+ *                             example: 25.5
+ *                             description: Average waiting time in minutes
+ *                           totalPatients:
+ *                             type: integer
+ *                             example: 45
+ *                           totalWaitTime:
+ *                             type: number
+ *                             example: 1147.5
+ *                             description: Total waiting time in minutes
+ *                           byDepartment:
+ *                             type: object
+ *                             additionalProperties:
+ *                               type: object
+ *                               properties:
+ *                                 departmentName:
+ *                                   type: string
+ *                                   example: "Emergency"
+ *                                 avgWaitTime:
+ *                                   type: number
+ *                                   example: 20.3
+ *                                 totalPatients:
+ *                                   type: integer
+ *                                   example: 15
+ *                                 totalWaitTime:
+ *                                   type: number
+ *                                   example: 304.5
+ *       500:
+ *         description: Server error
+ */

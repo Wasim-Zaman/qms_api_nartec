@@ -224,6 +224,178 @@ class KPIController {
       next(error);
     }
   }
+
+  static async getHourlyPatientFlow(req, res, next) {
+    try {
+      const date = req.query.date ? new Date(req.query.date) : new Date();
+      date.setHours(0, 0, 0, 0);
+
+      const endDate = new Date(date);
+      endDate.setHours(23, 59, 59, 999);
+
+      const patients = await prisma.patient.findMany({
+        where: {
+          createdAt: {
+            gte: date,
+            lte: endDate,
+          },
+        },
+        select: {
+          createdAt: true,
+        },
+      });
+
+      // Group by hour (0-23)
+      const hourlyData = Array.from({ length: 24 }, (_, hour) => ({
+        hour,
+        count: patients.filter((p) => new Date(p.createdAt).getHours() === hour)
+          .length,
+      }));
+
+      res.status(200).json(
+        response(200, true, "Hourly patient flow retrieved", {
+          date: date.toISOString().split("T")[0],
+          data: hourlyData,
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getDepartmentPerformance(req, res, next) {
+    try {
+      const { days = 30 } = req.query;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const patients = await prisma.patient.findMany({
+        where: {
+          createdAt: { gte: startDate },
+          departmentId: { not: null },
+          beginTime: { not: null },
+          endTime: { not: null },
+        },
+        select: {
+          departmentId: true,
+          beginTime: true,
+          endTime: true,
+          department: {
+            select: {
+              deptname: true,
+            },
+          },
+        },
+      });
+
+      const departmentStats = patients.reduce((acc, patient) => {
+        const deptId = patient.departmentId;
+        if (!acc[deptId]) {
+          acc[deptId] = {
+            departmentName: patient.department?.deptname || "Unknown",
+            totalPatients: 0,
+            avgServiceTime: 0,
+            totalServiceTime: 0,
+          };
+        }
+
+        const serviceTime =
+          (new Date(patient.endTime) - new Date(patient.beginTime)) /
+          (1000 * 60); // in minutes
+        acc[deptId].totalPatients++;
+        acc[deptId].totalServiceTime += serviceTime;
+        acc[deptId].avgServiceTime =
+          acc[deptId].totalServiceTime / acc[deptId].totalPatients;
+
+        return acc;
+      }, {});
+
+      res.status(200).json(
+        response(200, true, "Department performance retrieved", {
+          timeRange: `Last ${days} days`,
+          departments: Object.values(departmentStats),
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getPatientWaitingTimes(req, res, next) {
+    try {
+      const { days = 7 } = req.query;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const patients = await prisma.patient.findMany({
+        where: {
+          createdAt: { gte: startDate },
+          firstCallTime: { not: null },
+        },
+        select: {
+          createdAt: true,
+          firstCallTime: true,
+          departmentId: true,
+          department: {
+            select: {
+              deptname: true,
+            },
+          },
+        },
+      });
+
+      const waitingTimesByDay = patients.reduce((acc, patient) => {
+        const date = new Date(patient.createdAt).toISOString().split("T")[0];
+        const waitTime =
+          (new Date(patient.firstCallTime) - new Date(patient.createdAt)) /
+          (1000 * 60);
+
+        if (!acc[date]) {
+          acc[date] = {
+            avgWaitTime: 0,
+            totalPatients: 0,
+            totalWaitTime: 0,
+            byDepartment: {},
+          };
+        }
+
+        // Overall statistics
+        acc[date].totalPatients++;
+        acc[date].totalWaitTime += waitTime;
+        acc[date].avgWaitTime =
+          acc[date].totalWaitTime / acc[date].totalPatients;
+
+        // Department-wise statistics
+        const deptId = patient.departmentId;
+        if (deptId) {
+          if (!acc[date].byDepartment[deptId]) {
+            acc[date].byDepartment[deptId] = {
+              departmentName: patient.department?.deptname || "Unknown",
+              avgWaitTime: 0,
+              totalPatients: 0,
+              totalWaitTime: 0,
+            };
+          }
+          acc[date].byDepartment[deptId].totalPatients++;
+          acc[date].byDepartment[deptId].totalWaitTime += waitTime;
+          acc[date].byDepartment[deptId].avgWaitTime =
+            acc[date].byDepartment[deptId].totalWaitTime /
+            acc[date].byDepartment[deptId].totalPatients;
+        }
+
+        return acc;
+      }, {});
+
+      res.status(200).json(
+        response(200, true, "Patient waiting times retrieved", {
+          timeRange: `Last ${days} days`,
+          data: waitingTimesByDay,
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default KPIController;
