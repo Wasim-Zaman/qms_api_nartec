@@ -358,25 +358,21 @@ class PatientController {
 
   static async getPatientsByState(req, res, next) {
     try {
-      const { dept } = req.query;
+      const { deptId } = req.query;
 
       // Base where condition for waiting patients
       const waitingWhereCondition = {
         state: 0,
-        ...(dept && {
-          departmentId: {
-            equals: dept,
-          },
+        ...(deptId && {
+          departmentId: deptId,
         }),
       };
 
       // Base where condition for in-progress patients
       const inProgressWhereCondition = {
         state: 1,
-        ...(dept && {
-          departmentId: {
-            equals: dept,
-          },
+        ...(deptId && {
+          departmentId: deptId,
         }),
       };
 
