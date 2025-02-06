@@ -27,6 +27,7 @@ app.use("/assets", express.static(path.join(__dirname, "../assets")));
 
 // API Routes
 app.use("/api/v1", routes);
+app.use("/api/v2", routes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Error Routes

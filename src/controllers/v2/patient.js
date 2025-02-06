@@ -1,6 +1,5 @@
 import { assignDepartmentQueue } from "../config/queue.js";
 import {
-  assignBedSchema,
   assignDepartmentSchema,
   beginTimeSchema,
   callPatientSchema,
@@ -19,16 +18,13 @@ import PDFGenerator from "../utils/pdfGenerator.js";
 import prisma from "../utils/prismaClient.js";
 import response from "../utils/response.js";
 
-class PatientController {
+class PatientControllerV2 {
   static async createPatient(req, res, next) {
     try {
       const { error, value } = createPatientSchema.validate(req.body);
       if (error) {
         throw new MyError(error.details[0].message, 400);
       }
-
-      //   // Add patient to queue
-      //   await patientQueue.add("add-patient", { userId: req.user.id, value });
 
       // Ensure all required directories exist before processing
       await ensureRequiredDirs();
@@ -96,265 +92,12 @@ class PatientController {
           },
         });
 
-        return patient;
-      });
-
-      res
-        .status(200)
-        .json(response(200, true, "Patient created successfully", result));
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  static async getAllPatients(req, res, next) {
-    try {
-      const {
-        page = 1,
-        limit = 10,
-        search = "",
-        sortBy = "createdAt",
-        order = "desc",
-      } = req.query;
-
-      const userId = req.user?.id; // Get current user's ID from auth middleware
-
-      // Calculate skip value for pagination
-      const skip = (parseInt(page) - 1) * parseInt(limit);
-
-      // Build search conditions
-      const searchCondition = search
-        ? {
-            OR: [
-              { name: { contains: search } },
-              { nationality: { contains: search } },
-              { idNumber: { contains: search } },
-              { ticket: { contains: search } },
-              { cheifComplaint: { contains: search } },
-              { mobileNumber: { contains: search } },
-              { sex: { contains: search } },
-              { bloodGroup: { contains: search } },
-            ],
-          }
-        : {};
-
-      // Get total count for pagination
-      const total = await prisma.patient.count({
-        where: {
-          userId,
-          ...searchCondition,
-        },
-      });
-
-      // Get paginated patients with search
-      const patients = await prisma.patient.findMany({
-        where: {
-          userId,
-          ...searchCondition,
-        },
-        orderBy: {
-          [sortBy]: order.toLowerCase(),
-        },
-        skip,
-        take: parseInt(limit),
-      });
-
-      res.status(200).json(
-        response(200, true, "Patients retrieved successfully", {
-          data: patients,
-          pagination: {
-            total,
-            page: parseInt(page),
-            limit: parseInt(limit),
-            totalPages: Math.ceil(total / parseInt(limit)),
-          },
-        })
-      );
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  static async getPatientById(req, res, next) {
-    try {
-      const { id } = req.params;
-
-      const patient = await prisma.patient.findUnique({
-        where: { id },
-        include: {
-          department: true,
-          user: {
-            select: {
-              name: true,
-              email: true,
-              deptcode: true,
-            },
-          },
-          vitalSigns: true,
-        },
-      });
-
-      if (!patient) {
-        throw new MyError("Patient not found", 404);
-      }
-
-      res
-        .status(200)
-        .json(response(200, true, "Patient retrieved successfully", patient));
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  static async updatePatient(req, res, next) {
-    try {
-      const { id } = req.params;
-      const { error, value } = updatePatientSchema.validate(req.body);
-
-      if (error) {
-        throw new MyError(error.details[0].message, 400);
-      }
-
-      const patient = await prisma.patient.update({
-        where: { id },
-        data: value,
-        include: {
-          department: true,
-          user: {
-            select: {
-              name: true,
-              email: true,
-              deptcode: true,
-            },
-          },
-        },
-      });
-
-      //   // Update ticket
-      //   await updateTicketQueue.add("update-ticket", {
-      //     id,
-      //     value,
-      //     patient,
-      //   });
-
-      // waiting count
-      const waitingCount = await prisma.patient.count({
-        where: { state: 0 },
-      });
-
-      // Get current counter
-      // let currentCounter = await prisma.patient.count({
-      //   // count all the patients for last day
-      //   where: {
-      //     createdAt: {
-      //       gte: new Date(new Date().setDate(new Date().getDate() - 1)),
-      //     },
-      //   },
-      // });
-
-      // Delete old ticket if exists
-      if (patient.ticket) {
-        await deleteFile(patient.ticket);
-      }
-
-      let updatedPatient;
-
-      if (
-        patient?.vitalSigns &&
-        patient?.vitalSigns?.length != 0 &&
-        !patient?.department
-      ) {
-        // Generate department ticket
-        const { relativePath, barcodeText } =
-          await PDFGenerator.generateDepartmentTicket({
-            ...patient,
-            department: patient.department,
-            ticketNumber: patient.ticketNumber,
-            barcode: patient.barcode,
-            vitalSigns: patient.vitalSigns[0],
-            waitingCount,
-            issueDate: new Date(),
-            counter: patient.ticketNumber,
-          });
-
-        // Update patient with new department and ticket
-        updatedPatient = await prisma.patient.update({
-          where: { id },
+        // create journey
+        await prisma.journey.create({
           data: {
-            ticket: relativePath,
-            barcode: barcodeText,
+            patientId: patient.id,
+            isActive: true,
           },
-        });
-      } else {
-        // Generate PDF ticket
-        const pdfData = {
-          patientName: patient.name,
-          ticket: patient.ticket,
-          deptcode: patient.user?.deptcode,
-          counter: patient.ticketNumber,
-          issueDate: new Date(),
-          cheifComplaint: patient.cheifComplaint,
-          waitingCount: waitingCount,
-        };
-
-        const { relativePath, barcodeBase64 } =
-          await PDFGenerator.generateTicket(pdfData);
-
-        // Update patient with new department and ticket
-        updatedPatient = await prisma.patient.update({
-          where: { id },
-          data: {
-            ticket: relativePath,
-            barcode: barcodeBase64,
-          },
-        });
-      }
-
-      res
-        .status(200)
-        .json(
-          response(200, true, "Patient updated successfully", updatedPatient)
-        );
-    } catch (error) {
-      if (error.code === "P2025") {
-        throw new MyError("Patient not found", 404);
-      }
-      next(error);
-    }
-  }
-
-  static async deletePatient(req, res, next) {
-    try {
-      const { id } = req.params;
-
-      const existingPatient = await prisma.patient.findUnique({
-        where: { id },
-        include: {
-          bed: true,
-        },
-      });
-
-      if (!existingPatient) {
-        throw new MyError("Patient not found", 404);
-      }
-
-      // delete ticket pdf
-      const ticketPdfPath = existingPatient.ticket;
-      if (ticketPdfPath) {
-        await deleteFile(ticketPdfPath);
-      }
-
-      const patient = await prisma.$transaction(async (tx) => {
-        // If patient has a bed, update its status to release it
-        if (existingPatient.bedId) {
-          await tx.bed.update({
-            where: { id: patient.bedId },
-            data: { bedStatus: "Available" },
-          });
-        }
-
-        const patient = await prisma.patient.delete({
-          where: { id },
         });
 
         return patient;
@@ -362,85 +105,7 @@ class PatientController {
 
       res
         .status(200)
-        .json(response(200, true, "Patient deleted successfully", null));
-    } catch (error) {
-      if (error.code === "P2025") {
-        throw new MyError("Patient not found", 404);
-      }
-      next(error);
-    }
-  }
-
-  static async getPatientsByState(req, res, next) {
-    try {
-      const { deptId } = req.query;
-
-      // Base where condition for waiting patients
-      const waitingWhereCondition = {
-        state: 0,
-        ...(deptId && {
-          departmentId: deptId,
-        }),
-      };
-
-      // Base where condition for in-progress patients
-      const inProgressWhereCondition = {
-        state: 1,
-        ...(deptId && {
-          departmentId: deptId,
-        }),
-      };
-
-      // Get patients with state 0 (waiting)
-      const waitingPatients = await prisma.patient.findMany({
-        where: waitingWhereCondition,
-        include: {
-          department: true,
-          user: {
-            select: {
-              name: true,
-              email: true,
-              deptcode: true,
-            },
-          },
-        },
-        orderBy: {
-          createdAt: "asc",
-        },
-      });
-
-      // Get patients with state 1 (in progress)
-      const inProgressPatients = await prisma.patient.findMany({
-        where: inProgressWhereCondition,
-        include: {
-          department: true,
-          user: {
-            select: {
-              name: true,
-              email: true,
-              deptcode: true,
-            },
-          },
-        },
-        orderBy: {
-          createdAt: "asc",
-        },
-      });
-
-      // Get counts
-      const counts = {
-        waiting: waitingPatients.length,
-        inProgress: inProgressPatients.length,
-        total: waitingPatients.length + inProgressPatients.length,
-      };
-
-      res.status(200).json(
-        response(200, true, "Patients retrieved successfully", {
-          waiting: waitingPatients,
-          inProgress: inProgressPatients,
-          counts,
-        })
-      );
+        .json(response(200, true, "Patient created successfully", result));
     } catch (error) {
       next(error);
     }
@@ -485,9 +150,19 @@ class PatientController {
       }
 
       // update patient with vital time
-      await prisma.patient.update({
-        where: { id },
-        data: { vitalTime: new Date() },
+      const result = await prisma.$transaction(async (prisma) => {
+        const activeJourney = await prisma.journey.findFirst({
+          where: { patientId: id, isActive: true },
+        });
+
+        if (activeJourney) {
+          await prisma.journey.update({
+            where: { id: activeJourney.id },
+            data: { vitalTime: new Date() },
+          });
+        }
+
+        return vitalSign;
       });
 
       res
@@ -510,9 +185,6 @@ class PatientController {
 
       const { call } = value;
 
-      // Assign job to queue
-      //   await patientCallQueue.add("toggle-patient-call", { id });
-
       const patient = await prisma.patient.findUnique({
         where: { id },
         include: {
@@ -532,6 +204,22 @@ class PatientController {
       }
 
       const result = await prisma.$transaction(async (prisma) => {
+        // get active journey
+        const activeJourney = await prisma.journey.findFirst({
+          where: { patientId: id, isActive: true },
+        });
+
+        if (activeJourney) {
+          await prisma.journey.update({
+            where: { id: activeJourney.id },
+            data: {
+              // set first call time and second call time
+              ...(call === "first" && { firstCallTime: new Date() }),
+              ...(call === "second" && { secondCallTime: new Date() }),
+            },
+          });
+        }
+
         const updatedPatient = await prisma.patient.update({
           where: { id },
           data: {
@@ -578,43 +266,6 @@ class PatientController {
     }
   }
 
-  static async getCalledPatients(req, res, next) {
-    try {
-      const calledPatients = await prisma.patient.findMany({
-        where: {
-          callPatient: true,
-        },
-        include: {
-          department: true,
-          user: {
-            select: {
-              name: true,
-              email: true,
-              deptcode: true,
-            },
-          },
-          vitalSigns: true,
-        },
-        orderBy: {
-          updatedAt: "desc",
-        },
-      });
-
-      res
-        .status(200)
-        .json(
-          response(
-            200,
-            true,
-            "Called patients retrieved successfully",
-            calledPatients
-          )
-        );
-    } catch (error) {
-      next(error);
-    }
-  }
-
   static async assignDepartment(req, res, next) {
     try {
       const { id } = req.params;
@@ -653,66 +304,13 @@ class PatientController {
         throw new MyError("Department not found", 404);
       }
 
-      //   // Get latest patient count for ticket number
-      //   const ticketNumber = patient.ticketNumber;
+      // update journey
+      await prisma.journey.update({
+        where: { patientId: id, isActive: true },
+        data: { assignDeptTime: new Date() },
+      });
 
-      //   // Generate barcode
-      //   const barcode = patient.barcode;
-
-      //   // waiting count
-      //   const waitingCount = await prisma.patient.count({
-      //     where: { state: 0 },
-      //   });
-
-      //   // Get current counter
-      //   let currentCounter = await prisma.patient.count({
-      //     // count all the patients for last day
-      //     where: {
-      //       createdAt: {
-      //         gte: new Date(new Date().setDate(new Date().getDate() - 1)),
-      //       },
-      //     },
-      //   });
-
-      //   // Generate department ticket
-      //   const ticketData = await PDFGenerator.generateDepartmentTicket({
-      //     ...patient,
-      //     department,
-      //     ticketNumber,
-      //     barcode,
-      //     vitalSigns: patient.vitalSigns[0],
-      //     waitingCount,
-      //     issueDate: new Date(),
-      //     counter: currentCounter,
-      //   });
-
-      //   // Delete old ticket if exists
-      //   if (patient.ticket) {
-      //     await deleteFile(patient.ticket);
-      //   }
-
-      //   // Update patient with new department and ticket
-      //   const updatedPatient = await prisma.patient.update({
-      //     where: { id },
-      //     data: {
-      //       departmentId: value.departmentId,
-      //       ticket: ticketData.relativePath,
-      //       ticketNumber,
-      //       barcode,
-      //     },
-      //     include: {
-      //       department: true,
-      //       vitalSigns: true,
-      //       user: {
-      //         select: {
-      //           name: true,
-      //           email: true,
-      //           deptcode: true,
-      //         },
-      //       },
-      //     },
-      //   });
-
+      // assign department to patient
       await assignDepartmentQueue.add("assign-department", {
         id,
         value,
@@ -730,55 +328,6 @@ class PatientController {
     }
   }
 
-  static async assignBed(req, res, next) {
-    try {
-      const { id } = req.params;
-      const { error, value } = assignBedSchema.validate(req.body);
-      if (error) {
-        throw new MyError(error.details[0].message, 400);
-      }
-
-      // Check if bed exists and is available
-      const bed = await prisma.bed.findUnique({
-        where: { id: value.bedId },
-        include: { patient: true },
-      });
-
-      if (!bed) {
-        throw new MyError("Bed not found", 404);
-      }
-
-      if (bed.bedStatus === "Occupied") {
-        throw new MyError("Bed is already occupied", 400);
-      }
-
-      // Update patient and bed in a transaction
-      const updatedPatient = await prisma.$transaction(async (tx) => {
-        // Update bed status
-        await tx.bed.update({
-          where: { id: value.bedId },
-          data: { bedStatus: "Occupied" },
-        });
-
-        // Update patient with bed assignment
-        return await tx.patient.update({
-          where: { id },
-          data: { bedId: value.bedId },
-          include: {
-            bed: true,
-            department: true,
-          },
-        });
-      });
-
-      res
-        .status(200)
-        .json(response(200, true, "Bed assigned successfully", updatedPatient));
-    } catch (error) {
-      next(error);
-    }
-  }
-
   static async setBeginTime(req, res, next) {
     try {
       const { id } = req.params;
@@ -789,13 +338,23 @@ class PatientController {
 
       const beginTime = value.beginTime || new Date();
 
-      const updatedPatient = await prisma.patient.update({
-        where: { id },
-        data: { beginTime },
-        include: {
-          bed: true,
-          department: true,
-        },
+      const updatedPatient = await prisma.$transaction(async (prisma) => {
+        const updatedPatient = await prisma.patient.update({
+          where: { id },
+          data: { beginTime },
+          include: {
+            bed: true,
+            department: true,
+          },
+        });
+
+        // update journey
+        await prisma.journey.update({
+          where: { patientId: id, isActive: true },
+          data: { beginTime },
+        });
+
+        return updatedPatient;
       });
 
       res
@@ -830,6 +389,22 @@ class PatientController {
 
         if (!patient.beginTime) {
           throw new MyError("Patient begin time is not set", 400);
+        }
+
+        // update journey
+        const activeJourney = await tx.journey.findFirst({
+          where: { patientId: id, isActive: true },
+        });
+
+        if (!activeJourney?.beginTime) {
+          throw new MyError("Patient begin time is not set", 400);
+        }
+
+        if (activeJourney) {
+          await tx.journey.update({
+            where: { id: activeJourney.id, isActive: true },
+            data: { endTime, isActive: false },
+          });
         }
 
         // If patient has a bed, update its status to release it
@@ -889,6 +464,18 @@ class PatientController {
           throw new MyError("Patient not found", 404);
         }
 
+        // get active journey and update it
+        const activeJourney = await tx.journey.findFirst({
+          where: { patientId: id, isActive: true },
+        });
+
+        if (activeJourney) {
+          await tx.journey.update({
+            where: { id: activeJourney.id, isActive: true },
+            data: { endTime, isActive: false },
+          });
+        }
+
         // If patient has a bed, update its status to release it
         if (patient.bedId) {
           await tx.bed.update({
@@ -944,6 +531,18 @@ class PatientController {
 
         if (!patient) {
           throw new MyError("Patient not found", 404);
+        }
+
+        // get active journey and update it
+        const activeJourney = await tx.journey.findFirst({
+          where: { patientId: id, isActive: true },
+        });
+
+        if (activeJourney) {
+          await tx.journey.update({
+            where: { id: activeJourney.id, isActive: true },
+            data: { endTime, isActive: false },
+          });
         }
 
         // If patient has a bed, update its status to release it
@@ -1078,7 +677,7 @@ class PatientController {
   static async reRegisterPatient(req, res, next) {
     try {
       const { id } = req.params;
-      const userId = req.user.id; // From auth middleware
+      const userId = req?.user?.id; // From auth middleware
 
       const { error, value } = updatePatientSchema.validate(req.body);
 
@@ -1138,6 +737,14 @@ class PatientController {
 
         const { relativePath, barcodeBase64 } =
           await PDFGenerator.generateTicket(pdfData);
+
+        // create journey
+        await tx.journey.create({
+          data: {
+            patientId: id,
+            isActive: true,
+          },
+        });
 
         const patient = await tx.patient.update({
           where: { id },
@@ -1317,6 +924,18 @@ class PatientController {
               bedNumber: true,
             },
           },
+          journey: {
+            select: {
+              id: true,
+              createdAt: true,
+              beginTime: true,
+              endTime: true,
+              assignDeptTime: true,
+              firstCallTime: true,
+              secondCallTime: true,
+              vitalTime: true,
+            },
+          },
         },
         skip,
         take: Number(limit),
@@ -1336,15 +955,16 @@ class PatientController {
         state: patient.state,
         department: patient.department,
         bed: patient.bed,
-        journey: {
-          registration: patient.createdAt,
-          firstCall: patient.firstCallTime,
-          vitalSigns: patient.vitalTime,
-          departmentAssigned: patient.assignDeptTime,
-          secondCall: patient.secondCallTime,
-          treatmentBegan: patient.beginTime,
-          treatmentEnded: patient.endTime,
-        },
+        // journey: {
+        //   registration: patient.createdAt,
+        //   firstCall: patient.firstCallTime,
+        //   vitalSigns: patient.vitalTime,
+        //   departmentAssigned: patient.assignDeptTime,
+        //   secondCall: patient.secondCallTime,
+        //   treatmentBegan: patient.beginTime,
+        //   treatmentEnded: patient.endTime,
+        // },
+        journeys: patient.journeys,
       }));
 
       res.status(200).json(
@@ -1364,4 +984,4 @@ class PatientController {
   }
 }
 
-export default PatientController;
+export default PatientControllerV2;
