@@ -100,8 +100,6 @@ class PatientControllerV2 {
           },
         });
 
-        console.log(journey);
-
         return patient;
       });
 
