@@ -9,6 +9,7 @@ import swaggerSpec from "./config/swagger.js";
 import cors from "./middlewares/cors.js";
 import { errorHandler, notFoundHandler } from "./middlewares/error.js";
 import routes from "./routes.js";
+import routesV2 from "./routesV2.js";
 import socketService from "./services/socket.js";
 
 const PORT = config.PORT;
@@ -27,7 +28,7 @@ app.use("/assets", express.static(path.join(__dirname, "../assets")));
 
 // API Routes
 app.use("/api/v1", routes);
-app.use("/api/v2", routes);
+app.use("/api/v2", routesV2);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Error Routes

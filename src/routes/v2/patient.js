@@ -1,6 +1,6 @@
 import express from "express";
 import PatientController from "../../controllers/v2/patient.js";
-import { verifyAccessToken } from "../middlewares/auth.js";
+import { verifyAccessToken } from "../../middlewares/auth.js";
 
 const router = express.Router();
 

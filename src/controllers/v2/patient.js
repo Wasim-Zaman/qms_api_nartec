@@ -1,4 +1,4 @@
-import { assignDepartmentQueue } from "../config/queue.js";
+import { assignDepartmentQueue } from "../../config/queue.js";
 import {
   assignDepartmentSchema,
   beginTimeSchema,
@@ -10,13 +10,13 @@ import {
   getPatientJourneysSchema,
   getPatientsByDepartmentSchema,
   updatePatientSchema,
-} from "../schemas/patient.schema.js";
-import socketService from "../services/socket.js";
-import MyError from "../utils/error.js";
-import { deleteFile, ensureRequiredDirs } from "../utils/file.js";
-import PDFGenerator from "../utils/pdfGenerator.js";
-import prisma from "../utils/prismaClient.js";
-import response from "../utils/response.js";
+} from "../../schemas/patient.schema.js";
+import socketService from "../../services/socket.js";
+import MyError from "../../utils/error.js";
+import { deleteFile, ensureRequiredDirs } from "../../utils/file.js";
+import PDFGenerator from "../../utils/pdfGenerator.js";
+import prisma from "../../utils/prismaClient.js";
+import response from "../../utils/response.js";
 
 class PatientControllerV2 {
   static async createPatient(req, res, next) {
@@ -32,19 +32,19 @@ class PatientControllerV2 {
       const userId = req.user.id;
 
       // Use Prisma transaction to ensure data consistency
-      const result = await prisma.$transaction(async (prisma) => {
+      const result = await prisma.$transaction(async (tx) => {
         // Ensure state is 0 (waiting) for new patients
         if (value.state !== undefined && value.state !== 0) {
           throw new MyError("New patients must have state=0 (waiting)", 400);
         }
 
         // waiting count
-        const waitingCount = await prisma.patient.count({
+        const waitingCount = await tx.patient.count({
           where: { state: 0 },
         });
 
         // Get current counter
-        let currentCounter = await prisma.patient.count({
+        let currentCounter = await tx.patient.count({
           // count all the patients for last day
           where: {
             createdAt: {
@@ -71,7 +71,7 @@ class PatientControllerV2 {
           await PDFGenerator.generateTicket(pdfData);
 
         // assign default department (TRIAGE) to the patient
-        const department = await prisma.tblDepartment.findFirst({
+        const department = await tx.tblDepartment.findFirst({
           where: {
             deptname: {
               contains: "TRIAGE",
@@ -80,7 +80,7 @@ class PatientControllerV2 {
         });
 
         // Create patient record
-        const patient = await prisma.patient.create({
+        const patient = await tx.patient.create({
           data: {
             ...value,
             userId,
@@ -93,12 +93,14 @@ class PatientControllerV2 {
         });
 
         // create journey
-        await prisma.journey.create({
+        const journey = await tx.journey.create({
           data: {
             patientId: patient.id,
             isActive: true,
           },
         });
+
+        console.log(journey);
 
         return patient;
       });
@@ -924,18 +926,7 @@ class PatientControllerV2 {
               bedNumber: true,
             },
           },
-          journey: {
-            select: {
-              id: true,
-              createdAt: true,
-              beginTime: true,
-              endTime: true,
-              assignDeptTime: true,
-              firstCallTime: true,
-              secondCallTime: true,
-              vitalTime: true,
-            },
-          },
+          journeys: true,
         },
         skip,
         take: Number(limit),
