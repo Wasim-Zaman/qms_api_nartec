@@ -354,11 +354,17 @@ class PatientControllerV2 {
           },
         });
 
-        // update journey
-        await prisma.journey.update({
+        // update journey with assign department time
+        const activeJourney = await prisma.journey.findFirst({
           where: { patientId: id, isActive: true },
-          data: { beginTime },
         });
+
+        if (activeJourney) {
+          await prisma.journey.update({
+            where: { id: activeJourney.id },
+            data: { beginTime: beginTime },
+          });
+        }
 
         return updatedPatient;
       });
