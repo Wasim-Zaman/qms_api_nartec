@@ -304,11 +304,17 @@ class PatientControllerV2 {
         throw new MyError("Department not found", 404);
       }
 
-      // update journey
-      await prisma.journey.update({
+      // update journey with assign department time
+      const activeJourney = await prisma.journey.findFirst({
         where: { patientId: id, isActive: true },
-        data: { assignDeptTime: new Date() },
       });
+
+      if (activeJourney) {
+        await prisma.journey.update({
+          where: { id: activeJourney.id },
+          data: { assignDeptTime: new Date() },
+        });
+      }
 
       // assign department to patient
       await assignDepartmentQueue.add("assign-department", {
