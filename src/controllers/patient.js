@@ -1467,7 +1467,8 @@ class PatientController {
       });
 
       // Transform data for Excel
-      const excelData = patients.map((patient) => {
+      const excelData = [];
+      patients.forEach((patient) => {
         patient.journeys.forEach((journey) => {
           excelData.push({
             "Patient Name": patient.name,
