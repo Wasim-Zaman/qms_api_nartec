@@ -1367,7 +1367,75 @@ class PatientController {
 
   static async exportPatientsToExcel(req, res, next) {
     try {
-      console.log("Exporting");
+      //  const patients = await prisma.patient.findMany({
+      //    select: {
+      //      id: true,
+      //      name: true,
+      //      mrnNumber: true,
+      //      bloodGroup: true,
+      //      age: true,
+      //      sex: true,
+      //      idNumber: true,
+      //      mobileNumber: true,
+      //      status: true,
+      //      state: true,
+      //      createdAt: true,
+      //      firstCallTime: true,
+      //      vitalTime: true,
+      //      assignDeptTime: true,
+      //      secondCallTime: true,
+      //      beginTime: true,
+      //      endTime: true,
+      //      department: {
+      //        select: {
+      //          deptname: true,
+      //        },
+      //      },
+      //      bed: {
+      //        select: {
+      //          bedNumber: true,
+      //        },
+      //      },
+      //    },
+      //    orderBy: {
+      //      createdAt: "desc",
+      //    },
+      //  });
+
+      //  // Transform data for Excel
+      //  const excelData = patients.map((patient) => ({
+      //    "Patient Name": patient.name,
+      //    "MRN Number": patient.mrnNumber,
+      //    "Blood Group": patient.bloodGroup,
+      //    Age: patient.age,
+      //    Gender: patient.sex,
+      //    "ID Number": patient.idNumber,
+      //    Mobile: patient.mobileNumber,
+      //    Status: patient.status,
+      //    Department: patient.department?.deptname || "N/A",
+      //    "Bed Number": patient.bed?.bedNumber || "N/A",
+      //    "Registration Time": patient.createdAt
+      //      ? new Date(patient.createdAt).toLocaleString()
+      //      : "N/A",
+      //    "First Call Time": patient.firstCallTime
+      //      ? new Date(patient.firstCallTime).toLocaleString()
+      //      : "N/A",
+      //    "Vital Signs Time": patient.vitalTime
+      //      ? new Date(patient.vitalTime).toLocaleString()
+      //      : "N/A",
+      //    "Department Assigned Time": patient.assignDeptTime
+      //      ? new Date(patient.assignDeptTime).toLocaleString()
+      //      : "N/A",
+      //    "Second Call Time": patient.secondCallTime
+      //      ? new Date(patient.secondCallTime).toLocaleString()
+      //      : "N/A",
+      //    "Treatment Begin Time": patient.beginTime
+      //      ? new Date(patient.beginTime).toLocaleString()
+      //      : "N/A",
+      //    "Treatment End Time": patient.endTime
+      //      ? new Date(patient.endTime).toLocaleString()
+      //      : "N/A",
+      //  }));
       // Get all patients with their journey details
       const patients = await prisma.patient.findMany({
         select: {
@@ -1381,13 +1449,7 @@ class PatientController {
           mobileNumber: true,
           status: true,
           state: true,
-          createdAt: true,
-          firstCallTime: true,
-          vitalTime: true,
-          assignDeptTime: true,
-          secondCallTime: true,
-          beginTime: true,
-          endTime: true,
+          journeys: true,
           department: {
             select: {
               deptname: true,
@@ -1405,39 +1467,29 @@ class PatientController {
       });
 
       // Transform data for Excel
-      const excelData = patients.map((patient) => ({
-        "Patient Name": patient.name,
-        "MRN Number": patient.mrnNumber,
-        "Blood Group": patient.bloodGroup,
-        Age: patient.age,
-        Gender: patient.sex,
-        "ID Number": patient.idNumber,
-        Mobile: patient.mobileNumber,
-        Status: patient.status,
-        Department: patient.department?.deptname || "N/A",
-        "Bed Number": patient.bed?.bedNumber || "N/A",
-        "Registration Time": patient.createdAt
-          ? new Date(patient.createdAt).toLocaleString()
-          : "N/A",
-        "First Call Time": patient.firstCallTime
-          ? new Date(patient.firstCallTime).toLocaleString()
-          : "N/A",
-        "Vital Signs Time": patient.vitalTime
-          ? new Date(patient.vitalTime).toLocaleString()
-          : "N/A",
-        "Department Assigned Time": patient.assignDeptTime
-          ? new Date(patient.assignDeptTime).toLocaleString()
-          : "N/A",
-        "Second Call Time": patient.secondCallTime
-          ? new Date(patient.secondCallTime).toLocaleString()
-          : "N/A",
-        "Treatment Begin Time": patient.beginTime
-          ? new Date(patient.beginTime).toLocaleString()
-          : "N/A",
-        "Treatment End Time": patient.endTime
-          ? new Date(patient.endTime).toLocaleString()
-          : "N/A",
-      }));
+      const excelData = patients.map((patient) => {
+        const list = patient.journeys.map((journey) => {
+          return {
+            "Patient Name": patient.name,
+            "MRN Number": patient.mrnNumber,
+            "Blood Group": patient.bloodGroup,
+            Age: patient.age,
+            Sex: patient.sex,
+            "ID Number": patient.idNumber,
+            "Mobile Number": patient.mobileNumber,
+            Department: patient.department?.deptname,
+            "Bed Number": patient.bed?.bedNumber,
+            "Registration Time": journey.createdAt,
+            "First Call Time": journey.firstCallTime,
+            "Vital Signs Time": journey.vitalTime,
+            "Department Assigned Time": journey.assignDeptTime,
+            "Second Call Time": journey.secondCallTime,
+            "Treatment Begin Time": journey.beginTime,
+            "Treatment End Time": journey.endTime,
+          };
+        });
+        return list;
+      });
 
       // Create workbook and worksheet
       const workbook = xlsx.utils.book_new();
