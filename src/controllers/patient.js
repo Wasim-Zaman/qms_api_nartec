@@ -1468,8 +1468,8 @@ class PatientController {
 
       // Transform data for Excel
       const excelData = patients.map((patient) => {
-        const list = patient.journeys.map((journey) => {
-          return {
+        patient.journeys.forEach((journey) => {
+          excelData.push({
             "Patient Name": patient.name,
             "MRN Number": patient.mrnNumber,
             "Blood Group": patient.bloodGroup,
@@ -1486,9 +1486,8 @@ class PatientController {
             "Second Call Time": journey.secondCallTime,
             "Treatment Begin Time": journey.beginTime,
             "Treatment End Time": journey.endTime,
-          };
+          });
         });
-        return list;
       });
 
       // Create workbook and worksheet
