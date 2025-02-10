@@ -1,3 +1,5 @@
+import path from "path";
+import xlsx from "xlsx";
 import { assignDepartmentQueue } from "../config/queue.js";
 import {
   assignBedSchema,
@@ -14,7 +16,7 @@ import {
 } from "../schemas/patient.schema.js";
 import socketService from "../services/socket.js";
 import MyError from "../utils/error.js";
-import { deleteFile, ensureRequiredDirs } from "../utils/file.js";
+import { deleteFile, ensureDir, ensureRequiredDirs } from "../utils/file.js";
 import PDFGenerator from "../utils/pdfGenerator.js";
 import prisma from "../utils/prismaClient.js";
 import response from "../utils/response.js";
@@ -1358,6 +1360,115 @@ class PatientController {
           },
         })
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async exportPatientsToExcel(req, res, next) {
+    try {
+      console.log("Exporting");
+      // Get all patients with their journey details
+      const patients = await prisma.patient.findMany({
+        select: {
+          id: true,
+          name: true,
+          mrnNumber: true,
+          bloodGroup: true,
+          age: true,
+          sex: true,
+          idNumber: true,
+          mobileNumber: true,
+          status: true,
+          state: true,
+          createdAt: true,
+          firstCallTime: true,
+          vitalTime: true,
+          assignDeptTime: true,
+          secondCallTime: true,
+          beginTime: true,
+          endTime: true,
+          department: {
+            select: {
+              deptname: true,
+            },
+          },
+          bed: {
+            select: {
+              bedNumber: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      // Transform data for Excel
+      const excelData = patients.map((patient) => ({
+        "Patient Name": patient.name,
+        "MRN Number": patient.mrnNumber,
+        "Blood Group": patient.bloodGroup,
+        Age: patient.age,
+        Gender: patient.sex,
+        "ID Number": patient.idNumber,
+        Mobile: patient.mobileNumber,
+        Status: patient.status,
+        Department: patient.department?.deptname || "N/A",
+        "Bed Number": patient.bed?.bedNumber || "N/A",
+        "Registration Time": patient.createdAt
+          ? new Date(patient.createdAt).toLocaleString()
+          : "N/A",
+        "First Call Time": patient.firstCallTime
+          ? new Date(patient.firstCallTime).toLocaleString()
+          : "N/A",
+        "Vital Signs Time": patient.vitalTime
+          ? new Date(patient.vitalTime).toLocaleString()
+          : "N/A",
+        "Department Assigned Time": patient.assignDeptTime
+          ? new Date(patient.assignDeptTime).toLocaleString()
+          : "N/A",
+        "Second Call Time": patient.secondCallTime
+          ? new Date(patient.secondCallTime).toLocaleString()
+          : "N/A",
+        "Treatment Begin Time": patient.beginTime
+          ? new Date(patient.beginTime).toLocaleString()
+          : "N/A",
+        "Treatment End Time": patient.endTime
+          ? new Date(patient.endTime).toLocaleString()
+          : "N/A",
+      }));
+
+      // Create workbook and worksheet
+      const workbook = xlsx.utils.book_new();
+      const worksheet = xlsx.utils.json_to_sheet(excelData);
+
+      // Add worksheet to workbook
+      xlsx.utils.book_append_sheet(workbook, worksheet, "Patient Journeys");
+
+      // Ensure dir
+      await ensureDir("uploads/exports");
+
+      // Generate Excel file
+      const exportPath = path.join(process.cwd(), "uploads", "exports");
+      await ensureRequiredDirs(exportPath);
+
+      const fileName = `patient_journeys_${
+        new Date().toISOString().split("T")[0]
+      }.xlsx`;
+      const filePath = path.join(exportPath, fileName);
+
+      // Write file
+      xlsx.writeFile(workbook, filePath);
+
+      // Send file to client
+      res.download(filePath, fileName, (err) => {
+        if (err) {
+          next(new MyError("Error downloading file", 500));
+        }
+        // Optionally delete the file after sending
+        // fs.unlinkSync(filePath);
+      });
     } catch (error) {
       next(error);
     }
