@@ -1462,11 +1462,12 @@ class PatientController {
       xlsx.writeFile(workbook, filePath);
 
       // Send file to client
-      res.download(filePath, fileName, (err) => {
+      res.download(filePath, fileName, async (err) => {
         if (err) {
           next(new MyError("Error downloading file", 500));
         }
         // Optionally delete the file after sending
+        await deleteFile(filePath);
         // fs.unlinkSync(filePath);
       });
     } catch (error) {
