@@ -1,12 +1,21 @@
-import { assignRoleSchema, removeRoleSchema } from "../schemas/role.schema.js";
+import {
+  assignRoleSchema,
+  createRoleSchema,
+  removeRoleSchema,
+  updateRoleSchema,
+} from "../schemas/role.schema.js";
 import MyError from "../utils/error.js";
 import prisma from "../utils/prismaClient.js";
 import response from "../utils/response.js";
-
 class RoleController {
   static async createRole(req, res, next) {
     try {
-      const { name, description } = req.body;
+      const { error, value } = createRoleSchema.validate(req.body);
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
+      const { name, description, route } = value;
 
       // Check if role already exists
       const existingRole = await prisma.role.findUnique({
@@ -18,10 +27,7 @@ class RoleController {
       }
 
       const role = await prisma.role.create({
-        data: {
-          name,
-          description,
-        },
+        data: value,
       });
 
       res
@@ -66,15 +72,17 @@ class RoleController {
 
   static async updateRole(req, res, next) {
     try {
+      const { error, value } = updateRoleSchema.validate(req.body);
+
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
       const { id } = req.params;
-      const { name, description } = req.body;
 
       const role = await prisma.role.update({
         where: { id },
-        data: {
-          name,
-          description,
-        },
+        data: value,
       });
 
       res
