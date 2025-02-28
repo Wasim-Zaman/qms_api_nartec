@@ -856,6 +856,7 @@ class PatientController {
             ticket: null,
             barcode: null,
             bedId: null, // remove bed assignment
+            callPatient: false,
           },
           include: {
             department: true,
@@ -913,6 +914,7 @@ class PatientController {
             ticket: null,
             barcode: null,
             bedId: null, // remove bed assignment
+            callPatient: false,
           },
           include: {
             department: true,
@@ -969,6 +971,7 @@ class PatientController {
             // barcode: null,
             bedId: null, // remove bed assignment
             remarks,
+            callPatient: false,
           },
           include: {
             department: true,
