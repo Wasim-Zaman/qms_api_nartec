@@ -45,17 +45,19 @@ class PatientControllerV2 {
         //TODO: make sure it is post request, and redirect to re-register patient which is also a post request
         // use axios to make a post request to re-register patient
         // send bearer token in the request
+        const token = req.headers.Authorization || req.headers.authorization;
+        console.log(token);
+
         const response = await axios.post(
           `${process.env.DOMAIN}/api/v2/patients/re-register/${existingPatient.id}`,
           value,
           {
             headers: {
-              Authorization: `Bearer ${req.headers.Authorization}`,
+              Authorization: `Bearer ${token}`,
             },
           }
         );
-        console.log(response.data);
-        return response.data;
+        return res.status(200).json(response.data);
       }
 
       // Use Prisma transaction to ensure data consistency
