@@ -441,6 +441,8 @@ class PatientControllerV2 {
             ticket: null,
             barcode: null,
             bedId: null, // remove bed assignment
+            remarks: "Patient discharged on End Time",
+            callPatient: false,
           },
           include: {
             department: true,
@@ -510,6 +512,8 @@ class PatientControllerV2 {
             ticket: null,
             barcode: null,
             bedId: null, // remove bed assignment
+            remarks: "Patient voided",
+            callPatient: false,
           },
           include: {
             department: true,
@@ -578,6 +582,7 @@ class PatientControllerV2 {
             // barcode: null,
             bedId: null, // remove bed assignment
             remarks,
+            callPatient: false,
           },
           include: {
             department: true,
