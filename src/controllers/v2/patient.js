@@ -567,6 +567,8 @@ class PatientControllerV2 {
         throw new MyError(error.details[0].message, 400);
       }
 
+      const endTime = value.endTime || new Date();
+
       const updatedPatient = await prisma.$transaction(async (tx) => {
         const remarks = value.remarks;
 
