@@ -31,6 +31,23 @@ class PatientControllerV2 {
 
       const userId = req.user.id;
 
+      // check if patient already exists
+      const existingPatient = await prisma.patient.findFirst({
+        where: {
+          userId,
+          mobileNumber: value.mobileNumber,
+          idNumber: value.idNumber,
+        },
+      });
+
+      if (existingPatient) {
+        return res.redirect(
+          `/api/v2/patients/re-register/${
+            existingPatient.id
+          }?${new URLSearchParams(value).toString()}`
+        );
+      }
+
       // Use Prisma transaction to ensure data consistency
       const result = await prisma.$transaction(async (tx) => {
         // Ensure state is 0 (waiting) for new patients
