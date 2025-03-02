@@ -50,9 +50,7 @@ class PatientControllerV2 {
           value,
           {
             headers: {
-              Authorization: `Bearer ${
-                req.headers.authorization || req.headers.Authorization
-              }`,
+              Authorization: `Bearer ${req.headers.Authorization}`,
             },
           }
         );
