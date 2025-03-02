@@ -1,3 +1,4 @@
+import axios from "axios";
 import { assignDepartmentQueue } from "../../config/queue.js";
 import {
   assignDepartmentSchema,
@@ -41,7 +42,7 @@ class PatientControllerV2 {
       });
 
       if (existingPatient) {
-        // make sure it is post request, and redirect to re-register patient which is also a post request
+        //TODO: make sure it is post request, and redirect to re-register patient which is also a post request
         // use axios to make a post request to re-register patient
         const response = await axios.post(
           `${process.env.DOMAIN}/api/v2/patients/re-register/${existingPatient.id}`,
