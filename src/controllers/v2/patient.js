@@ -53,7 +53,7 @@ class PatientControllerV2 {
           value,
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `${token}`,
             },
           }
         );
