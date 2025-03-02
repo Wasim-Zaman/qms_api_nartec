@@ -54,6 +54,7 @@ class PatientControllerV2 {
             },
           }
         );
+        console.log(response.data);
         return response.data;
       }
 
