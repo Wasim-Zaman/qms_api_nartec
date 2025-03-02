@@ -41,11 +41,13 @@ class PatientControllerV2 {
       });
 
       if (existingPatient) {
-        return res.redirect(
-          `/api/v2/patients/re-register/${
-            existingPatient.id
-          }?${new URLSearchParams(value).toString()}`
+        // make sure it is post request, and redirect to re-register patient which is also a post request
+        // use axios to make a post request to re-register patient
+        const response = await axios.post(
+          `${process.env.DOMAIN}/api/v2/patients/re-register/${existingPatient.id}`,
+          value
         );
+        return response.data;
       }
 
       // Use Prisma transaction to ensure data consistency
