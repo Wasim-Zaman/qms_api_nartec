@@ -46,7 +46,6 @@ class PatientControllerV2 {
         // use axios to make a post request to re-register patient
         // send bearer token in the request
         const token = req.headers.Authorization || req.headers.authorization;
-        console.log(token);
 
         const response = await axios.post(
           `${process.env.DOMAIN}/api/v2/patients/re-register/${existingPatient.id}`,

@@ -136,7 +136,7 @@ const processAssignDepartment = async (job) => {
 
     // waiting count
     const waitingCount = await prisma.patient.count({
-      where: { state: 0 },
+      where: { state: 0, departmentId: value.departmentId },
     });
 
     // Get current counter
@@ -145,7 +145,9 @@ const processAssignDepartment = async (job) => {
       where: {
         createdAt: {
           gte: new Date(new Date().setDate(new Date().getDate() - 1)),
+          lte: new Date(),
         },
+        departmentId: value.departmentId,
       },
     });
 
