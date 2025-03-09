@@ -66,9 +66,18 @@ class PatientControllerV2 {
           throw new MyError("New patients must have state=0 (waiting)", 400);
         }
 
+        // assign default department (TRIAGE) to the patient
+        const department = await tx.tblDepartment.findFirst({
+          where: {
+            deptname: {
+              contains: "TRIAGE",
+            },
+          },
+        });
+
         // waiting count
         const waitingCount = await tx.patient.count({
-          where: { state: 0 },
+          where: { state: 0, departmentId: department?.tblDepartmentID },
         });
 
         // Get current counter
@@ -78,6 +87,7 @@ class PatientControllerV2 {
             createdAt: {
               gte: new Date(new Date().setDate(new Date().getDate() - 1)),
             },
+            departmentId: department?.tblDepartmentID,
           },
         });
 
@@ -97,15 +107,6 @@ class PatientControllerV2 {
 
         const { relativePath, barcodeBase64 } =
           await PDFGenerator.generateTicket(pdfData);
-
-        // assign default department (TRIAGE) to the patient
-        const department = await tx.tblDepartment.findFirst({
-          where: {
-            deptname: {
-              contains: "TRIAGE",
-            },
-          },
-        });
 
         // Create patient record
         const patient = await tx.patient.create({
@@ -755,7 +756,7 @@ class PatientControllerV2 {
 
         // waiting count
         const waitingCount = await prisma.patient.count({
-          where: { state: 0 },
+          where: { state: 0, departmentId: department?.tblDepartmentID },
         });
 
         // Get current counter
@@ -765,6 +766,7 @@ class PatientControllerV2 {
             createdAt: {
               gte: new Date(new Date().setDate(new Date().getDate() - 1)),
             },
+            departmentId: department?.tblDepartmentID,
           },
         });
 

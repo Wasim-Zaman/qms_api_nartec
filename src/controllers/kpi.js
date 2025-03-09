@@ -70,36 +70,41 @@ class KPIController {
 
   static async getPatientRegistrationTrend(req, res, next) {
     try {
-      // Get the date 7 days ago from now
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // -6 to include today
-      sevenDaysAgo.setHours(0, 0, 0, 0); // Start of day
+      // Get today's date (end date)
+      const endDate = new Date();
+      endDate.setHours(23, 59, 59, 999); // End of current day
 
-      // Get all patients created in the last 7 days
+      // Get start date (7 days ago)
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 6); // -6 to include today
+      startDate.setHours(0, 0, 0, 0); // Start of day
+
+      // Get all patients created in the date range
       const patients = await prisma.patient.findMany({
         where: {
           createdAt: {
-            gte: sevenDaysAgo,
+            gte: startDate,
+            lte: endDate,
           },
         },
         select: {
           createdAt: true,
         },
         orderBy: {
-          createdAt: "asc",
+          createdAt: "desc", // Changed to desc to match the date order
         },
       });
 
-      // Create an array of the last 7 days
-      const last7Days = Array.from({ length: 7 }, (_, i) => {
+      // Create an array of dates from today backwards
+      const dateRange = Array.from({ length: 7 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() - i);
         date.setHours(0, 0, 0, 0);
         return date;
-      }).reverse();
+      }); // No need for reverse() as we're already counting backwards
 
       // Group patients by date
-      const trend = last7Days.map((date) => {
+      const trend = dateRange.map((date) => {
         // Count patients for this date
         const dayCount = patients.filter((patient) => {
           const patientDate = new Date(patient.createdAt);

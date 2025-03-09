@@ -1,25 +1,15 @@
 import express from "express";
 import KPIController from "../controllers/kpi.js";
-
+import { verifyAccessToken } from "../middlewares/auth.js";
 const router = express.Router();
 
-router.get(
-  "/patient-counts",
-  //   verifyAccessToken,
-  KPIController.getPatientCounts
-);
+router.use(verifyAccessToken);
 
-router.get(
-  "/registration-trend",
-  //   verifyAccessToken,
-  KPIController.getPatientRegistrationTrend
-);
+router.get("/patient-counts", KPIController.getPatientCounts);
 
-router.get(
-  "/eyeball-to-triage",
-  //   verifyAccessToken,  // Uncomment if you want to require authentication
-  KPIController.getEyeballToTriageTime
-);
+router.get("/registration-trend", KPIController.getPatientRegistrationTrend);
+
+router.get("/eyeball-to-triage", KPIController.getEyeballToTriageTime);
 
 router.get("/hourly-flow", KPIController.getHourlyPatientFlow);
 router.get("/department-performance", KPIController.getDepartmentPerformance);
