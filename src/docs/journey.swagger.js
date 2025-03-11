@@ -7,12 +7,53 @@
 
 /**
  * @swagger
- * /api/v1/journeys/active:
+ * /api/v1/journey/active:
  *   get:
- *     summary: Get active journeys created or updated today
- *     tags: [Journeys]
- *     security:
- *       - bearerAuth: []
+ *     summary: Get active patient journeys
+ *     tags: [Journey]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by patient name or MRN number
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           default: updatedAt
+ *         description: Field to sort by (createdAt, updatedAt, etc.)
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order (asc or desc)
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter journeys created on or after this date (YYYY-MM-DD)
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter journeys created on or before this date (YYYY-MM-DD)
  *     responses:
  *       200:
  *         description: Active journeys retrieved successfully
@@ -31,66 +72,57 @@
  *                   type: string
  *                   example: Active journeys retrieved successfully
  *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: string
- *                       isActive:
- *                         type: boolean
- *                       createdAt:
- *                         type: string
- *                         format: date-time
- *                       updatedAt:
- *                         type: string
- *                         format: date-time
- *                       registrationTime:
- *                         type: string
- *                         format: date-time
- *                       firstCallTime:
- *                         type: string
- *                         format: date-time
- *                       vitalSignsTime:
- *                         type: string
- *                         format: date-time
- *                       departmentAssignmentTime:
- *                         type: string
- *                         format: date-time
- *                       secondCallTime:
- *                         type: string
- *                         format: date-time
- *                       beginTime:
- *                         type: string
- *                         format: date-time
- *                       endTime:
- *                         type: string
- *                         format: date-time
- *                       patient:
+ *                   type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
  *                         type: object
  *                         properties:
  *                           id:
  *                             type: string
- *                           name:
+ *                           patientId:
  *                             type: string
- *                           mrnNumber:
+ *                           isActive:
+ *                             type: boolean
+ *                           createdAt:
  *                             type: string
- *                           age:
- *                             type: integer
- *                           sex:
+ *                             format: date-time
+ *                           updatedAt:
  *                             type: string
- *                           department:
+ *                             format: date-time
+ *                           patient:
  *                             type: object
  *                             properties:
- *                               deptname:
+ *                               id:
  *                                 type: string
- *                           bed:
- *                             type: object
- *                             properties:
- *                               bedNumber:
+ *                               name:
  *                                 type: string
- *       401:
- *         description: Unauthorized
+ *                               mrnNumber:
+ *                                 type: string
+ *                               age:
+ *                                 type: integer
+ *                               sex:
+ *                                 type: string
+ *                               status:
+ *                                 type: string
+ *                               state:
+ *                                 type: integer
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                           example: 50
+ *                         page:
+ *                           type: integer
+ *                           example: 1
+ *                         limit:
+ *                           type: integer
+ *                           example: 10
+ *                         totalPages:
+ *                           type: integer
+ *                           example: 5
  *       500:
  *         description: Server error
  */
@@ -101,8 +133,6 @@
  *   get:
  *     summary: Get previous journeys (excluding those created or updated today)
  *     tags: [Journeys]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -134,6 +164,18 @@
  *           enum: [asc, desc]
  *           default: desc
  *         description: Sort order
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter journeys created on or after this date (YYYY-MM-DD)
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter journeys created on or before this date (YYYY-MM-DD)
  *     responses:
  *       200:
  *         description: Previous journeys retrieved successfully
@@ -169,16 +211,13 @@
  *                           updatedAt:
  *                             type: string
  *                             format: date-time
- *                           registrationTime:
- *                             type: string
- *                             format: date-time
  *                           firstCallTime:
  *                             type: string
  *                             format: date-time
- *                           vitalSignsTime:
+ *                           vitalTime:
  *                             type: string
  *                             format: date-time
- *                           departmentAssignmentTime:
+ *                           assignDeptTime:
  *                             type: string
  *                             format: date-time
  *                           secondCallTime:
@@ -203,6 +242,10 @@
  *                                 type: integer
  *                               sex:
  *                                 type: string
+ *                               status:
+ *                                 type: string
+ *                               state:
+ *                                 type: integer
  *                               department:
  *                                 type: object
  *                                 properties:
@@ -222,6 +265,9 @@
  *                         page:
  *                           type: integer
  *                           example: 1
+ *                         limit:
+ *                           type: integer
+ *                           example: 10
  *                         totalPages:
  *                           type: integer
  *                           example: 10

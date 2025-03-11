@@ -8,16 +8,67 @@ import response from "../utils/response.js";
 class JourneyController {
   static async getActiveJourneys(req, res, next) {
     try {
+      // Parse query parameters with defaults
+      const {
+        page = 1,
+        limit = 10,
+        search = "",
+        sortBy = "updatedAt",
+        order = "desc",
+        startDate,
+        endDate,
+      } = req.query;
+
+      const skip = (page - 1) * limit;
+
       // Get today's date at midnight
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      // Get active journeys created or updated today
+      // Build where condition
+      const whereCondition = {
+        isActive: true,
+        OR: [{ createdAt: { gte: today } }, { updatedAt: { gte: today } }],
+      };
+
+      // Add date range filter if provided
+      if (startDate) {
+        whereCondition.createdAt = {
+          ...(whereCondition.createdAt || {}),
+          gte: new Date(startDate),
+        };
+      }
+
+      if (endDate) {
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999);
+        whereCondition.createdAt = {
+          ...(whereCondition.createdAt || {}),
+          lte: endDateTime,
+        };
+      }
+
+      // Add search condition if provided
+      if (search) {
+        whereCondition.OR = [
+          ...(whereCondition.OR || []),
+          {
+            patient: {
+              OR: [
+                { name: { contains: search } },
+                { mrnNumber: { contains: search } },
+              ],
+            },
+          },
+        ];
+      }
+
+      // Get total count for pagination
+      const total = await prisma.journey.count({ where: whereCondition });
+
+      // Get journeys with filtering, sorting and pagination
       const journeys = await prisma.journey.findMany({
-        where: {
-          isActive: true,
-          OR: [{ createdAt: { gte: today } }, { updatedAt: { gte: today } }],
-        },
+        where: whereCondition,
         include: {
           patient: {
             select: {
@@ -27,20 +78,23 @@ class JourneyController {
           },
         },
         orderBy: {
-          updatedAt: "desc",
+          [sortBy]: order,
         },
+        skip,
+        take: Number(limit),
       });
 
-      res
-        .status(200)
-        .json(
-          response(
-            200,
-            true,
-            "Active journeys retrieved successfully",
-            journeys
-          )
-        );
+      res.status(200).json(
+        response(200, true, "Active journeys retrieved successfully", {
+          data: journeys,
+          pagination: {
+            total,
+            page: Number(page),
+            limit: Number(limit),
+            totalPages: Math.ceil(total / limit),
+          },
+        })
+      );
     } catch (error) {
       next(error);
     }
@@ -128,12 +182,15 @@ class JourneyController {
 
   static async getPreviousJourneys(req, res, next) {
     try {
+      // Parse query parameters with defaults
       const {
         page = 1,
         limit = 10,
         search = "",
         sortBy = "createdAt",
         order = "desc",
+        startDate,
+        endDate,
       } = req.query;
 
       // Get today's date at 00:00:00
@@ -152,25 +209,41 @@ class JourneyController {
               ],
             },
           },
-          // Add search functionality
-          search
-            ? {
-                OR: [
-                  {
-                    patient: {
-                      name: { contains: search },
-                    },
-                  },
-                  {
-                    patient: {
-                      mrnNumber: { contains: search },
-                    },
-                  },
-                ],
-              }
-            : {},
         ],
       };
+
+      // Add date range filter if provided
+      if (startDate) {
+        searchCondition.AND.push({
+          createdAt: { gte: new Date(startDate) },
+        });
+      }
+
+      if (endDate) {
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999);
+        searchCondition.AND.push({
+          createdAt: { lte: endDateTime },
+        });
+      }
+
+      // Add search functionality
+      if (search) {
+        searchCondition.AND.push({
+          OR: [
+            {
+              patient: {
+                name: { contains: search },
+              },
+            },
+            {
+              patient: {
+                mrnNumber: { contains: search },
+              },
+            },
+          ],
+        });
+      }
 
       // Get total count
       const total = await prisma.journey.count({
@@ -203,6 +276,7 @@ class JourneyController {
           pagination: {
             total,
             page: Number(page),
+            limit: Number(limit),
             totalPages,
             hasMore: page < totalPages,
           },
