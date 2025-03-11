@@ -7,10 +7,10 @@
 
 /**
  * @swagger
- * /api/v1/journey/active:
+ * /api/v1/journeys/active:
  *   get:
  *     summary: Get active patient journeys
- *     tags: [Journey]
+ *     tags: [Journeys]
  *     parameters:
  *       - in: query
  *         name: page
@@ -129,7 +129,7 @@
 
 /**
  * @swagger
- * /api/v1/journeys/previous:
+ * /api/v1/journeyss/previous:
  *   get:
  *     summary: Get previous journeys (excluding those created or updated today)
  *     tags: [Journeys]
@@ -282,7 +282,7 @@
 
 /**
  * @swagger
- * /api/v1/journeys/export:
+ * /api/v1/journeyss/export:
  *   get:
  *     summary: Export all journeys to Excel
  *     tags: [Journeys]
