@@ -31,6 +31,21 @@ class JourneyController {
         OR: [{ createdAt: { gte: today } }, { updatedAt: { gte: today } }],
       };
 
+      // Add search condition if provided
+      if (search) {
+        whereCondition.OR = [
+          {
+            patient: {
+              OR: [
+                { id: { contains: search } },
+                { name: { contains: search } },
+                { mrnNumber: { contains: search } },
+              ],
+            },
+          },
+        ];
+      }
+
       // Add date range filter if provided
       if (startDate) {
         whereCondition.createdAt = {
@@ -48,21 +63,6 @@ class JourneyController {
         };
       }
 
-      // Add search condition if provided
-      if (search) {
-        whereCondition.OR = [
-          ...(whereCondition.OR || []),
-          {
-            patient: {
-              OR: [
-                { name: { contains: search } },
-                { mrnNumber: { contains: search } },
-              ],
-            },
-          },
-        ];
-      }
-
       // Get total count for pagination
       const total = await prisma.journey.count({ where: whereCondition });
 
@@ -72,6 +72,7 @@ class JourneyController {
         include: {
           patient: {
             select: {
+              id: true,
               name: true,
               mrnNumber: true,
             },
@@ -84,6 +85,8 @@ class JourneyController {
         take: Number(limit),
       });
 
+      const totalPages = Math.ceil(total / limit);
+
       res.status(200).json(
         response(200, true, "Active journeys retrieved successfully", {
           data: journeys,
@@ -91,7 +94,8 @@ class JourneyController {
             total,
             page: Number(page),
             limit: Number(limit),
-            totalPages: Math.ceil(total / limit),
+            totalPages,
+            hasMore: page < totalPages,
           },
         })
       );

@@ -129,7 +129,7 @@
 
 /**
  * @swagger
- * /api/v1/journeyss/previous:
+ * /api/v1/journeys/previous:
  *   get:
  *     summary: Get previous journeys (excluding those created or updated today)
  *     tags: [Journeys]
