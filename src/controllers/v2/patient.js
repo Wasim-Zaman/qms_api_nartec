@@ -38,6 +38,7 @@ class PatientControllerV2 {
           userId,
           mobileNumber: value.mobileNumber,
           idNumber: value.idNumber,
+          mrnNumber: value.mrnNumber,
         },
       });
 
