@@ -58,6 +58,8 @@ class PatientControllerV2 {
           }
         );
 
+        console.log(response.data);
+
         if (response.data.success === false) {
           throw new MyError(response.data.message, response.data.status);
         }
