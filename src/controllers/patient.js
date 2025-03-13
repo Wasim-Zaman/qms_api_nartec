@@ -386,6 +386,7 @@ class PatientController {
             },
           },
         });
+
         deptId = department?.tblDepartmentID;
       }
 
