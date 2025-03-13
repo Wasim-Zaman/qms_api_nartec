@@ -743,8 +743,16 @@ class PatientControllerV2 {
         throw new MyError("Patient not found", 404);
       }
 
-      // we will update the patient data, and reset the state to 0 (waiting), delete the ticket and barcode
+      // check if patient's active journey is ended or not
+      const activeJourney = await prisma.journey.findFirst({
+        where: { patientId: id, endTime: null },
+      });
 
+      if (activeJourney) {
+        throw new MyError("Patient's active journey is not ended", 400);
+      }
+
+      // we will update the patient data, and reset the state to 0 (waiting), delete the ticket and barcode
       const result = await prisma.$transaction(async (tx) => {
         // assign default department (TRIAGE) to the patient
         const department = await tx.tblDepartment.findFirst({
