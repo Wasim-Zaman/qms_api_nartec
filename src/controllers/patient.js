@@ -379,7 +379,7 @@ class PatientController {
       let { deptId } = req.query;
 
       if (!deptId) {
-        const department = await tx.tblDepartment.findFirst({
+        const department = await prisma.tblDepartment.findFirst({
           where: {
             deptname: {
               contains: "TRIAGE",
