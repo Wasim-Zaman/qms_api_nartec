@@ -176,7 +176,7 @@ const processAssignDepartment = async (job) => {
         ticket: ticketData.relativePath,
         ticketNumber,
         barcode,
-        state: 1, // 0: waiting, 1: serving, 2: served
+        state: 0, // 0: waiting, 1: serving, 2: served
         callPatient: false,
         assignDeptTime: new Date(), // assign department time
       },

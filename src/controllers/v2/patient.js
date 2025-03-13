@@ -245,7 +245,7 @@ class PatientControllerV2 {
             where: { id: activeJourney.id },
             data: {
               // set first call time and second call time
-              ...(call === "first" && { firstCallTime: new Date() }),
+              ...(call === "first" && { firstCallTime: new Date(), state: 1 }),
               ...(call === "second" && { secondCallTime: new Date() }),
             },
           });
@@ -378,7 +378,7 @@ class PatientControllerV2 {
       const updatedPatient = await prisma.$transaction(async (prisma) => {
         const updatedPatient = await prisma.patient.update({
           where: { id },
-          data: { beginTime },
+          data: { beginTime, state: 1 }, // set patient state to 1 (In Treatment)
           include: {
             bed: true,
             department: true,
