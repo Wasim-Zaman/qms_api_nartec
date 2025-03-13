@@ -58,12 +58,6 @@ class PatientControllerV2 {
           }
         );
 
-        console.log(response.data);
-
-        if (response.data.success === false) {
-          throw new MyError(response.data.message, response.data.status);
-        }
-
         return res.status(200).json(response.data);
       }
 
@@ -756,7 +750,11 @@ class PatientControllerV2 {
       });
 
       if (activeJourney) {
-        throw new MyError("Patient's active journey is not ended", 400);
+        return res
+          .status(400)
+          .json(
+            response(400, false, "Patient's active journey is not ended", null)
+          );
       }
 
       // we will update the patient data, and reset the state to 0 (waiting), delete the ticket and barcode
