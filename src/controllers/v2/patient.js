@@ -14,7 +14,7 @@ import {
 } from "../../schemas/patient.schema.js";
 import socketService from "../../services/socket.js";
 import MyError from "../../utils/error.js";
-import { deleteFile, ensureRequiredDirs } from "../../utils/file.js";
+import { ensureRequiredDirs } from "../../utils/file.js";
 import PDFGenerator from "../../utils/pdfGenerator.js";
 import prisma from "../../utils/prismaClient.js";
 import response from "../../utils/response.js";
@@ -123,7 +123,12 @@ class PatientControllerV2 {
           },
         });
 
-        // create journey
+        // create journey and make old active journey inactive
+        await tx.journey.updateMany({
+          where: { patientId: patient.id, isActive: true },
+          data: { isActive: false },
+        });
+
         const journey = await tx.journey.create({
           data: {
             patientId: patient.id,
@@ -245,7 +250,7 @@ class PatientControllerV2 {
             where: { id: activeJourney.id },
             data: {
               // set first call time and second call time
-              ...(call === "first" && { firstCallTime: new Date(), state: 1 }),
+              ...(call === "first" && { firstCallTime: new Date() }),
               ...(call === "second" && { secondCallTime: new Date() }),
             },
           });
@@ -257,7 +262,7 @@ class PatientControllerV2 {
             callPatient: !patient.callPatient,
 
             // set first call time and second call time
-            ...(call === "first" && { firstCallTime: new Date() }),
+            ...(call === "first" && { firstCallTime: new Date(), state: 1 }),
             ...(call === "second" && { secondCallTime: new Date() }),
           },
           include: {
@@ -378,7 +383,7 @@ class PatientControllerV2 {
       const updatedPatient = await prisma.$transaction(async (prisma) => {
         const updatedPatient = await prisma.patient.update({
           where: { id },
-          data: { beginTime, state: 1 }, // set patient state to 1 (In Treatment)
+          data: { beginTime, state: 1, callPatient: false }, // set patient state to 1 (In Treatment)
           include: {
             bed: true,
             department: true,
@@ -458,10 +463,10 @@ class PatientControllerV2 {
           });
         }
 
-        // Delete ticket pdf
-        if (patient.ticket) {
-          await deleteFile(patient.ticket);
-        }
+        // // Delete ticket pdf
+        // if (patient.ticket) {
+        //   await deleteFile(patient.ticket);
+        // }
 
         // Update patient
         return await tx.patient.update({
@@ -469,8 +474,8 @@ class PatientControllerV2 {
           data: {
             endTime,
             state: 2, // Patient is discharged | Served
-            ticket: null,
-            barcode: null,
+            // ticket: null,
+            // barcode: null,
             bedId: null, // remove bed assignment
             remarks: "Patient discharged on End Time",
             callPatient: false,
@@ -509,17 +514,17 @@ class PatientControllerV2 {
           throw new MyError("Patient not found", 404);
         }
 
-        // get active journey and update it
-        const activeJourney = await tx.journey.findFirst({
-          where: { patientId: id, isActive: true },
-        });
+        // // get active journey and update it
+        // const activeJourney = await tx.journey.findFirst({
+        //   where: { patientId: id, isActive: true },
+        // });
 
-        if (activeJourney) {
-          await tx.journey.update({
-            where: { id: activeJourney.id, isActive: true },
-            data: { endTime, isActive: false },
-          });
-        }
+        // if (activeJourney) {
+        //   await tx.journey.update({
+        //     where: { id: activeJourney.id, isActive: true },
+        //     data: { endTime, isActive: false },
+        //   });
+        // }
 
         // If patient has a bed, update its status to release it
         if (patient.bedId) {
@@ -529,10 +534,10 @@ class PatientControllerV2 {
           });
         }
 
-        // Delete ticket pdf
-        if (patient.ticket) {
-          await deleteFile(patient.ticket);
-        }
+        // // Delete ticket pdf
+        // if (patient.ticket) {
+        //   await deleteFile(patient.ticket);
+        // }
 
         // Update patient
         return await tx.patient.update({
@@ -540,8 +545,8 @@ class PatientControllerV2 {
           data: {
             endTime,
             state: 3, // Patient is voided
-            ticket: null,
-            barcode: null,
+            // ticket: null,
+            // barcode: null,
             bedId: null, // remove bed assignment
             remarks: "Patient voided",
             callPatient: false,
@@ -582,17 +587,17 @@ class PatientControllerV2 {
           throw new MyError("Patient not found", 404);
         }
 
-        // get active journey and update it
-        const activeJourney = await tx.journey.findFirst({
-          where: { patientId: id, isActive: true },
-        });
+        // // get active journey and update it
+        // const activeJourney = await tx.journey.findFirst({
+        //   where: { patientId: id, isActive: true },
+        // });
 
-        if (activeJourney) {
-          await tx.journey.update({
-            where: { id: activeJourney.id, isActive: true },
-            data: { endTime, isActive: false },
-          });
-        }
+        // if (activeJourney) {
+        //   await tx.journey.update({
+        //     where: { id: activeJourney.id, isActive: true },
+        //     data: { endTime, isActive: false },
+        //   });
+        // }
 
         // If patient has a bed, update its status to release it
         if (patient.bedId) {
@@ -602,16 +607,16 @@ class PatientControllerV2 {
           });
         }
 
-        // Delete ticket pdf
-        if (patient.ticket) {
-          await deleteFile(patient.ticket);
-        }
+        // // Delete ticket pdf
+        // if (patient.ticket) {
+        //   await deleteFile(patient.ticket);
+        // }
 
         return await tx.patient.update({
           where: { id },
           data: {
             state: 2, // Patient is discharged | Served
-            ticket: null,
+            // ticket: null,
             // barcode: null,
             bedId: null, // remove bed assignment
             remarks,
@@ -801,7 +806,12 @@ class PatientControllerV2 {
         const { relativePath, barcodeBase64 } =
           await PDFGenerator.generateTicket(pdfData);
 
-        // create journey
+        // create journey and make old active journey inactive
+        await tx.journey.updateMany({
+          where: { patientId: id, isActive: true },
+          data: { isActive: false },
+        });
+
         await tx.journey.create({
           data: {
             patientId: id,

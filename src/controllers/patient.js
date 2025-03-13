@@ -376,7 +376,18 @@ class PatientController {
 
   static async getPatientsByState(req, res, next) {
     try {
-      const { deptId } = req.query;
+      let { deptId } = req.query;
+
+      if (!deptId) {
+        const department = await tx.tblDepartment.findFirst({
+          where: {
+            deptname: {
+              contains: "TRIAGE",
+            },
+          },
+        });
+        deptId = department?.tblDepartmentID;
+      }
 
       // Base where condition for waiting patients
       const waitingWhereCondition = {
