@@ -57,6 +57,11 @@ class PatientControllerV2 {
             },
           }
         );
+        // throw error if response is not 200
+        if (response.status !== 200) {
+          throw new MyError(response.data.message, 400);
+        }
+
         return res.status(200).json(response.data);
       }
 
