@@ -445,7 +445,13 @@ class PatientControllerV2 {
 
         // update journey
         const activeJourney = await tx.journey.findFirst({
-          where: { patientId: id, isActive: true },
+          where: {
+            patientId: id,
+            endTime: null,
+            createdAt: {
+              gte: new Date(new Date().setHours(0, 0, 0, 0)), // Start of today
+            },
+          },
         });
 
         if (!activeJourney?.beginTime) {
@@ -593,7 +599,13 @@ class PatientControllerV2 {
 
         // get active journey and update it
         const activeJourney = await tx.journey.findFirst({
-          where: { patientId: id, isActive: true },
+          where: {
+            patientId: id,
+            endTime: null,
+            createdAt: {
+              gte: new Date(new Date().setHours(0, 0, 0, 0)), // Start of today
+            },
+          },
         });
 
         if (activeJourney) {
@@ -753,9 +765,15 @@ class PatientControllerV2 {
         throw new MyError("Patient not found", 404);
       }
 
-      // check if patient's active journey is ended or not
+      // check if patient's active journey is ended or not for the current day
       const activeJourney = await prisma.journey.findFirst({
-        where: { patientId: id, endTime: null },
+        where: {
+          patientId: id,
+          endTime: null,
+          createdAt: {
+            gte: new Date(new Date().setHours(0, 0, 0, 0)), // Start of today
+          },
+        },
       });
 
       if (activeJourney) {
