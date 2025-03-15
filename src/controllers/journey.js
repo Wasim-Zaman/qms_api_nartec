@@ -94,8 +94,7 @@ class JourneyController {
         .filter(
           (journey, index, self) =>
             index === self.findIndex((t) => t.patientId === journey.patientId)
-        )
-        .map((journey) => journey.patient);
+        );
 
       // unique total
       const uniqueTotal = uniqueJourneys.length;
