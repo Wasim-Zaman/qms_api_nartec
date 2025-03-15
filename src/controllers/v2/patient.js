@@ -518,17 +518,17 @@ class PatientControllerV2 {
           throw new MyError("Patient not found", 404);
         }
 
-        // // get active journey and update it
-        // const activeJourney = await tx.journey.findFirst({
-        //   where: { patientId: id, isActive: true },
-        // });
+        // get active journey and update it
+        const activeJourney = await tx.journey.findFirst({
+          where: { patientId: id, isActive: true },
+        });
 
-        // if (activeJourney) {
-        //   await tx.journey.update({
-        //     where: { id: activeJourney.id, isActive: true },
-        //     data: { endTime, isActive: false },
-        //   });
-        // }
+        if (activeJourney) {
+          await tx.journey.update({
+            where: { id: activeJourney.id, isActive: true },
+            data: { endTime, isActive: false },
+          });
+        }
 
         // If patient has a bed, update its status to release it
         if (patient.bedId) {
@@ -591,17 +591,17 @@ class PatientControllerV2 {
           throw new MyError("Patient not found", 404);
         }
 
-        // // get active journey and update it
-        // const activeJourney = await tx.journey.findFirst({
-        //   where: { patientId: id, isActive: true },
-        // });
+        // get active journey and update it
+        const activeJourney = await tx.journey.findFirst({
+          where: { patientId: id, isActive: true },
+        });
 
-        // if (activeJourney) {
-        //   await tx.journey.update({
-        //     where: { id: activeJourney.id, isActive: true },
-        //     data: { endTime, isActive: false },
-        //   });
-        // }
+        if (activeJourney) {
+          await tx.journey.update({
+            where: { id: activeJourney.id, isActive: true },
+            data: { endTime, isActive: false },
+          });
+        }
 
         // If patient has a bed, update its status to release it
         if (patient.bedId) {

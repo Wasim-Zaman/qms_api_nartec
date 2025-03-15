@@ -75,6 +75,7 @@ class JourneyController {
               id: true,
               name: true,
               mrnNumber: true,
+              updatedAt: true,
             },
           },
         },
@@ -87,15 +88,35 @@ class JourneyController {
 
       const totalPages = Math.ceil(total / limit);
 
+      // remove duplicate patient from the journeys and get the last served patient
+      const uniqueJourneys = journeys
+        .filter(
+          (journey, index, self) =>
+            index ===
+            self.findIndex(
+              (t) =>
+                t.patientId === journey.patientId &&
+                t.updatedAt > journey.updatedAt
+            )
+        )
+        .sort((a, b) => b.updatedAt - a.updatedAt)
+        .map((patient) => patient.patient);
+
+      // unique total
+      const uniqueTotal = uniqueJourneys.length;
+
+      // unique total pages
+      const uniqueTotalPages = Math.ceil(uniqueTotal / limit);
+
       res.status(200).json(
         response(200, true, "Active journeys retrieved successfully", {
-          data: journeys,
+          data: uniqueJourneys,
           pagination: {
-            total,
+            uniqueTotal,
             page: Number(page),
             limit: Number(limit),
-            totalPages,
-            hasMore: page < totalPages,
+            uniqueTotalPages,
+            hasMore: page < uniqueTotalPages,
           },
         })
       );
