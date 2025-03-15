@@ -86,10 +86,14 @@ class PatientControllerV2 {
         let currentCounter = await tx.patient.count({
           // count all the patients for last day
           where: {
+            // only count the patients for today
             createdAt: {
+              // only count the patients for today
               gte: new Date(new Date().setDate(new Date().getDate() - 1)),
+              lte: new Date(),
             },
             departmentId: department?.tblDepartmentID,
+            state: 0,
           },
         });
 
@@ -786,6 +790,7 @@ class PatientControllerV2 {
               gte: new Date(new Date().setDate(new Date().getDate() - 1)),
             },
             departmentId: department?.tblDepartmentID,
+            state: 0,
           },
         });
 
