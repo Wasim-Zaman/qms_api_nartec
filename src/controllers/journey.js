@@ -75,7 +75,16 @@ class JourneyController {
               id: true,
               name: true,
               mrnNumber: true,
-              updatedAt: true,
+              department: {
+                select: {
+                  deptname: true,
+                },
+              },
+              bed: {
+                select: {
+                  bedNumber: true,
+                },
+              },
             },
           },
         },
@@ -88,19 +97,16 @@ class JourneyController {
 
       const totalPages = Math.ceil(total / limit);
 
-      // remove duplicate patient from the journeys and get the last served patient
+      // First sort journeys by updatedAt in descending order (newest first)
+      // Then filter to keep only the first occurrence of each patientId
+      // This ensures we keep the latest journey for each patient
       const uniqueJourneys = journeys
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
         .filter(
           (journey, index, self) =>
-            index ===
-            self.findIndex(
-              (t) =>
-                t.patientId === journey.patientId &&
-                t.updatedAt > journey.updatedAt
-            )
+            index === self.findIndex((t) => t.patientId === journey.patientId)
         )
-        .sort((a, b) => b.updatedAt - a.updatedAt)
-        .map((patient) => patient.patient);
+        .map((journey) => journey.patient);
 
       // unique total
       const uniqueTotal = uniqueJourneys.length;
