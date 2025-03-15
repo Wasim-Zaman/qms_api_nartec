@@ -27,7 +27,6 @@ class JourneyController {
 
       // Build where condition
       const whereCondition = {
-        isActive: true,
         OR: [{ createdAt: { gte: today } }, { updatedAt: { gte: today } }],
       };
 
