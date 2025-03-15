@@ -75,16 +75,6 @@ class JourneyController {
               id: true,
               name: true,
               mrnNumber: true,
-              department: {
-                select: {
-                  deptname: true,
-                },
-              },
-              bed: {
-                select: {
-                  bedNumber: true,
-                },
-              },
             },
           },
         },
