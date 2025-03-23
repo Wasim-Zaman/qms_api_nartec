@@ -39,8 +39,6 @@ qms_api/
 │ └── view/ # PDF templates
 ├── uploads/ # Uploaded files and generated
 
-````
-
 ## Environment Variables
 
 Create a `.env` file in the root directory:
@@ -75,7 +73,7 @@ SUPER_ADMIN_PASSWORD="admin"
 
 # Sentry
 SENTRY_DSN="your-sentry-dsn"
-````
+```
 
 ## Installation
 
@@ -110,6 +108,45 @@ npx prisma migrate dev
 npm run dev    # Development
 npm start      # Production
 ```
+
+## CI/CD with Jenkins
+
+The project uses Jenkins for continuous integration and deployment. Two Jenkinsfile configurations are available:
+
+### Initial Deployment (Jenkinsfile-initial)
+
+The initial deployment pipeline:
+
+1. Checks out the code from the GitHub repository
+2. Sets up environment variables from a secure location
+3. Manages PM2 processes:
+   - Stops and deletes existing PM2 processes if running
+   - Installs dependencies with `npm ci` for clean installation
+   - Generates Prisma client files
+   - Creates new PM2 processes for the main app and workers
+   - Saves the PM2 configuration
+
+### Subsequent Deployments (Jenkinsfile)
+
+For regular updates after initial deployment:
+
+1. Checks out the latest code
+2. Updates environment variables
+3. Manages PM2 processes:
+   - Temporarily stops the running processes
+   - Updates dependencies with `npm install`
+   - Regenerates Prisma client files
+   - Restarts the existing PM2 processes
+   - Saves the updated PM2 configuration
+
+### Jenkins Environment Setup
+
+The Jenkins pipeline requires:
+
+- PM2 installed globally on the Jenkins agent
+- Node.js and npm installed on the Jenkins agent
+- Environment file stored at a secure location (`C:\ProgramData\Jenkins\.jenkins\jenkinsEnv\qms-v2-backend`)
+- GitHub credentials configured in Jenkins
 
 ## API Documentation
 
