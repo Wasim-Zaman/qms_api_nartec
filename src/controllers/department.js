@@ -106,7 +106,7 @@ class DepartmentController {
       const { deptcode } = req.params;
 
       const department = await prisma.tblDepartment.findUnique({
-        where: { deptcode },
+        where: { tblDepartmentID: deptcode },
       });
 
       if (!department) {
