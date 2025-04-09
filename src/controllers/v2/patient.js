@@ -804,9 +804,9 @@ class PatientControllerV2 {
         let currentCounter = await prisma.patient.count({
           // count all the patients for last day
           where: {
-            createdAt: {
-              gte: new Date(new Date().setDate(new Date().getDate() - 1)),
-            },
+            // createdAt: {
+            //   gte: new Date(new Date().setDate(new Date().getDate() - 1)),
+            // },
             departmentId: department?.tblDepartmentID,
             state: 0,
           },
