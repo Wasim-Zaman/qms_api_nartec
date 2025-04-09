@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Express.js application",
   "type": "module",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
     "start": "nodemon src/app.js",
     "dev": "nodemon src/app.js",
@@ -15,11 +15,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "prisma": {
-    "schema": ".prisma/schema"
-  },
   "dependencies": {
-    "@prisma/client": "5.22.0",
+    "@prisma/client": "^6.6.0",
     "@sentry/cli": "^2.39.1",
     "@sentry/node": "^8.47.0",
     "@sentry/profiling-node": "^8.47.0",
