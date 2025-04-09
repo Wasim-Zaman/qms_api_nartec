@@ -43,7 +43,9 @@ pipeline {
                 echo "Restarting PM2 process..."
                 bat 'pm2 restart qms qms-workers'
                 echo "Restarting PM2 process... Done"
+                echo "Saving PM2 process..."
                 bat 'pm2 save'
+                echo "Saving PM2 process... Done"
             }
         }
     }
