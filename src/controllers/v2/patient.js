@@ -87,11 +87,11 @@ class PatientControllerV2 {
           // count all the patients for last day
           where: {
             // only count the patients for today
-            createdAt: {
-              // only count the patients for today
-              gte: new Date(new Date().setDate(new Date().getDate() - 1)),
-              lte: new Date(),
-            },
+            // createdAt: {
+            //   // only count the patients for today
+            //   gte: new Date(new Date().setDate(new Date().getDate() - 1)),
+            //   lte: new Date(),
+            // },
             departmentId: department?.tblDepartmentID,
             state: 0,
           },
