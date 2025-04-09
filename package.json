@@ -9,6 +9,7 @@
     "dev": "nodemon src/app.js",
     "workers": "nodemon src/workers/index.js",
     "prisma-push": "npx prisma db push",
+    "prisma-generate": "npx prisma generate",
     "test": "jest",
     "seed": "node seed/index.js",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org gst-sz --project gst-api ./ && sentry-cli sourcemaps upload --org gst-sz --project gst-api ./"
@@ -54,7 +55,8 @@
     "@babel/preset-env": "^7.16.0",
     "depcheck": "^1.4.7",
     "jest": "^27.3.1",
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "prisma": "5.15"
   },
   "jest": {
     "transform": {

@@ -98,13 +98,14 @@ class PatientControllerV2 {
         });
 
         const counter = (currentCounter || 0) + 1;
-        const ticket = `${currentCounter?.user?.deptcode}${counter}`;
+        const deptCode = department?.deptcode || "T"; // Get department code with fallback
+        const ticket = `${deptCode}${counter}`;
 
         // Generate PDF ticket
         const pdfData = {
           patientName: value.name,
           ticket: ticket,
-          deptcode: currentCounter?.user?.deptcode,
+          deptcode: deptCode, // Use the deptCode we extracted from department
           counter: counter,
           issueDate: new Date(),
           cheifComplaint: value.cheifComplaint,
@@ -813,8 +814,8 @@ class PatientControllerV2 {
         });
 
         const counter = (currentCounter || 0) + 1;
-        // const ticket = `${currentCounter?.user?.deptcode}${counter}`;
-        const ticket = `${counter}`;
+        const deptCode = department?.deptcode || "T"; // Get department code with fallback
+        const ticket = `${deptCode}${counter}`;
 
         console.log("ticket", ticket);
         console.log("currentCounter", currentCounter);
@@ -824,7 +825,7 @@ class PatientControllerV2 {
         const pdfData = {
           patientName: value.name,
           ticket: ticket,
-          deptcode: currentCounter?.user?.deptcode,
+          deptcode: deptCode, // Use the deptCode we extracted from department
           counter: counter,
           issueDate: new Date(),
           cheifComplaint: value.cheifComplaint,
