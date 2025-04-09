@@ -273,7 +273,7 @@ class PatientControllerV2 {
             callPatient: !patient.callPatient,
 
             // set first call time and second call time
-            ...(call === "first" && { firstCallTime: new Date(), state: 1 }),
+            ...(call === "first" && { firstCallTime: new Date() }),
             ...(call === "second" && { secondCallTime: new Date() }),
           },
           include: {
