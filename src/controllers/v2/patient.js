@@ -816,6 +816,8 @@ class PatientControllerV2 {
         const ticket = `${currentCounter?.user?.deptcode}${counter}`;
 
         console.log("ticket", ticket);
+        console.log("currentCounter", currentCounter);
+        console.log("counter", counter);
 
         // Generate PDF ticket
         const pdfData = {
