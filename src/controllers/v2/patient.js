@@ -93,7 +93,13 @@ class PatientControllerV2 {
             //   lte: new Date(),
             // },
             departmentId: department?.tblDepartmentID,
-            state: 0,
+            OR: [
+              {
+                state: {
+                  in: [0, 1],
+                },
+              },
+            ],
           },
         });
 
@@ -809,7 +815,13 @@ class PatientControllerV2 {
             //   gte: new Date(new Date().setDate(new Date().getDate() - 1)),
             // },
             departmentId: department?.tblDepartmentID,
-            state: 0,
+            OR: [
+              {
+                state: {
+                  in: [0, 1],
+                },
+              },
+            ],
           },
         });
 
