@@ -813,7 +813,8 @@ class PatientControllerV2 {
         });
 
         const counter = (currentCounter || 0) + 1;
-        const ticket = `${currentCounter?.user?.deptcode}${counter}`;
+        // const ticket = `${currentCounter?.user?.deptcode}${counter}`;
+        const ticket = `${counter}`;
 
         console.log("ticket", ticket);
         console.log("currentCounter", currentCounter);
@@ -853,11 +854,13 @@ class PatientControllerV2 {
             state: 0, // waiting
             ticket: relativePath,
             barcode: barcodeBase64,
+            ticketNumber: Number(counter),
             departmentId: department ? department.tblDepartmentID : null,
             bedId: null,
             beginTime: null,
             endTime: null,
             callPatient: false,
+
             vitalSigns: {
               deleteMany: {},
             },
