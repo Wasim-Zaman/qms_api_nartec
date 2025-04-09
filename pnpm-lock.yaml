@@ -117,9 +117,6 @@ importers:
       nodemon:
         specifier: ^3.1.4
         version: 3.1.9
-      prisma:
-        specifier: '5.15'
-        version: 5.15.1
 
 packages:
 
@@ -5017,9 +5014,11 @@ snapshots:
     optionalDependencies:
       prisma: 5.15.1
 
-  '@prisma/debug@5.15.1': {}
+  '@prisma/debug@5.15.1':
+    optional: true
 
-  '@prisma/engines-version@5.15.1-1.5675a3182f972f1a8f31d16eee6abf4fd54910e3': {}
+  '@prisma/engines-version@5.15.1-1.5675a3182f972f1a8f31d16eee6abf4fd54910e3':
+    optional: true
 
   '@prisma/engines@5.15.1':
     dependencies:
@@ -5027,16 +5026,19 @@ snapshots:
       '@prisma/engines-version': 5.15.1-1.5675a3182f972f1a8f31d16eee6abf4fd54910e3
       '@prisma/fetch-engine': 5.15.1
       '@prisma/get-platform': 5.15.1
+    optional: true
 
   '@prisma/fetch-engine@5.15.1':
     dependencies:
       '@prisma/debug': 5.15.1
       '@prisma/engines-version': 5.15.1-1.5675a3182f972f1a8f31d16eee6abf4fd54910e3
       '@prisma/get-platform': 5.15.1
+    optional: true
 
   '@prisma/get-platform@5.15.1':
     dependencies:
       '@prisma/debug': 5.15.1
+    optional: true
 
   '@prisma/instrumentation@5.22.0':
     dependencies:
@@ -7349,6 +7351,7 @@ snapshots:
   prisma@5.15.1:
     dependencies:
       '@prisma/engines': 5.15.1
+    optional: true
 
   process-nextick-args@2.0.1: {}
 
