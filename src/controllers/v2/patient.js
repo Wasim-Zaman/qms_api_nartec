@@ -812,8 +812,6 @@ class PatientControllerV2 {
           },
         });
 
-        console.log("currentCounter", currentCounter);
-
         const counter = (currentCounter || 0) + 1;
         const ticket = `${currentCounter?.user?.deptcode}${counter}`;
 
