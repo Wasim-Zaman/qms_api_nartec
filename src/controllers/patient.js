@@ -465,6 +465,14 @@ class PatientController {
     try {
       const patients = await prisma.patient.findMany({
         where: {
+          // department is not TRIAGE
+          department: {
+            deptname: {
+              not: {
+                contains: "TRIAGE",
+              },
+            },
+          },
           OR: [{ state: 0 }, { state: 1 }],
         },
         include: {
