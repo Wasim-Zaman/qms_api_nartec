@@ -461,6 +461,35 @@ class PatientController {
     }
   }
 
+  static async getAllNonDischargedPatients(req, res, next) {
+    try {
+      const patients = await prisma.patient.findMany({
+        where: {
+          OR: [{ state: 0 }, { state: 1 }],
+        },
+        include: {
+          department: true,
+          user: {
+            select: {
+              name: true,
+              email: true,
+              deptcode: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+
+      res
+        .status(200)
+        .json(response(200, true, "Patients retrieved successfully", patients));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async createVitalSign(req, res, next) {
     try {
       const { id } = req.params;

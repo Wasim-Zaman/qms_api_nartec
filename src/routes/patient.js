@@ -11,6 +11,7 @@ router.get("/search", PatientController.searchPatients);
 router.get("/export-excel", PatientController.exportPatientsToExcel);
 router.get("/journey-time/:id", PatientController.getPatientJourneyTime);
 router.get("/journeys", PatientController.getPatientJourneys);
+router.get("/non-discharged", PatientController.getAllNonDischargedPatients);
 router.post("/", verifyAccessToken, PatientController.createPatient);
 router.get("/", PatientController.getAllPatients);
 router.get("/:id", PatientController.getPatientById);
