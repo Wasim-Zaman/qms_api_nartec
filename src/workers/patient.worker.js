@@ -160,13 +160,13 @@ const processAssignDepartment = async (job) => {
 
     console.log("currentCounter", currentCounter);
 
-    const counter = currentCounter + 1;
+    const counter = Number(currentCounter) + 1;
 
     // Generate department ticket
     const ticketData = await PDFGenerator.generateDepartmentTicket({
       ...patient,
       department,
-      ticketNumber,
+      ticketNumber: counter,
       barcode,
       vitalSigns: patient.vitalSigns[0],
       waitingCount,
@@ -185,7 +185,7 @@ const processAssignDepartment = async (job) => {
       data: {
         departmentId: value.departmentId,
         ticket: ticketData.relativePath,
-        ticketNumber,
+        ticketNumber: counter,
         barcode,
         registrationDate: new Date(),
         state: 0, // 0: waiting, 1: serving, 2: served
