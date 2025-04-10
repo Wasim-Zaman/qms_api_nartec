@@ -811,13 +811,9 @@ class PatientControllerV2 {
               lte: new Date(),
             },
             departmentId: department?.tblDepartmentID,
-            OR: [
-              {
-                state: {
-                  in: [0, 1],
-                },
-              },
-            ],
+            state: {
+              in: [0, 1],
+            },
           },
         });
 
