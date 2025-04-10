@@ -10,7 +10,8 @@
     "workers": "nodemon src/workers/index.js",
     "test": "jest",
     "seed": "node seed/index.js",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org gst-sz --project gst-api ./ && sentry-cli sourcemaps upload --org gst-sz --project gst-api ./"
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org gst-sz --project gst-api ./ && sentry-cli sourcemaps upload --org gst-sz --project gst-api ./",
+    "prisma-generate": "npx prisma generate --schema=./prisma/schema/patient.prisma"
   },
   "keywords": [],
   "author": "",
