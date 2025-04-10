@@ -222,10 +222,10 @@ class JourneyController {
           // Exclude journeys created or updated today
           {
             NOT: {
-              OR: [
-                { createdAt: { gte: today } },
-                { updatedAt: { gte: today } },
-              ],
+              //   OR: [
+              //     { createdAt: { gte: today } },
+              //     { updatedAt: { gte: today } },
+              //   ],
             },
           },
         ],

@@ -162,6 +162,24 @@ const processAssignDepartment = async (job) => {
 
     const counter = Number(currentCounter) + 1;
 
+    // check if there is already a patient with the same ticket number
+    const existingPatientWithSameTicket = await prisma.patient.findFirst({
+      where: {
+        ticketNumber: counter,
+        departmentId: value.departmentId,
+        registrationDate: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+          lte: new Date(),
+        },
+        state: {
+          in: [0, 1],
+        },
+      },
+    });
+
+    if (existingPatientWithSameTicket) {
+      counter = counter + 1;
+    }
     // Generate department ticket
     const ticketData = await PDFGenerator.generateDepartmentTicket({
       ...patient,

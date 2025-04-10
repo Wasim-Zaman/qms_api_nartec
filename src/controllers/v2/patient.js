@@ -97,6 +97,25 @@ class PatientControllerV2 {
         });
 
         const counter = (currentCounter || 0) + 1;
+
+        // check if there is already a patient with the same ticket number
+        const existingPatientWithSameTicket = await prisma.patient.findFirst({
+          where: {
+            ticketNumber: counter,
+            departmentId: department?.tblDepartmentID,
+            state: {
+              in: [0, 1],
+            },
+            registrationDate: {
+              gte: new Date(new Date().setHours(0, 0, 0, 0)),
+              lte: new Date(),
+            },
+          },
+        });
+
+        if (existingPatientWithSameTicket) {
+          counter = counter + 1;
+        }
         const deptCode = department?.deptcode || "T"; // Get department code with fallback
         const ticket = `${deptCode}${counter}`;
 
@@ -815,6 +834,25 @@ class PatientControllerV2 {
         });
 
         const counter = (currentCounter || 0) + 1;
+
+        // check if there is already a patient with the same ticket number
+        const existingPatientWithSameTicket = await prisma.patient.findFirst({
+          where: {
+            ticketNumber: counter,
+            departmentId: department?.tblDepartmentID,
+            state: {
+              in: [0, 1],
+            },
+            registrationDate: {
+              gte: new Date(new Date().setHours(0, 0, 0, 0)),
+              lte: new Date(),
+            },
+          },
+        });
+
+        if (existingPatientWithSameTicket) {
+          counter = counter + 1;
+        }
         const deptCode = department?.deptcode || "T"; // Get department code with fallback
         const ticket = `${deptCode}${counter}`;
 
