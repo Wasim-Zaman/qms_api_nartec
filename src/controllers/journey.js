@@ -220,6 +220,13 @@ class JourneyController {
       const searchCondition = {
         AND: [
           // Exclude journeys created or updated today
+
+          // where endTime is not null
+          {
+            endTime: {
+              not: null,
+            },
+          },
           {
             NOT: {
               //   OR: [
