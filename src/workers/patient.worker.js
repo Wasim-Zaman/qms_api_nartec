@@ -158,6 +158,10 @@ const processAssignDepartment = async (job) => {
       },
     });
 
+    console.log("currentCounter", currentCounter);
+
+    const counter = currentCounter + 1;
+
     // Generate department ticket
     const ticketData = await PDFGenerator.generateDepartmentTicket({
       ...patient,
@@ -167,7 +171,7 @@ const processAssignDepartment = async (job) => {
       vitalSigns: patient.vitalSigns[0],
       waitingCount,
       issueDate: new Date(),
-      counter: currentCounter,
+      counter: counter,
     });
 
     // Delete old ticket if exists
