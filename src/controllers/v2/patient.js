@@ -96,7 +96,7 @@ class PatientControllerV2 {
           },
         });
 
-        const counter = (currentCounter || 0) + 1;
+        let counter = (currentCounter || 0) + 1;
 
         // check if there is already a patient with the same ticket number
         const existingPatientWithSameTicket = await prisma.patient.findFirst({
@@ -129,7 +129,6 @@ class PatientControllerV2 {
           cheifComplaint: value.cheifComplaint,
           waitingCount: waitingCount,
         };
-        
 
         const { relativePath, barcodeBase64 } =
           await PDFGenerator.generateTicket(pdfData);
@@ -834,7 +833,7 @@ class PatientControllerV2 {
           },
         });
 
-        const counter = (currentCounter || 0) + 1;
+        let counter = (currentCounter || 0) + 1;
 
         // check if there is already a patient with the same ticket number
         const existingPatientWithSameTicket = await prisma.patient.findFirst({
