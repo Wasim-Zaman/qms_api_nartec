@@ -85,7 +85,7 @@ class PatientControllerV2 {
         // Get current counter
         let currentCounter = await tx.patient.count({
           where: {
-            createdAt: {
+            registrationDate: {
               lt: new Date(new Date().setHours(0, 0, 0, 0)), // Before today (midnight today)
             },
             departmentId: department?.tblDepartmentID,
@@ -806,7 +806,7 @@ class PatientControllerV2 {
         // Get current counter
         let currentCounter = await prisma.patient.count({
           where: {
-            createdAt: {
+            registrationDate: {
               lt: new Date(new Date().setHours(0, 0, 0, 0)), // Before today (midnight today)
             },
             departmentId: department?.tblDepartmentID,

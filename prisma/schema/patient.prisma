@@ -15,7 +15,7 @@ model Patient {
     birthDate       DateTime?
     mrnNumber       String?
     remarks         String?
-    
+    registrationDate DateTime? @default(now())
     // Journey Time
     firstCallTime      DateTime?
     vitalTime          DateTime?

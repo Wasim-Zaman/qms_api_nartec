@@ -148,11 +148,10 @@ const processAssignDepartment = async (job) => {
     let currentCounter = await prisma.patient.count({
       // count all the patients for last day
       where: {
-        // createdAt: {
-        //   gte: new Date(new Date().setDate(new Date().getDate() - 1)),
-        //   lte: new Date(),
-        // },
         departmentId: value.departmentId,
+        registrationDate: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+        },
         OR: [
           {
             state: {
