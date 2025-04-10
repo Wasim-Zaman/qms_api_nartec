@@ -86,16 +86,13 @@ class PatientControllerV2 {
         let currentCounter = await tx.patient.count({
           where: {
             registrationDate: {
-              lt: new Date(new Date().setHours(0, 0, 0, 0)), // Before today (midnight today)
+              gte: new Date(new Date().setHours(0, 0, 0, 0)),
+              lte: new Date(),
             },
             departmentId: department?.tblDepartmentID,
-            OR: [
-              {
-                state: {
-                  in: [0, 1],
-                },
-              },
-            ],
+            state: {
+              in: [0, 1],
+            },
           },
         });
 
