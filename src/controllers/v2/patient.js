@@ -807,7 +807,8 @@ class PatientControllerV2 {
         let currentCounter = await prisma.patient.count({
           where: {
             registrationDate: {
-              lt: new Date(new Date().setHours(0, 0, 0, 0)), // Before today (midnight today)
+              gte: new Date(new Date().setHours(0, 0, 0, 0)),
+              lte: new Date(),
             },
             departmentId: department?.tblDepartmentID,
             OR: [
