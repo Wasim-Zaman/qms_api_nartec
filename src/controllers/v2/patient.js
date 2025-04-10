@@ -401,6 +401,15 @@ class PatientControllerV2 {
         throw new MyError(error.details[0].message, 400);
       }
 
+      // check if bed is assigned to the patient or not
+      const patient = await prisma.patient.findUnique({
+        where: { id },
+        include: { bed: true },
+      });
+
+      if (!patient.bed) {
+        throw new MyError("Bed is not assigned to the patient", 400);
+      }
       const beginTime = value.beginTime || new Date();
 
       const updatedPatient = await prisma.$transaction(async (prisma) => {
