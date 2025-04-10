@@ -39,7 +39,7 @@ pipeline {
                 echo "Installing dependencies for QMS..."
                 bat 'npm install'
                 echo "Generating Prisma files..."
-                bat 'npm run prisma-generate'
+                bat 'npx prisma generate --schema="./prisma/schema"'
                 echo "Restarting PM2 process..."
                 bat 'pm2 restart qms qms-workers'
                 echo "Restarting PM2 process... Done"
