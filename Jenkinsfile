@@ -36,6 +36,9 @@ pipeline {
                         bat 'pm2 stop qms qms-workers || exit 0'
                     }
                 }
+                echo "Deleting node_modules folder on windows..."
+                bat 'rmdir /s /q node_modules'
+                echo "Deleting node_modules folder on windows... Done"
                 echo "Installing dependencies for QMS..."
                 bat 'npm install'
                 echo "Generating Prisma files..."

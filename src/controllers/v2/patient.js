@@ -863,6 +863,7 @@ class PatientControllerV2 {
             ticket: relativePath,
             barcode: barcodeBase64,
             ticketNumber: Number(counter),
+            registrationDate: new Date(),
             departmentId: department ? department.tblDepartmentID : null,
             bedId: null,
             beginTime: null,
