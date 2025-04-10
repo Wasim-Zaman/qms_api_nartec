@@ -129,6 +129,7 @@ class PatientControllerV2 {
           cheifComplaint: value.cheifComplaint,
           waitingCount: waitingCount,
         };
+        
 
         const { relativePath, barcodeBase64 } =
           await PDFGenerator.generateTicket(pdfData);

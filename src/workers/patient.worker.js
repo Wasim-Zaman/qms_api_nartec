@@ -160,7 +160,7 @@ const processAssignDepartment = async (job) => {
 
     console.log("currentCounter", currentCounter);
 
-    const counter = Number(currentCounter) + 1;
+    let counter = Number(currentCounter) + 1;
 
     // check if there is already a patient with the same ticket number
     const existingPatientWithSameTicket = await prisma.patient.findFirst({
