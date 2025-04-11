@@ -172,7 +172,7 @@ const processAssignDepartment = async (job) => {
           lte: new Date(),
         },
         state: {
-          in: [0, 1, 2],
+          in: [0, 1, 2, 3],
         },
       },
     });
