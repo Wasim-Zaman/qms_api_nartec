@@ -104,7 +104,7 @@ class PatientControllerV2 {
             ticketNumber: counter,
             departmentId: department?.tblDepartmentID,
             state: {
-              in: [0, 1],
+              in: [0, 1, 2, 3],
             },
             registrationDate: {
               gte: new Date(new Date().setHours(0, 0, 0, 0)),
@@ -850,7 +850,7 @@ class PatientControllerV2 {
             ticketNumber: counter,
             departmentId: department?.tblDepartmentID,
             state: {
-              in: [0, 1],
+              in: [0, 1, 2, 3],
             },
             registrationDate: {
               gte: new Date(new Date().setHours(0, 0, 0, 0)),

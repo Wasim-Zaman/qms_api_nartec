@@ -45,9 +45,6 @@ async function testQueries() {
           gte: new Date(new Date().setHours(0, 0, 0, 0)),
           lte: new Date(),
         },
-        state: {
-          in: [0, 1, 2],
-        },
       },
     });
     console.log(`Fixed query result: ${fixedQuery}`);
