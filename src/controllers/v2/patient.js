@@ -101,24 +101,25 @@ class PatientControllerV2 {
         // check if there is already a patient with the same ticket number
         const existingPatientWithSameTicket = await prisma.patient.findMany({
           where: {
-            ticketNumber: counter,
-            departmentId: department?.tblDepartmentID,
-            state: {
-              in: [0, 1, 2, 3],
+            ticketNumber: {
+              gte: counter,
             },
+            departmentId: department?.tblDepartmentID,
             registrationDate: {
               gte: new Date(new Date().setHours(0, 0, 0, 0)),
               lte: new Date(),
             },
           },
           orderBy: {
-            registrationDate: "asc",
+            registrationDate: "desc",
           },
+          take: 1,
         });
 
         if (existingPatientWithSameTicket.length > 0) {
           counter = existingPatientWithSameTicket[0].ticketNumber + 1;
         }
+
         const deptCode = department?.deptcode || "T"; // Get department code with fallback
         const ticket = `${deptCode}${counter}`;
 
@@ -850,11 +851,10 @@ class PatientControllerV2 {
         // check if there is already a patient with the same ticket number
         const existingPatientWithSameTicket = await prisma.patient.findMany({
           where: {
-            ticketNumber: counter,
-            departmentId: department?.tblDepartmentID,
-            state: {
-              in: [0, 1, 2, 3],
+            ticketNumber: {
+              gte: counter,
             },
+            departmentId: department?.tblDepartmentID,
             registrationDate: {
               gte: new Date(new Date().setHours(0, 0, 0, 0)),
               lte: new Date(),
@@ -863,17 +863,13 @@ class PatientControllerV2 {
           orderBy: {
             registrationDate: "desc",
           },
-          //   take: 1,
+          take: 1,
         });
-
-        console.log(
-          "existingPatientWithSameTicket",
-          existingPatientWithSameTicket
-        );
 
         if (existingPatientWithSameTicket.length > 0) {
           counter = existingPatientWithSameTicket[0].ticketNumber + 1;
         }
+
         const deptCode = department?.deptcode || "T"; // Get department code with fallback
         const ticket = `${deptCode}${counter}`;
 

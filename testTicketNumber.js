@@ -52,6 +52,31 @@ async function testQueries() {
     });
     console.log(`Fixed query result: ${fixedQuery}`);
 
+    // check if there is already a patient with the same ticket number
+    const existingPatientWithSameTicket = await prisma.patient.findMany({
+      where: {
+        ticketNumber: {
+          gte: fixedQuery,
+        },
+        departmentId: DEPARTMENT_ID,
+        registrationDate: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+          lte: new Date(),
+        },
+      },
+      orderBy: {
+        registrationDate: "desc",
+      },
+      select: {
+        id: true,
+        ticketNumber: true,
+        registrationDate: true,
+      },
+      take: 1,
+    });
+
+    console.log("existingPatientWithSameTicket", existingPatientWithSameTicket);
+
     // Test 3: Using createdAt instead of registrationDate
     const createdAtQuery = await prisma.patient.count({
       where: {

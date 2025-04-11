@@ -165,19 +165,19 @@ const processAssignDepartment = async (job) => {
     // check if there is already a patient with the same ticket number
     const existingPatientWithSameTicket = await prisma.patient.findMany({
       where: {
-        ticketNumber: counter,
-        departmentId: department?.tblDepartmentID,
-        state: {
-          in: [0, 1, 2, 3],
+        ticketNumber: {
+          gte: counter,
         },
+        departmentId: value.departmentId,
         registrationDate: {
           gte: new Date(new Date().setHours(0, 0, 0, 0)),
           lte: new Date(),
         },
       },
       orderBy: {
-        registrationDate: "asc",
+        registrationDate: "desc",
       },
+      take: 1,
     });
 
     if (existingPatientWithSameTicket.length > 0) {
