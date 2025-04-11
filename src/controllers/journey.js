@@ -106,11 +106,12 @@ class JourneyController {
         response(200, true, "Active journeys retrieved successfully", {
           data: uniqueJourneys,
           pagination: {
-            total: uniqueTotal,
+            // total: uniqueTotal,
+            total: total,
             page: Number(page),
             limit: Number(limit),
-            totalPages: uniqueTotalPages,
-            hasMore: page < uniqueTotalPages,
+            totalPages: totalPages,
+            hasMore: page < totalPages,
           },
         })
       );
