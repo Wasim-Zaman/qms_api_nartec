@@ -420,7 +420,7 @@ class PatientController {
           },
         },
         orderBy: {
-          createdAt: "asc",
+          ticketNumber: "asc",
         },
       });
 
@@ -486,7 +486,7 @@ class PatientController {
           },
         },
         orderBy: {
-          createdAt: "asc",
+          ticketNumber: "asc",
         },
       });
 
