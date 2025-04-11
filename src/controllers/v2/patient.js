@@ -91,7 +91,7 @@ class PatientControllerV2 {
             },
             departmentId: department?.tblDepartmentID,
             state: {
-              in: [0, 1],
+              in: [0, 1, 2],
             },
           },
         });
@@ -837,7 +837,7 @@ class PatientControllerV2 {
             },
             departmentId: department?.tblDepartmentID,
             state: {
-              in: [0, 1],
+              in: [0, 1, 2],
             },
           },
         });
