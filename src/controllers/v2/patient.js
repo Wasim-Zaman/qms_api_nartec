@@ -861,9 +861,15 @@ class PatientControllerV2 {
             },
           },
           orderBy: {
-            registrationDate: "asc",
+            registrationDate: "desc",
           },
+          //   take: 1,
         });
+
+        console.log(
+          "existingPatientWithSameTicket",
+          existingPatientWithSameTicket
+        );
 
         if (existingPatientWithSameTicket.length > 0) {
           counter = existingPatientWithSameTicket[0].ticketNumber + 1;
