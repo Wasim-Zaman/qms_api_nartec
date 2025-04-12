@@ -134,78 +134,80 @@ const processAssignDepartment = async (job) => {
     // Generate barcode
     const barcode = patient.barcode;
 
-    // // waiting count
-    // const waitingCount = await prisma.patient.count({
-    //   where: {
-    //     state: {
-    //       in: [0, 1],
-    //     },
-    //     departmentId: value.departmentId,
-    //   },
-    // });
+    // waiting count
+    const waitingCount = await prisma.patient.count({
+      where: {
+        state: {
+          in: [0, 1],
+        },
+        departmentId: value.departmentId,
+      },
+    });
 
-    // // Get current counter
-    // let currentCounter = await prisma.patient.count({
-    //   where: {
-    //     departmentId: value.departmentId,
-    //     registrationDate: {
-    //       gte: new Date(new Date().setHours(0, 0, 0, 0)),
-    //       lte: new Date(),
-    //     },
-    //     state: {
-    //       in: [0, 1, 2, 3],
-    //     },
-    //   },
-    // });
+    // Get current counter
+    let currentCounter = await prisma.patient.count({
+      where: {
+        departmentId: value.departmentId,
+        registrationDate: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+          lte: new Date(),
+        },
+        state: {
+          in: [0, 1, 2, 3],
+        },
+      },
+    });
 
-    // console.log("currentCounter", currentCounter);
+    console.log("currentCounter", currentCounter);
 
-    // let counter = Number(currentCounter) + 1;
+    let counter = Number(currentCounter) + 1;
 
-    // // check if there is already a patient with the same ticket number
-    // const existingPatientWithSameTicket = await prisma.patient.findMany({
-    //   where: {
-    //     ticketNumber: {
-    //       gte: counter,
-    //     },
-    //     departmentId: value.departmentId,
-    //     registrationDate: {
-    //       gte: new Date(new Date().setHours(0, 0, 0, 0)),
-    //       lte: new Date(),
-    //     },
-    //   },
-    //   orderBy: {
-    //     registrationDate: "desc",
-    //   },
-    //   take: 1,
-    // });
+    // check if there is already a patient with the same ticket number
+    const existingPatientWithSameTicket = await prisma.patient.findMany({
+      where: {
+        ticketNumber: {
+          gte: counter,
+        },
+        departmentId: value.departmentId,
+        registrationDate: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+          lte: new Date(),
+        },
+      },
+      orderBy: {
+        registrationDate: "desc",
+      },
+      take: 1,
+    });
 
-    // if (existingPatientWithSameTicket.length > 0) {
-    //   counter = existingPatientWithSameTicket[0].ticketNumber + 1;
-    // }
-    // // Generate department ticket
-    // const ticketData = await PDFGenerator.generateDepartmentTicket({
-    //   ...patient,
-    //   department,
-    //   ticketNumber: counter,
-    //   barcode,
-    //   vitalSigns: patient.vitalSigns[0],
-    //   waitingCount,
-    //   issueDate: new Date(),
-    //   counter: counter,
-    // });
+    if (existingPatientWithSameTicket.length > 0) {
+      counter = existingPatientWithSameTicket[0].ticketNumber + 1;
+    }
+    // Generate department ticket
+    const ticketData = await PDFGenerator.generateDepartmentTicket({
+      ...patient,
+      department,
+      //   ticketNumber: counter,
+      ticketNumber: ticketNumber,
+      barcode,
+      vitalSigns: patient.vitalSigns[0],
+      waitingCount,
+      issueDate: new Date(),
+      //   counter: counter,
+      counter: ticketNumber,
+    });
 
-    // // Delete old ticket if exists
-    // if (patient.ticket) {
-    //   await deleteFile(patient.ticket);
-    // }
+    // Delete old ticket if exists
+    if (patient.ticket) {
+      await deleteFile(patient.ticket);
+    }
 
     // Update patient with new department and ticket
     const updatedPatient = await prisma.patient.update({
       where: { id },
       data: {
         departmentId: value.departmentId,
-        // ticket: ticketData.relativePath,
+        ticket: ticketData.relativePath,
         // ticketNumber: counter,
         barcode,
         registrationDate: new Date(),
