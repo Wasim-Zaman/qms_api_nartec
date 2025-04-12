@@ -89,7 +89,7 @@ class PatientControllerV2 {
               gte: new Date(new Date().setHours(0, 0, 0, 0)),
               lte: new Date(),
             },
-            departmentId: department?.tblDepartmentID,
+            // departmentId: department?.tblDepartmentID,
             state: {
               in: [0, 1, 2, 3], // 0: waiting, 1: in treatment, 2: discharged, 3: voided
             },
@@ -104,7 +104,7 @@ class PatientControllerV2 {
             ticketNumber: {
               gte: counter,
             },
-            departmentId: department?.tblDepartmentID,
+            // departmentId: department?.tblDepartmentID,
             registrationDate: {
               gte: new Date(new Date().setHours(0, 0, 0, 0)),
               lte: new Date(),
@@ -839,7 +839,7 @@ class PatientControllerV2 {
               gte: new Date(new Date().setHours(0, 0, 0, 0)),
               lte: new Date(),
             },
-            departmentId: department?.tblDepartmentID,
+            // departmentId: department?.tblDepartmentID,
             state: {
               in: [0, 1, 2, 3],
             },
@@ -854,7 +854,7 @@ class PatientControllerV2 {
             ticketNumber: {
               gte: counter,
             },
-            departmentId: department?.tblDepartmentID,
+            // departmentId: department?.tblDepartmentID,
             registrationDate: {
               gte: new Date(new Date().setHours(0, 0, 0, 0)),
               lte: new Date(),
