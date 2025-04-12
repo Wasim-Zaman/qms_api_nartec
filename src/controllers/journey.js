@@ -104,7 +104,7 @@ class JourneyController {
 
       res.status(200).json(
         response(200, true, "Active journeys retrieved successfully", {
-          data: uniqueJourneys,
+          data: journeys,
           pagination: {
             // total: uniqueTotal,
             total: total,
