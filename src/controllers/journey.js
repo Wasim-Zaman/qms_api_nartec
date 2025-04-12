@@ -328,6 +328,9 @@ class JourneyController {
             },
           },
         },
+        orderBy: {
+          createdAt: "desc",
+        },
       });
 
       res
