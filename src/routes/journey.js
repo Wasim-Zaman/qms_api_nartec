@@ -16,4 +16,7 @@ router.get("/previous", JourneyController.getPreviousJourneys);
 // Export all journeys to Excel
 router.get("/export", JourneyController.exportJourneysToExcel);
 
+// Get journeys by patient ID
+router.get("/patient/:patientId", JourneyController.getJourneysByPatientId);
+
 export default router;

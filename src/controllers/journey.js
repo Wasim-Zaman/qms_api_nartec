@@ -313,6 +313,29 @@ class JourneyController {
       next(error);
     }
   }
-}
 
+  static async getJourneysByPatientId(req, res, next) {
+    try {
+      const { patientId } = req.params;
+
+      const journeys = await prisma.journey.findMany({
+        where: { patientId },
+        include: {
+          patient: {
+            select: {
+              name: true,
+              mrnNumber: true,
+            },
+          },
+        },
+      });
+
+      res
+        .status(200)
+        .json(response(200, true, "Journeys retrieved successfully", journeys));
+    } catch (error) {
+      next(error);
+    }
+  }
+}
 export default JourneyController;
