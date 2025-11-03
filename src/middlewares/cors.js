@@ -8,6 +8,7 @@ const whitelist = [
   "http://localhost:3095",
   "http://gs1ksa.org:3095",
   "https://qms.groute.online",
+  "https://hqms.gtrack.online",
 ].filter(Boolean);
 
 const corsOptions = {
