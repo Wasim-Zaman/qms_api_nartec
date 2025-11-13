@@ -95,6 +95,14 @@ export const callPatientSchema = Joi.object({
     .optional(),
 });
 
+export const searchPatientSchema = Joi.object({
+  searchKey: Joi.string().required().messages({
+    "any.required":
+      "Please provide a search key (MRN, mobile number, or Iqama/Resident number)",
+    "string.empty": "Search key cannot be empty",
+  }),
+});
+
 export const getPatientJourneysSchema = Joi.object({
   page: Joi.number().min(1).default(1),
   limit: Joi.number().min(1).default(10),
