@@ -2,17 +2,17 @@ import path from "path";
 import xlsx from "xlsx";
 import { assignDepartmentQueue } from "../config/queue.js";
 import {
-  assignBedSchema,
-  assignDepartmentSchema,
-  beginTimeSchema,
-  callPatientSchema,
-  createPatientSchema,
-  createVitalSignSchema,
-  dischargePatientSchema,
-  endTimeSchema,
-  getPatientJourneysSchema,
-  getPatientsByDepartmentSchema,
-  updatePatientSchema,
+    assignBedSchema,
+    assignDepartmentSchema,
+    beginTimeSchema,
+    callPatientSchema,
+    createPatientSchema,
+    createVitalSignSchema,
+    dischargePatientSchema,
+    endTimeSchema,
+    getPatientJourneysSchema,
+    getPatientsByDepartmentSchema,
+    updatePatientSchema,
 } from "../schemas/patient.schema.js";
 import socketService from "../services/socket.js";
 import MyError from "../utils/error.js";
@@ -1075,11 +1075,11 @@ class PatientController {
 
   static async searchPatients(req, res, next) {
     try {
-      const { idNumber, mobileNumber } = req.query;
+      const { idNumber, mobileNumber, mrnNumber } = req.query;
 
-      if (!idNumber && !mobileNumber) {
+      if (!idNumber && !mobileNumber && !mrnNumber) {
         throw new MyError(
-          "Please provide either ID number or mobile number",
+          "Please provide either MRN, mobile number, or Iqama/Resident number",
           400
         );
       }
@@ -1095,6 +1095,10 @@ class PatientController {
 
       if (mobileNumber) {
         whereConditions.OR.push({ mobileNumber: { equals: mobileNumber } });
+      }
+
+      if (mrnNumber) {
+        whereConditions.OR.push({ mrnNumber: { equals: mrnNumber } });
       }
 
       const patient = await prisma.patient.findFirst({
