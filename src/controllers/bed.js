@@ -1,3 +1,4 @@
+import { createBedSchema } from "../schemas/bed.schama.js";
 import MyError from "../utils/error.js";
 import prisma from "../utils/prismaClient.js";
 import response from "../utils/response.js";
@@ -5,7 +6,13 @@ import response from "../utils/response.js";
 class BedController {
   static async createBed(req, res, next) {
     try {
-      const { bedNumber, bedStatus = "Available" } = req.body;
+      const { error, value } = createBedSchema.validate(req.body);
+
+      if (error) {
+        throw new MyError(error.details[0].message, 400);
+      }
+
+      const { bedNumber, bedStatus } = value;
 
       // Check if bed number already exists
       const existingBed = await prisma.bed.findFirst({

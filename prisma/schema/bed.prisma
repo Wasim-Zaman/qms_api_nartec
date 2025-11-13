@@ -1,7 +1,7 @@
 model Bed {
     id              String    @id @default(uuid())
     bedNumber       String?
-    bedStatus       String?     // Available, Occupied
+    bedStatus       String?     // Available, Occupied, Under Maintenance
     patient         Patient[]   // Add reverse relation to Patient
     createdAt       DateTime  @default(now())
     updatedAt       DateTime  @updatedAt
